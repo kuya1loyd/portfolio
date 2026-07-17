@@ -35,17 +35,24 @@ const Projects = () => {
         </motion.div>
 
         <div className="space-y-8">
-          {projects.map((project, index) => (
-            <motion.article
-              key={project.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              whileHover={{ y: -6, scale: 1.01 }}
-              transition={{ delay: index * 0.08, duration: 0.35 }}
-              viewport={{ once: true }}
-              className="overflow-hidden rounded-[1.6rem] border border-orange-500/15 bg-[linear-gradient(180deg,rgba(30,14,10,0.9),rgba(17,10,8,0.94))] shadow-[0_25px_80px_rgba(0,0,0,0.28)]"
-            >
+          {projects.length === 0 ? (
+            <div className="rounded-[1.6rem] border border-orange-500/15 bg-[linear-gradient(180deg,rgba(30,14,10,0.9),rgba(17,10,8,0.94))] p-10 text-center">
+              <p className="text-lg font-semibold text-white">No projects added yet</p>
+              <p className="mt-2 text-gray-400">When you’re ready, add your GitHub repos and they’ll show up here.</p>
+            </div>
+          ) : (
+            projects.map((project, index) => (
+              <motion.article
+                key={project.id}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                whileHover={{ y: -6, scale: 1.01 }}
+                transition={{ delay: index * 0.08, duration: 0.35 }}
+                viewport={{ once: true }}
+                className="overflow-hidden rounded-[1.6rem] border border-orange-500/15 bg-[linear-gradient(180deg,rgba(30,14,10,0.9),rgba(17,10,8,0.94))] shadow-[0_25px_80px_rgba(0,0,0,0.28)]"
+              >
               <div className={`h-1.5 bg-gradient-to-r ${project.color}`} />
+
 
               <div className="grid grid-cols-1 gap-0 md:grid-cols-[1.35fr_0.65fr]">
                 <div className="p-8">
@@ -126,8 +133,10 @@ const Projects = () => {
                 </div>
               </div>
             </motion.article>
-          ))}
+            ))
+          )}
         </div>
+
       </div>
     </section>
   );

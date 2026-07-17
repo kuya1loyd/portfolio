@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaGithub } from 'react-icons/fa';
+
 import { projectCount } from '../data/projects';
+
 
 const defaultCardState = {
   rotateX: 0,
@@ -127,7 +129,10 @@ const heroFxStyles = `
   .hero-reticle-drift {
     animation: heroReticleDrift 4.6s ease-in-out infinite;
   }
+
 `;
+
+
 
 const Hero = () => {
   const [isHovering, setIsHovering] = useState(false);
@@ -273,8 +278,10 @@ const Hero = () => {
             className="relative flex items-center justify-center"
           >
             <div
+
               className="hero-halo-drift absolute h-72 w-72 rounded-full bg-orange-500/12 blur-3xl"
             />
+
             <div
               className="absolute h-[23rem] w-[23rem] rounded-full border border-orange-400/16 hero-orbit-a"
             />
