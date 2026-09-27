@@ -1,13 +1,12 @@
 import Reveal from '../layout/Reveal'
 import { proficiencyLevels, skillCategories } from '../../data/skills'
-import { useGame } from '../../context/GameContext'
+import ITSectionScene from '../layout/ITSectionScene'
 
 const Skills = () => {
-  const { markSkillClicked, progress } = useGame()
-
   return (
     <Reveal className="section-reveal">
-    <section className="section-wrap" id="skills" aria-labelledby="skills-title">
+    <section className="section-wrap section-it-enabled" id="skills" aria-labelledby="skills-title">
+      <ITSectionScene variant="portfolio" />
       <div className="section-heading">
         <div className="section-heading-copy">
           <span className="section-kicker">Tools of the trade</span>
@@ -21,7 +20,7 @@ const Skills = () => {
           {skillCategories.map((category, index) => {
             const CategoryIcon = category.icon
             return (
-              <Reveal key={category.title} delay={index * 0.07}>
+              <Reveal className="skill-category-reveal" key={category.title} delay={index * 0.07}>
                 <article className="surface skill-category">
                   <div className="category-heading">
                     <span className="category-icon"><CategoryIcon aria-hidden="true" /></span>
@@ -33,9 +32,9 @@ const Skills = () => {
                   </div>
                   <div className="skill-list" aria-label={`${category.title} technologies`}>
                     {category.skills.map(({ name, icon: Icon }) => (
-                      <button className={`skill-item skill-button${progress.clickedSkills.includes(name) ? ' is-explored' : ''}`} type="button" key={name} title={`Click to explore ${name}`} aria-pressed={progress.clickedSkills.includes(name)} onClick={() => markSkillClicked(name)}>
+                      <span className="skill-item" key={name}>
                         <Icon aria-hidden="true" /> {name}
-                      </button>
+                      </span>
                     ))}
                   </div>
                 </article>
@@ -44,7 +43,7 @@ const Skills = () => {
           })}
         </div>
 
-        <Reveal delay={0.12}>
+        <Reveal className="skill-proficiency-reveal" delay={0.12}>
           <aside className="surface proficiency">
             <span className="section-kicker">At a glance</span>
             <h3 className="panel-title" style={{ marginTop: 7 }}>Proficiency levels</h3>

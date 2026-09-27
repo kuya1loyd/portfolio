@@ -1,6 +1,5 @@
 import { FaArrowUp, FaEnvelope, FaFacebook, FaGithub } from 'react-icons/fa'
 import Reveal from './Reveal'
-import { useGame } from '../../context/GameContext'
 
 const footerLinks = [
   { name: 'Home', href: '#home' },
@@ -12,8 +11,6 @@ const footerLinks = [
 ]
 
 const Footer = () => {
-  const { trackSocialVisit } = useGame()
-
   const scrollToTop = () => {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' })
@@ -42,13 +39,13 @@ const Footer = () => {
           <div>
             <h2 className="footer-heading">Find me online</h2>
             <div className="footer-socials">
-              <a className="social-icon" href="https://github.com/kuya1loyd" target="_blank" rel="noopener noreferrer" aria-label="GitHub" onClick={() => trackSocialVisit('github')}>
+              <a className="social-icon" href="https://github.com/kuya1loyd" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
                 <FaGithub aria-hidden="true" />
               </a>
-              <a className="social-icon" href="https://www.facebook.com/johnlloyd.galito.33" target="_blank" rel="noopener noreferrer" aria-label="Facebook" onClick={() => trackSocialVisit('facebook')}>
+              <a className="social-icon" href="https://www.facebook.com/johnlloyd.galito.33" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
                 <FaFacebook aria-hidden="true" />
               </a>
-              <a className="social-icon" href="mailto:galitojohnlloyd29@gmail.com" aria-label="Email" onClick={() => trackSocialVisit('email')}>
+              <a className="social-icon" href="mailto:galitojohnlloyd29@gmail.com" aria-label="Email">
                 <FaEnvelope aria-hidden="true" />
               </a>
             </div>

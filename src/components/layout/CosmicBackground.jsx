@@ -51,7 +51,9 @@ const CosmicBackground = () => {
     <div ref={backgroundRef} className="cosmic-background" aria-hidden="true">
       <div className="it-atmosphere">
         <div className="it-radial-glow" />
-        <div className="it-grid-plane" />
+        <div className="it-grid-parallax">
+          <div className="it-grid-plane" />
+        </div>
         <div className="it-scan-beam" />
         <svg className="it-circuit-map" viewBox="0 0 1440 900" preserveAspectRatio="none">
           <defs>
@@ -65,17 +67,33 @@ const CosmicBackground = () => {
           <path className="circuit-trace circuit-trace-b" d="M-40 636h110l53-53h119l41 41h158l40-40h126l45 45h164l57-57h143l55 55h139l46-46h225" />
           <path className="circuit-trace circuit-trace-c" d="M102 0v108l43 43v112m1042-263v127l-58 58v87m-578 628V762l54-54V567m842 333V784l-48-48v-80" />
           <path className="circuit-trace circuit-trace-d" d="M398 0v85l38 38v52m649-175v89l-48 48v102M0 432h149l48 48h114m1129-84h-175l-48 48h-98" />
+          <path className="circuit-trace circuit-trace-e" d="M-48 454h148l32-32h144l26 26h180l35-35h136l34 34h177l34-34h156l32 32h92l30-30h250" />
+          <path className="circuit-trace circuit-trace-f" d="M-36 812h198l40-40h126l32 32h149l37-37h178l37 37h143l38-38h122l36 36h140l42-42h215" />
           <g className="circuit-nodes">
             <circle cx="404" cy="272" r="3" /><circle cx="791" cy="263" r="3" />
             <circle cx="1104" cy="251" r="3" /><circle cx="325" cy="624" r="3" />
             <circle cx="692" cy="584" r="3" /><circle cx="1121" cy="621" r="3" />
             <circle cx="145" cy="263" r="3" /><circle cx="1120" cy="315" r="3" />
+            <circle cx="278" cy="448" r="2.5" /><circle cx="663" cy="448" r="2.5" />
+            <circle cx="1053" cy="446" r="2.5" /><circle cx="1267" cy="786" r="2.5" />
           </g>
         </svg>
         <div className="it-data-point it-data-point-a" />
         <div className="it-data-point it-data-point-b" />
         <div className="it-data-point it-data-point-c" />
         <div className="it-data-point it-data-point-d" />
+        <div className="it-system-readout it-system-readout-client">
+          <span className="it-system-readout-label">01 / CLIENT</span>
+          <strong>WEB INTERFACE</strong>
+          <div className="it-system-readout-meter"><i /></div>
+          <small>REACT / RESPONSIVE</small>
+        </div>
+        <div className="it-system-readout it-system-readout-pipeline">
+          <span className="it-system-readout-label">SYSTEM STATUS</span>
+          <strong><i /> API GATEWAY <b>200 OK</b></strong>
+          <strong><i /> DATABASE <b>SYNC</b></strong>
+          <strong><i /> CI / DEPLOY <b>READY</b></strong>
+        </div>
       </div>
       <div className="cosmic-stars cosmic-stars-far">
         {stars.slice(0, 18).map((star, index) => (

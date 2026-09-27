@@ -1,8 +1,7 @@
+import { useCallback, useRef, useState } from 'react'
 import { ThemeProvider } from './context/ThemeContext'
-import { GameProvider } from './context/GameContext'
 import Navbar from './components/layout/Navbar'
 import Footer from './components/layout/Footer'
-import Achievements from './components/gamification/Achievements'
 import CosmicBackground from './components/layout/CosmicBackground'
 import CursorRobot from './components/layout/CursorRobot'
 import WelcomeLanding from './components/layout/WelcomeLanding'
@@ -14,25 +13,26 @@ import Skills from './components/sections/Skills'
 import './styles/App.css'
 
 function App() {
+  const [isWelcomeVisible, setIsWelcomeVisible] = useState(true)
+  const welcomeRobotAnchorRef = useRef(null)
+  const exitWelcome = useCallback(() => setIsWelcomeVisible(false), [])
+
   return (
     <ThemeProvider>
-      <GameProvider>
-        <div className="app-shell">
-          <CosmicBackground />
-          <CursorRobot />
-          <WelcomeLanding />
-          <Navbar />
-          <main>
-            <Hero />
-            <About />
-            <Skills />
-            <Projects />
-            <Contact />
-          </main>
-          <Footer />
-          <Achievements />
-        </div>
-      </GameProvider>
+      <div className="app-shell">
+        <CosmicBackground />
+        <CursorRobot welcomeActive={isWelcomeVisible} welcomeAnchorRef={welcomeRobotAnchorRef} />
+        <WelcomeLanding onExit={exitWelcome} robotAnchorRef={welcomeRobotAnchorRef} />
+        <Navbar />
+        <main>
+          <Hero />
+          <About />
+          <Skills />
+          <Projects />
+          <Contact />
+        </main>
+        <Footer />
+      </div>
     </ThemeProvider>
   )
 }

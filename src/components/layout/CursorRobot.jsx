@@ -1,25 +1,55 @@
-import { useEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
 import { useReducedMotion } from 'framer-motion'
 
-const CursorRobot = () => {
-  const robotRef = useRef(null)
+const DOT_SIZE = 10
+
+const CursorRobot = ({ welcomeActive = false, welcomeAnchorRef }) => {
+  const dotRef = useRef(null)
   const reduceMotion = useReducedMotion()
 
-  useEffect(() => {
-    const robot = robotRef.current
+  useLayoutEffect(() => {
+    const dot = dotRef.current
     const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)')
-    if (!robot || reduceMotion || !pointerQuery.matches) return undefined
+    if (!dot) return undefined
 
     let frame = 0
     let targetX = -100
     let targetY = -100
     let currentX = targetX
     let currentY = targetY
+    let pointerHasMoved = false
+
+    const moveDot = (x, y) => {
+      currentX = x
+      currentY = y
+      dot.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`
+    }
+
+    const placeAtWelcomeAnchor = () => {
+      const anchor = welcomeAnchorRef?.current?.getBoundingClientRect()
+      targetX = anchor ? anchor.left + (anchor.width - DOT_SIZE) / 2 : (window.innerWidth - DOT_SIZE) / 2
+      targetY = anchor ? anchor.top + (anchor.height - DOT_SIZE) / 2 : window.innerHeight * 0.28
+      moveDot(targetX, targetY)
+    }
+
+    if (welcomeActive) {
+      dot.classList.add('is-visible', 'is-welcome')
+      dot.classList.remove('is-hidden', 'is-following')
+      if (reduceMotion || !pointerQuery.matches) dot.classList.add('is-static-welcome')
+      else dot.classList.remove('is-static-welcome')
+      placeAtWelcomeAnchor()
+    } else {
+      dot.classList.remove('is-visible', 'is-welcome', 'is-following', 'is-static-welcome')
+      dot.classList.add('is-hidden')
+      moveDot(-100, -100)
+    }
+
+    if (reduceMotion || !pointerQuery.matches) return undefined
 
     const follow = () => {
       currentX += (targetX - currentX) * 0.22
       currentY += (targetY - currentY) * 0.22
-      robot.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`
+      dot.style.transform = `translate3d(${currentX}px, ${currentY}px, 0)`
       if (Math.abs(targetX - currentX) > 0.35 || Math.abs(targetY - currentY) > 0.35) {
         frame = window.requestAnimationFrame(follow)
       } else {
@@ -29,33 +59,29 @@ const CursorRobot = () => {
 
     const onPointerMove = (event) => {
       if (event.pointerType && event.pointerType !== 'mouse') return
-      targetX = event.clientX + 16
-      targetY = event.clientY + 18
+      pointerHasMoved = true
+      targetX = event.clientX - DOT_SIZE / 2
+      targetY = event.clientY - DOT_SIZE / 2
+      dot.classList.add('is-visible', 'is-following')
+      dot.classList.remove('is-hidden')
       if (!frame) frame = window.requestAnimationFrame(follow)
     }
 
+    const onResize = () => {
+      if (welcomeActive && !pointerHasMoved) placeAtWelcomeAnchor()
+    }
+
     window.addEventListener('pointermove', onPointerMove, { passive: true })
+    window.addEventListener('resize', onResize, { passive: true })
     return () => {
       window.removeEventListener('pointermove', onPointerMove)
+      window.removeEventListener('resize', onResize)
       window.cancelAnimationFrame(frame)
     }
-  }, [reduceMotion])
+  }, [reduceMotion, welcomeActive, welcomeAnchorRef])
 
   return (
-    <div className="cursor-robot" ref={robotRef} aria-hidden="true">
-      <svg viewBox="0 0 48 48" fill="none">
-        <path d="M24 3v5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <circle cx="24" cy="2.5" r="2" fill="#52d9e7" />
-        <rect x="8" y="10" width="32" height="27" rx="10" fill="#101d33" stroke="#65b5ff" strokeWidth="1.5" />
-        <path d="M13 17.5c0-1.1.9-2 2-2h18c1.1 0 2 .9 2 2v7.1c0 1.1-.9 2-2 2H15c-1.1 0-2-.9-2-2v-7.1Z" fill="#07111f" stroke="#2b6ca8" />
-        <circle cx="18" cy="21" r="2.1" fill="#5fe6ef" />
-        <circle cx="30" cy="21" r="2.1" fill="#5fe6ef" />
-        <path d="M19 31h10" stroke="#75c4ff" strokeWidth="1.7" strokeLinecap="round" />
-        <path d="M4.5 20v7M43.5 20v7" stroke="#90bfe9" strokeWidth="2" strokeLinecap="round" />
-        <path d="m14 37-2.5 4M34 37l2.5 4" stroke="#5c99d9" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-      <span className="cursor-robot-glow" />
-    </div>
+    <span className={`cursor-dot${welcomeActive ? ' is-welcome is-visible' : ' is-hidden'}`} ref={dotRef} aria-hidden="true" />
   )
 }
 

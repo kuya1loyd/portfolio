@@ -4,14 +4,12 @@ import { FaArrowRight, FaCodeBranch, FaCode, FaExternalLinkAlt, FaGithub } from 
 import { projects } from '../../data/projects'
 import { certificates } from '../../data/certificates'
 import { skillCategories } from '../../data/skills'
-import { AchievementList } from '../gamification/Achievements'
+import ITSectionScene from '../layout/ITSectionScene'
 import Reveal from '../layout/Reveal'
-import { useGame } from '../../context/GameContext'
 
 const tabs = [
   { id: 'projects', label: 'Projects' },
   { id: 'certificates', label: 'Certificates' },
-  { id: 'achievements', label: 'Achievements / Awards' },
   { id: 'tech-stack', label: 'Tech Stack' },
 ]
 
@@ -40,13 +38,10 @@ const Projects = () => {
   const [projectLoading, setProjectLoading] = useState(curatedProjects.length === 0)
   const [projectError, setProjectError] = useState('')
   const reduceMotion = useReducedMotion()
-  const { markSkillClicked, progress, unlockAchievement, setProjectCount } = useGame()
   const projectEntries = curatedProjects.length > 0 ? curatedProjects : githubProjects
 
   useEffect(() => {
     if (curatedProjects.length > 0) {
-      setProjectCount(curatedProjects.length)
-      if (curatedProjects.length >= 3) unlockAchievement(3)
       setProjectLoading(false)
       return undefined
     }
@@ -72,8 +67,6 @@ const Projects = () => {
         const selectedRepositories = Object.keys(featuredProjectTitles)
           .map((key) => eligibleRepositories.find((repository) => projectKey(repository.name) === key))
           .filter(Boolean)
-        setProjectCount(selectedRepositories.length)
-
         const publicRepositories = selectedRepositories
           .map((repository) => ({
             id: repository.id,
@@ -84,7 +77,6 @@ const Projects = () => {
           }))
 
         setGithubProjects(publicRepositories)
-        if (selectedRepositories.length >= 3) unlockAchievement(3)
       } catch (error) {
         if (error.name !== 'AbortError') setProjectError('GitHub repositories could not be loaded right now.')
       } finally {
@@ -94,7 +86,7 @@ const Projects = () => {
 
     loadRepositories()
     return () => controller.abort()
-  }, [setProjectCount, unlockAchievement])
+  }, [])
 
   const handleTabKeyDown = (event, index) => {
     let nextIndex
@@ -112,13 +104,14 @@ const Projects = () => {
 
   return (
     <Reveal className="section-reveal">
-      <section className="section-wrap" id="projects" aria-labelledby="projects-title">
+      <section className="section-wrap section-it-enabled" id="projects" aria-labelledby="projects-title">
+        <ITSectionScene variant="portfolio" />
         <div className="section-heading">
           <div className="section-heading-copy">
             <span className="section-kicker">Selected work</span>
             <h2 className="section-title" id="projects-title">A portfolio in <span>progress.</span></h2>
           </div>
-          <p className="section-lede">Explore selected work, site achievements, and the tools I work with.</p>
+          <p className="section-lede">Explore selected work, certificates, and the tools I work with.</p>
         </div>
 
         <div className="portfolio-tabs" role="tablist" aria-label="Portfolio categories">
@@ -245,12 +238,6 @@ const Projects = () => {
               </div>
             )}
 
-            {activeTab === 'achievements' && (
-              <div className="surface portfolio-game-panel">
-                <AchievementList />
-              </div>
-            )}
-
             {activeTab === 'tech-stack' && (
               <div className="surface stack-browser">
                 <div className="stack-intro">
@@ -273,10 +260,10 @@ const Projects = () => {
                         <p className="stack-category-description">{category.description}</p>
                         <div className="skill-list" aria-label={`${category.title} technologies`}>
                           {category.skills.map(({ name, icon: Icon, color }) => (
-                            <button className={`skill-item skill-button${progress.clickedSkills.includes(name) ? ' is-explored' : ''}`} type="button" key={name} title={`Click to explore ${name}`} aria-label={`Explore ${name}`} aria-pressed={progress.clickedSkills.includes(name)} onClick={() => markSkillClicked(name)}>
+                            <span className="skill-item" key={name}>
                               <span className="stack-skill-logo"><Icon aria-hidden="true" style={{ color }} /></span>
                               <span className="stack-skill-name">{name}</span>
-                            </button>
+                            </span>
                           ))}
                         </div>
                       </article>
