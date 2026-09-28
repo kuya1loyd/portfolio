@@ -1333,7 +1333,7 @@ html.dark .app-shell .portrait-name-track > span { display: block; flex: 0 0 aut
 .project-description { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
 .project-actions { margin-top: auto; padding-top: 16px; }
 .github-project-meta { align-items: flex-start; }
-.github-project-emblem { display: grid; width: 42px; height: 42px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(93, 157, 248, 0.22); border-radius: 13px; color: #8cbcff; background: rgba(52, 111, 203, 0.14); font-size: 19px; }
+.github-project-logo { display: block; width: min(148px, 56%); max-height: 48px; flex: 0 0 auto; padding: 4px; border-radius: 10px; background: #0d192b; object-fit: contain; object-position: right center; }
 .github-project-copy { min-width: 0; }
 .github-project-card h3 { margin: 0; font-size: clamp(19px, 2vw, 26px); text-transform: capitalize; }
 .github-project-card .github-project-copy > p { display: -webkit-box; margin: 9px 0 0; overflow: hidden; color: #9eabc1; font-size: 11px; line-height: 1.65; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
@@ -1357,7 +1357,7 @@ html.dark .app-shell .portrait-name-track > span { display: block; flex: 0 0 aut
   .github-project-grid { grid-template-columns: repeat(2, minmax(0, 260px)); }
   .project-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .github-project-card { padding: 15px; }
-  .github-project-emblem { width: 36px; height: 36px; }
+  .github-project-logo { width: min(126px, 54%); max-height: 42px; }
   .nav-jg-marker { top: -37px; }
   .nav-links { width: 100%; justify-content: space-between; gap: 0; padding: 4px; }
   .nav-link { padding-inline: clamp(5px, 1.6vw, 12px); font-size: clamp(9px, 2.9vw, 11px); }
@@ -3829,4 +3829,97 @@ html:not(.dark) .section-it-nodes { fill: #557eaf; filter: none; }
   .section-it-grid,
   .section-it-scan,
   .section-it-signal { animation: none !important; }
+}
+
+/* Deployed project cards: give each product a clear logo bay and direct live action. */
+.github-project-grid {
+  display: grid;
+  width: min(100%, 760px);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-content: center;
+  gap: 18px;
+  margin-inline: auto;
+}
+
+.github-project-card {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 318px;
+  aspect-ratio: auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+  padding: clamp(18px, 2.4vw, 24px);
+  border: 1px solid rgba(116, 151, 199, 0.3);
+  border-radius: 18px;
+  background: linear-gradient(148deg, #fff, #f4f8fe);
+  box-shadow: 0 12px 32px rgba(31, 51, 79, 0.09);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.github-project-card::before {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  left: 18px;
+  height: 2px;
+  content: "";
+  background: linear-gradient(90deg, transparent, #4b8cf4 24%, #4ac6d0 76%, transparent);
+  opacity: 0.82;
+  pointer-events: none;
+}
+
+.github-project-card:hover { transform: translateY(-3px); }
+.github-project-meta { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 15px; }
+.github-project-meta .section-kicker { margin: 0; font-size: 9px; letter-spacing: 0.15em; }
+.github-project-status { display: inline-flex; align-items: center; gap: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 8px; font-weight: 900; letter-spacing: 0.12em; }
+.github-project-status > span { width: 6px; height: 6px; border-radius: 50%; background: #19a985; box-shadow: 0 0 9px rgba(25, 169, 133, 0.42); }
+.github-project-brand-panel { position: relative; display: grid; min-height: 132px; place-items: center; overflow: hidden; margin-bottom: 17px; border: 1px solid rgba(105, 145, 197, 0.32); border-radius: 13px; background: radial-gradient(ellipse at 50% 0%, rgba(36, 100, 174, 0.27), transparent 72%), linear-gradient(145deg, #101f34, #091322); }
+.github-project-brand-panel::before { position: absolute; inset: 0; content: ""; background-image: linear-gradient(rgba(152, 193, 230, 0.065) 1px, transparent 1px), linear-gradient(90deg, rgba(152, 193, 230, 0.065) 1px, transparent 1px); background-size: 28px 28px; mask-image: radial-gradient(ellipse at center, black 15%, transparent 84%); pointer-events: none; }
+.github-project-brand-panel::after { position: absolute; top: 50%; right: 8%; left: 8%; height: 1px; content: ""; background: linear-gradient(90deg, transparent, rgba(107, 183, 237, 0.24), transparent); pointer-events: none; }
+.github-project-logo-frame { position: relative; z-index: 1; display: grid; width: 100%; min-height: 132px; place-items: center; padding: 14px; }
+.github-project-logo { display: block; width: min(100%, 300px); max-height: 76px; flex: 0 1 auto; padding: 0; border-radius: 0; background: transparent; object-fit: contain; object-position: center; filter: drop-shadow(0 5px 12px rgba(0, 0, 0, 0.2)); }
+.github-project-copy { min-width: 0; }
+.github-project-card h3 { margin: 0; font-size: clamp(20px, 2.5vw, 25px); font-weight: 900; letter-spacing: -0.04em; overflow-wrap: anywhere; }
+.github-project-footer { display: flex; margin-top: auto; padding-top: 15px; border-top: 1px solid rgba(116, 151, 199, 0.22); }
+.github-project-links { display: flex; width: 100%; }
+.github-project-links a { display: flex; width: 100%; min-height: 40px; align-items: center; justify-content: space-between; gap: 10px; padding: 0 12px; border: 1px solid rgba(63, 119, 202, 0.3); border-radius: 10px; font-size: 11px; font-weight: 900; transition: border-color 160ms ease, color 160ms ease, background 160ms ease, transform 160ms ease; }
+.github-project-link-icon { display: grid; width: 25px; height: 25px; flex: 0 0 auto; place-items: center; border-radius: 7px; background: rgba(58, 121, 206, 0.12); }
+.github-project-links a:hover { transform: translateY(-1px); }
+.github-project-links a:focus-visible { outline: 3px solid #48a4eb; outline-offset: 3px; }
+.github-project-links a:active { transform: translateY(0); }
+
+html:not(.dark) .app-shell .github-project-card { border-color: #d5e1f0 !important; background: linear-gradient(148deg, #fff, #f3f7fd) !important; box-shadow: 0 12px 32px rgba(31, 51, 79, 0.09) !important; }
+html:not(.dark) .app-shell .github-project-card:hover { border-color: #91b4e8 !important; box-shadow: 0 16px 38px rgba(40, 84, 146, 0.15) !important; }
+html:not(.dark) .app-shell .github-project-meta .section-kicker { color: #496789 !important; }
+html:not(.dark) .app-shell .github-project-status { color: #217a70 !important; }
+html:not(.dark) .app-shell .github-project-copy h3 { color: #1b293e !important; }
+html:not(.dark) .app-shell .github-project-footer { border-top-color: #dce5f0 !important; }
+html:not(.dark) .app-shell .github-project-links a { border-color: #c6d8f0 !important; color: #225cae !important; background: #f2f7ff !important; }
+html:not(.dark) .app-shell .github-project-links a:hover,
+html:not(.dark) .app-shell .github-project-links a:focus-visible { border-color: #7da4dc !important; color: #174b96 !important; background: #e8f1ff !important; }
+html:not(.dark) .app-shell .github-project-link-icon { color: #225cae !important; background: #dfeaff !important; }
+
+html.dark .app-shell .github-project-card { border-color: #304865 !important; background: radial-gradient(ellipse at 100% 0%, rgba(30, 87, 157, 0.16), transparent 44%), linear-gradient(148deg, #121f31, #0b1421) !important; box-shadow: 0 16px 38px rgba(0, 0, 0, 0.24) !important; }
+html.dark .app-shell .github-project-card:hover { border-color: #5884bb !important; box-shadow: 0 18px 42px rgba(0, 0, 0, 0.32), 0 0 24px rgba(54, 124, 199, 0.1) !important; }
+html.dark .app-shell .github-project-meta .section-kicker { color: #a9c9f6 !important; }
+html.dark .app-shell .github-project-status { color: #82d4c2 !important; }
+html.dark .app-shell .github-project-copy h3 { color: #edf4ff !important; }
+html.dark .app-shell .github-project-footer { border-top-color: rgba(135, 169, 214, 0.2) !important; }
+html.dark .app-shell .github-project-links a { border-color: rgba(115, 159, 219, 0.34) !important; color: #b9d4ff !important; background: rgba(41, 83, 139, 0.16) !important; }
+html.dark .app-shell .github-project-links a:hover,
+html.dark .app-shell .github-project-links a:focus-visible { border-color: #6d9bd1 !important; color: #e8f2ff !important; background: rgba(57, 106, 170, 0.32) !important; }
+html.dark .app-shell .github-project-link-icon { color: #b9d4ff !important; background: rgba(92, 143, 208, 0.2) !important; }
+
+@media (max-width: 620px) {
+  .github-project-grid { width: min(100%, 390px); grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .github-project-card { min-height: 306px; padding: 19px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .github-project-card,
+  .github-project-links a { transition: none; }
+  .github-project-card:hover,
+  .github-project-links a:hover { transform: none; }
 }
