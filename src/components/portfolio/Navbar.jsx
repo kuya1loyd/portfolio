@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { FaBars, FaTimes } from 'react-icons/fa'
+import { FiSun, FiMoon, FiFileText } from 'react-icons/fi'
 
 const navLinks = [
   { name: 'Services', href: '#services' },
@@ -15,7 +16,21 @@ const navLinks = [
 export default function Navbar({ onOpenResume }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [isLight, setIsLight] = useState(false)
 
+  // Initialize theme from storage
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('portfolio-theme')
+    if (savedTheme === 'light') {
+      setIsLight(true)
+      document.documentElement.classList.add('light')
+    } else {
+      setIsLight(false)
+      document.documentElement.classList.remove('light')
+    }
+  }, [])
+
+  // Scroll listener
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 40)
@@ -24,11 +39,23 @@ export default function Navbar({ onOpenResume }) {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const toggleTheme = () => {
+    if (isLight) {
+      document.documentElement.classList.remove('light')
+      localStorage.setItem('portfolio-theme', 'dark')
+      setIsLight(false)
+    } else {
+      document.documentElement.classList.add('light')
+      localStorage.setItem('portfolio-theme', 'light')
+      setIsLight(true)
+    }
+  }
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 pointer-events-none ${
         scrolled
-          ? 'bg-black/90 backdrop-blur-md border-b border-white/5 py-4'
+          ? 'bg-black/90 dark:bg-black/90 backdrop-blur-md border-b border-white/5 py-4'
           : 'bg-transparent py-5 md:py-7'
       }`}
     >
@@ -45,29 +72,60 @@ export default function Navbar({ onOpenResume }) {
           <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 group-hover:scale-150 transition-transform duration-300" />
         </a>
 
-        {/* Desktop Navigation Links (matching Picture 1 & 2) */}
-        <nav className="hidden md:flex items-center gap-10 pointer-events-auto">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              className="group relative text-white uppercase tracking-[0.2em] text-xs font-medium transition-colors duration-200 cursor-pointer"
-            >
-              <span>{link.name}</span>
-              <span className="absolute -bottom-1.5 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full" />
-            </a>
-          ))}
-        </nav>
+        {/* Desktop Navigation Links + Dark Mode Toggle */}
+        <div className="hidden md:flex items-center gap-8 pointer-events-auto">
+          <nav className="flex items-center gap-10">
+            {navLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                className="group relative text-white uppercase tracking-[0.2em] text-xs font-medium transition-colors duration-200 cursor-pointer"
+              >
+                <span>{link.name}</span>
+                <span className="absolute -bottom-1.5 left-0 w-0 h-px bg-white transition-all duration-300 group-hover:w-full" />
+              </a>
+            ))}
+          </nav>
 
-        {/* Mobile Menu Toggle Button */}
-        <button
-          type="button"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-white/80 hover:text-white transition-colors pointer-events-auto"
-          aria-label="Toggle navigation menu"
-        >
-          {mobileMenuOpen ? <FaTimes className="w-5 h-5" /> : <FaBars className="w-5 h-5" />}
-        </button>
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={isLight ? 'Switch to dark mode' : 'Switch to light mode'}
+            className="p-2.5 rounded-full bg-white/5 border border-white/10 hover:border-cyan-400/50 hover:bg-white/10 text-white/80 hover:text-cyan-400 transition-all duration-300 flex items-center justify-center cursor-pointer shadow-sm"
+          >
+            {isLight ? (
+              <FiMoon className="w-4 h-4 text-cyan-500 transition-transform rotate-0 hover:-rotate-12" />
+            ) : (
+              <FiSun className="w-4 h-4 text-yellow-400 transition-transform rotate-0 hover:rotate-45" />
+            )}
+          </button>
+        </div>
+
+        {/* Mobile Buttons: Theme Toggle & Menu Toggle */}
+        <div className="md:hidden flex items-center gap-3 pointer-events-auto">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label="Toggle theme"
+            className="p-2 rounded-full bg-white/5 border border-white/10 text-white/80 hover:text-cyan-400 transition-colors"
+          >
+            {isLight ? (
+              <FiMoon className="w-4 h-4 text-cyan-500" />
+            ) : (
+              <FiSun className="w-4 h-4 text-yellow-400" />
+            )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-white/80 hover:text-white transition-colors"
+            aria-label="Toggle navigation menu"
+          >
+            {mobileMenuOpen ? <FaTimes className="w-5 h-5" /> : <FaBars className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer Menu */}
@@ -95,9 +153,10 @@ export default function Navbar({ onOpenResume }) {
                 setMobileMenuOpen(false)
                 onOpenResume()
               }}
-              className="w-full py-3.5 bg-white text-black uppercase tracking-[0.2em] text-xs font-bold text-center mt-2"
+              className="w-full py-3.5 bg-white text-black uppercase tracking-[0.2em] text-xs font-bold text-center mt-2 flex items-center justify-center gap-2"
             >
-              Download CV
+              <FiFileText className="w-4 h-4" />
+              <span>Show CV</span>
             </button>
           </motion.div>
         )}

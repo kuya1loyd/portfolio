@@ -1,6 +1,6 @@
 'use client'
 
-import { FiArrowUp, FiGithub } from 'react-icons/fi'
+import { FiArrowUp, FiMail } from 'react-icons/fi'
 import { FaFacebook } from 'react-icons/fa'
 
 export default function Footer() {
@@ -52,13 +52,11 @@ export default function Footer() {
         {/* Social & Scroll Top Buttons */}
         <div className="flex items-center gap-3">
           <a
-            href="https://github.com/kuya1loyd"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="#contact"
             className="w-10 h-10 rounded-full bg-white/5 hover:bg-white text-white/60 hover:text-black border border-white/10 flex items-center justify-center transition-all duration-300"
-            title="GitHub Profile"
+            title="Send Message"
           >
-            <FiGithub className="w-4 h-4" />
+            <FiMail className="w-4 h-4 text-cyan-400" />
           </a>
           <a
             href="https://www.facebook.com/johnlloyd.galito.33"

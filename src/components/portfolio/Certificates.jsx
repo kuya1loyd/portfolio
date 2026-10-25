@@ -128,7 +128,7 @@ export default function Certificates() {
                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 pointer-events-none">
                   <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-black font-semibold text-xs tracking-wider uppercase shadow-xl">
                     <FiMaximize2 className="w-3.5 h-3.5" />
-                    <span>Inspect</span>
+                    <span>View Certificate</span>
                   </div>
                 </div>
               </div>

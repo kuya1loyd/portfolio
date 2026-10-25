@@ -13,6 +13,7 @@ html {
   background-color: #000000;
   color: #ffffff;
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
@@ -24,6 +25,7 @@ body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Custom minimal scrollbar */
@@ -64,3 +66,309 @@ body {
 .animate-scanline {
   animation: scanline 8s ease-in-out infinite;
 }
+
+/* ========================================================= */
+/* TRANSPARENT HOLLOW OUTLINE MARQUEE (Never blocks letters) */
+/* ========================================================= */
+.hero-marquee {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.09) !important;
+  user-select: none;
+  pointer-events: none;
+}
+
+html.light .hero-marquee {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: 1.5px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* ========================================================= */
+/* LIGHT MODE THEME OVERRIDES                                */
+/* ========================================================= */
+html.light {
+  color-scheme: light;
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+html.light body {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+html.light ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* --- LIGHT MODE NAVBAR & HEADERS --- */
+html.light header {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-bottom: 1px solid rgba(203, 213, 225, 0.8) !important;
+  box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05);
+}
+
+html.light header a,
+html.light header nav a {
+  color: #0f172a !important;
+}
+
+html.light header nav a:hover {
+  color: #0284c7 !important;
+}
+
+/* --- LIGHT MODE HERO PORTRAIT CARD --- */
+html.light .hero-portrait-card {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(15, 23, 42, 0.05) !important;
+}
+
+/* --- LIGHT MODE ALL CARDS & BOXES --- */
+html.light section {
+  border-top-color: rgba(203, 213, 225, 0.6) !important;
+}
+
+html.light article,
+html.light .bg-black,
+html.light .bg-\[\#121212\],
+html.light .bg-\[\#101010\],
+html.light .bg-\[\#111111\],
+html.light .bg-\[\#0d0d0d\],
+html.light .bg-\[\#0d0d0d\]\/80,
+html.light .bg-\[\#0e0e0e\],
+html.light .project-card,
+html.light .project-box {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 12px 30px -6px rgba(15, 23, 42, 0.08), 0 4px 10px -3px rgba(15, 23, 42, 0.04) !important;
+}
+
+html.light .project-card h3,
+html.light .project-item h3,
+html.light .project-box h3 {
+  color: #0f172a !important;
+}
+
+html.light .project-card p,
+html.light .project-item p,
+html.light .project-box p {
+  color: #475569 !important;
+}
+
+html.light .project-card .project-tag,
+html.light .project-item .project-tag,
+html.light .project-box .project-tag {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+/* Floating identity badges on images */
+html.light .bg-black\/60 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* --- LIGHT MODE TYPOGRAPHY & LETTER READABILITY --- */
+html.light h1:not(.hero-marquee),
+html.light h2:not(.hero-marquee),
+html.light h3,
+html.light h4,
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-white\/80,
+html.light .text-white\/70,
+html.light .text-white\/60,
+html.light .text-white\/50 {
+  color: #334155 !important;
+}
+
+html.light .text-white\/40,
+html.light .text-white\/30,
+html.light .text-white\/20,
+html.light .text-white\/10 {
+  color: #64748b !important;
+}
+
+/* Headings with muted spans */
+html.light h2 span,
+html.light h1 span {
+  color: #64748b !important;
+}
+
+/* High-contrast cyber accents on white */
+html.light .text-cyan-400,
+html.light .text-cyan-300 {
+  color: #0284c7 !important;
+  font-weight: 600 !important;
+}
+
+html.light .bg-cyan-400\/10,
+html.light .bg-cyan-500\/10 {
+  background-color: rgba(2, 132, 199, 0.1) !important;
+  border-color: rgba(2, 132, 199, 0.3) !important;
+}
+
+html.light .text-emerald-400 {
+  color: #059669 !important;
+}
+
+/* --- LIGHT MODE PILLS, TAGS & BUTTONS --- */
+html.light .bg-white\/5,
+html.light .bg-white\/10,
+html.light .bg-white\/15,
+html.light .bg-white\/\[0\.03\],
+html.light .bg-white\/\[0\.04\] {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Form inputs in contact section (Dark Mode default) */
+.contact-input {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+.contact-input::placeholder {
+  color: rgba(255, 255, 255, 0.35) !important;
+  background-color: transparent !important;
+}
+
+.contact-input:focus {
+  border-color: #00f0ff !important;
+  box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.2) !important;
+}
+
+/* Form inputs in contact section (Light Mode - Crisp, High Contrast, Solid border) */
+html.light .contact-input {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+html.light .contact-input::placeholder {
+  color: #64748b !important;
+  background-color: transparent !important;
+}
+
+html.light .contact-input:focus {
+  border-color: #0284c7 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+}
+
+/* Strip any browser default autofill backgrounds completely */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #121212 inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+}
+
+html.light input:-webkit-autofill,
+html.light input:-webkit-autofill:hover, 
+html.light input:-webkit-autofill:focus,
+html.light textarea:-webkit-autofill,
+html.light textarea:-webkit-autofill:hover,
+html.light textarea:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px #f8fafc inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  caret-color: #0f172a !important;
+}
+
+/* Action button contrast */
+html.light a.bg-white,
+html.light button.bg-white {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html.light a.bg-white:hover,
+html.light button.bg-white:hover {
+  background-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+
+/* Contact Section Selection Pills (Light Mode) */
+html.light .contact-pill-active {
+  background-color: #e0f2fe !important;
+  border-color: #0284c7 !important;
+  color: #0369a1 !important;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.15) !important;
+}
+
+html.light .contact-pill-active span,
+html.light .contact-pill-active p {
+  color: #0369a1 !important;
+}
+
+html.light .contact-pill-inactive {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+html.light .contact-pill-inactive:hover {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html.light .contact-pill-inactive span {
+  color: #1e293b !important;
+}
+
+html.light .contact-pill-inactive p {
+  color: #64748b !important;
+}
+
+/* Inquiry Modal Light Mode */
+html.light .inquiry-modal {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+}
+
+/* Select dropdown options */
+select.contact-input {
+  appearance: auto;
+}
+
+select.contact-input option {
+  background-color: #121212 !important;
+  color: #ffffff !important;
+}
+
+html.light select.contact-input option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+

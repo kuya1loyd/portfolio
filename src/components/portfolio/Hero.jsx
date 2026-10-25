@@ -1,15 +1,14 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
-import { FiGithub, FiExternalLink, FiCompass } from 'react-icons/fi'
+import { FiExternalLink, FiMail, FiFileText } from 'react-icons/fi'
 import { FaFacebook } from 'react-icons/fa'
 
 export default function Hero({ onOpenResume }) {
-  const [isBatman, setIsBatman] = useState(false)
   const heroRef = useRef(null)
 
-  // 3D Parallax & Cursor Panimation physics
+  // 3D Parallax & Cursor Pan physics
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
@@ -17,10 +16,10 @@ export default function Hero({ onOpenResume }) {
   const smoothX = useSpring(mouseX, springConfig)
   const smoothY = useSpring(mouseY, springConfig)
 
-  const rotateX = useTransform(smoothY, [-0.5, 0.5], [8, -8])
-  const rotateY = useTransform(smoothX, [-0.5, 0.5], [-10, 10])
-  const panX = useTransform(smoothX, [-0.5, 0.5], [-20, 20])
-  const panY = useTransform(smoothY, [-0.5, 0.5], [-16, 16])
+  const rotateX = useTransform(smoothY, [-0.5, 0.5], [6, -6])
+  const rotateY = useTransform(smoothX, [-0.5, 0.5], [-8, 8])
+  const panX = useTransform(smoothX, [-0.5, 0.5], [-15, 15])
+  const panY = useTransform(smoothY, [-0.5, 0.5], [-12, 12])
 
   const handleMouseMove = (e) => {
     if (!heroRef.current) return
@@ -39,167 +38,105 @@ export default function Hero({ onOpenResume }) {
     mouseY.set(0)
   }
 
-  const toggleEasterEgg = () => {
-    setIsBatman((prev) => !prev)
-  }
-
-  const activeImage = isBatman ? '/images/Batman.jpg' : '/images/profile.jpg'
-
   return (
     <section
       id="hero"
       ref={heroRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="relative w-full min-h-[100vh] flex items-center justify-center overflow-hidden bg-transparent select-none"
+      className="relative w-full min-h-[100vh] flex items-center justify-center overflow-hidden bg-transparent select-none pt-28 pb-16"
     >
-      {/* ============================================================== */}
-      {/* AMBIENT GRID & TELEMETRY */}
-      {/* ============================================================== */}
+      {/* Ambient Grid Background */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.05] bg-[radial-gradient(#00f0ff_1px,transparent_1px)] [background-size:32px_32px]" />
       
-      {/* Subtle Cyan Cyber Radial Glow */}
-      <div className="absolute right-10 top-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-cyan-500/[0.04] rounded-full blur-[160px] pointer-events-none" />
+      {/* Ambient Cyber Glow */}
+      <div className="absolute right-10 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/[0.04] rounded-full blur-[140px] pointer-events-none" />
 
       {/* ============================================================== */}
-      {/* GIANT SLIDING NAME MARQUEE BACKDROP */}
+      {/* TRANSPARENT OUTLINE SLIDING MARQUEE WATERMARK */}
       {/* ============================================================== */}
-      <div className="absolute top-[32%] md:top-[34%] left-0 right-0 overflow-hidden pointer-events-none select-none whitespace-nowrap z-0">
+      <div className="absolute top-[28%] left-0 right-0 overflow-hidden pointer-events-none select-none whitespace-nowrap z-0">
         <motion.div
-          className="inline-block text-[14vw] font-black tracking-tighter uppercase font-sans text-white/[0.12] leading-none"
+          className="hero-marquee inline-block text-[14vw] font-black tracking-tighter uppercase font-sans leading-none pointer-events-none"
           animate={{ x: [0, -1500] }}
-          transition={{ repeat: Infinity, duration: 25, ease: 'linear' }}
+          transition={{ repeat: Infinity, duration: 28, ease: 'linear' }}
         >
           JOHN LLOYD GALITO — FULL-STACK DEVELOPER — JOHN LLOYD GALITO — FULL-STACK DEVELOPER —
         </motion.div>
       </div>
 
       {/* ============================================================== */}
-      {/* FULL ATMOSPHERIC HERO PORTRAIT (Right Side with 3D Panimation) */}
+      {/* HERO MAIN CONTENT GRID (Two-Column Balanced Layout) */}
       {/* ============================================================== */}
-      <div className="absolute inset-0 z-0 flex items-center justify-center lg:justify-end overflow-hidden pointer-events-none">
-        <motion.div
-          style={{
-            rotateX,
-            rotateY,
-            x: panX,
-            y: panY,
-            transformPerspective: 1200
-          }}
-          className="relative w-full max-w-[1050px] h-[90vh] lg:h-[100vh] flex items-center justify-center lg:justify-end mr-0 lg:mr-8 select-none"
-        >
-          <div className="relative w-full h-full max-w-[840px]">
-            {/* The Full Portrait Image */}
-            <img
-              src={activeImage}
-              alt="John Lloyd Galito"
-              className="w-full h-full object-cover object-[center_30%] lg:object-[center_25%] filter contrast-105 brightness-95 select-none"
-            />
-
-            {/* Seamless gradient vignettes blending into pure pitch black #000000 */}
-            <div className="absolute inset-y-0 left-0 w-3/4 bg-gradient-to-r from-black via-black/85 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black via-black/80 to-transparent" />
-            <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black via-black/60 to-transparent" />
-            <div className="absolute inset-y-0 right-0 w-28 bg-gradient-to-l from-black to-transparent" />
-          </div>
-        </motion.div>
-      </div>
-
-      {/* ============================================================== */}
-      {/* HERO TYPOGRAPHY & HUD CONTROLS */}
-      {/* ============================================================== */}
-      <div className="relative z-20 w-full max-w-[1600px] mx-auto px-6 md:px-14 lg:px-24 flex flex-col justify-center min-h-[100vh] pt-24 pb-16">
-        <div className="max-w-2xl">
-          {/* Full-Stack Status Kicker Pill */}
+      <div className="relative z-10 w-full max-w-[1500px] mx-auto px-6 md:px-14 lg:px-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center min-h-[75vh]">
+        
+        {/* Left Column: Typography & Actions */}
+        <div className="lg:col-span-7 flex flex-col justify-center">
+          {/* Status Kicker Pill */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="inline-flex items-center gap-2.5 px-3 py-1 rounded-full bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 text-[10px] font-mono tracking-widest uppercase mb-6"
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-md self-start"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-            <span>FULL-STACK ARCHITECTURE // REACT 19 &amp; NEXT.JS</span>
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            <span className="text-[11px] font-mono tracking-widest uppercase text-cyan-300">
+              AVAILABLE FOR HIRE // FULL-STACK
+            </span>
           </motion.div>
+
+          {/* Main Hero Header */}
+          <motion.h1
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08] font-sans"
+          >
+            JOHN LLOYD <br />
+            <span className="text-white/40">GALITO.</span>
+          </motion.h1>
 
           {/* Subtitle / Role */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="text-base md:text-xl text-white/80 font-normal tracking-wide"
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mt-6 text-sm sm:text-base md:text-lg text-white/70 max-w-xl font-light leading-relaxed"
           >
-            Full-Stack Developer &amp; UI/UX Designer
+            Full-Stack Software Developer specializing in responsive React 19 web apps, scalable backend systems, database architecture, and cross-platform solutions.
           </motion.p>
 
-          {/* Huge Signature Title */}
-          <motion.h1
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="text-5xl sm:text-7xl lg:text-[5.5rem] font-bold text-white tracking-tight leading-[1.05] mt-2 select-none"
-          >
-            John Lloyd
-            <br />
-            Galito
-          </motion.h1>
-
-          {/* Concise Bio */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="text-gray-300 max-w-[600px] mt-4 text-sm md:text-base font-light leading-relaxed"
-          >
-            Crafting high-performance, responsive web applications engineered with modern Next.js, React 19, scalable backend architectures, and clean database solutions.
-          </motion.p>
-
-          {/* Action Buttons */}
+          {/* Actions & Social Links */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-wrap gap-4 mt-8 pointer-events-auto"
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="mt-8 flex flex-wrap items-center gap-4"
           >
-            {/* Button 1: Show CV */}
+            <a
+              href="#projects"
+              className="px-6 py-3 rounded-full bg-white text-black font-semibold text-xs uppercase tracking-wider hover:bg-cyan-400 hover:text-black transition-colors shadow-lg flex items-center gap-2"
+            >
+              <span>Explore Works</span>
+              <FiExternalLink className="w-3.5 h-3.5" />
+            </a>
+
             <button
               type="button"
               onClick={onOpenResume}
-              className="group relative overflow-hidden px-4 py-3.5 md:px-8 md:py-4 border border-white/50 text-white uppercase tracking-[0.2em] cursor-pointer text-[.65rem] md:text-[.75rem] font-bold transition-colors duration-300 hover:border-cyan-400 rounded-none bg-black/40 backdrop-blur-sm"
+              className="px-6 py-3 rounded-full bg-white/5 border border-white/15 text-white font-medium text-xs uppercase tracking-wider hover:bg-white/10 hover:border-cyan-400 transition-colors cursor-pointer flex items-center gap-2"
+              title="Show Curriculum Vitae / Resume"
             >
-              <span className="absolute inset-0 w-full h-full bg-white -translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:translate-x-0" />
-              <span className="relative z-10 transition-colors duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:text-black">
-                Show CV
-              </span>
+              <FiFileText className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Show CV</span>
             </button>
 
-            {/* Button 2: Contact Me */}
             <a
               href="#contact"
-              className="group relative overflow-hidden px-4 py-3.5 md:px-8 md:py-4 bg-white border border-white cursor-pointer text-black uppercase tracking-[0.2em] text-[.65rem] md:text-[.75rem] font-bold transition-colors duration-300 rounded-none"
-            >
-              <span className="absolute inset-0 w-full h-full bg-cyan-400 -translate-x-full transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:translate-x-0" />
-              <span className="relative z-10 transition-colors duration-500 ease-[cubic-bezier(0.87,0,0.13,1)] group-hover:text-black">
-                Contact Me
-              </span>
-            </a>
-          </motion.div>
-
-          {/* Social Channels */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-10 flex gap-4 md:gap-6 pointer-events-auto"
-            aria-label="Social channels"
-          >
-            <a
-              href="https://github.com/kuya1loyd"
-              target="_blank"
-              rel="noopener noreferrer"
               className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400 hover:scale-110 transition-all duration-300 shadow-lg"
-              title="GitHub Profile"
+              title="Send Message"
             >
-              <FiGithub className="w-4 h-4 md:w-5 md:h-5" />
+              <FiMail className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" />
             </a>
 
             <a
@@ -213,24 +150,56 @@ export default function Hero({ onOpenResume }) {
             </a>
           </motion.div>
         </div>
-      </div>
 
-      {/* Bottom HUD Coordinates & Easter Egg Toggle */}
-      <div className="absolute bottom-6 right-6 z-20 flex items-center gap-4 pointer-events-auto">
-        <div className="hidden sm:flex items-center gap-1.5 text-[9px] font-mono text-white/40 tracking-widest uppercase">
-          <span className="text-cyan-400">&gt;_</span>
-          <span>LOC: 0,50</span>
+        {/* Right Column: Crisp, Framed Cyber Portrait (No Foggy Washes!) */}
+        <div className="lg:col-span-5 flex items-center justify-center lg:justify-end">
+          <motion.div
+            style={{
+              rotateX,
+              rotateY,
+              x: panX,
+              y: panY,
+              transformPerspective: 1000
+            }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="hero-portrait-card relative w-full max-w-[440px] aspect-[4/5] rounded-[2rem] overflow-hidden border border-white/15 shadow-2xl p-2 bg-[#0d0d0d]/80 backdrop-blur-xl group"
+          >
+            {/* Ambient inner glow */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-transparent opacity-50 group-hover:opacity-80 transition-opacity pointer-events-none" />
+
+            {/* Crisp Portrait Container */}
+            <div className="relative w-full h-full rounded-[1.6rem] overflow-hidden bg-[#07080b]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/profile.jpg"
+                alt="John Lloyd Galito"
+                className="w-full h-full object-cover object-[center_20%] filter contrast-105 brightness-100 group-hover:scale-105 transition-transform duration-700"
+              />
+
+              {/* Bottom Subtle Identity Tag */}
+              <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-black/60 dark:bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold text-white tracking-wide">
+                    John Lloyd Galito
+                  </p>
+                  <p className="text-[10px] text-cyan-300 font-mono tracking-wider">
+                    Full-Stack Software Developer
+                  </p>
+                </div>
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              </div>
+            </div>
+          </motion.div>
         </div>
 
-        <button
-          type="button"
-          onClick={toggleEasterEgg}
-          className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 text-white/60 hover:text-white text-[10px] font-mono tracking-wider transition-colors cursor-pointer"
-          title="Toggle Portrait Variant"
-        >
-          <FiCompass className="w-3 h-3 text-cyan-400" />
-          <span>{isBatman ? 'ORIGINAL' : 'SECRET ⚡'}</span>
-        </button>
+      </div>
+
+      {/* Bottom HUD Coordinates */}
+      <div className="absolute bottom-6 right-6 z-20 hidden sm:flex items-center gap-1.5 text-[9px] font-mono text-white/40 tracking-widest uppercase pointer-events-none">
+        <span className="text-cyan-400">&gt;_</span>
+        <span>SYS_STATUS: ONLINE</span>
       </div>
     </section>
   )

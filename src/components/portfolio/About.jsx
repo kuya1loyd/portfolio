@@ -2,11 +2,10 @@
 
 import { useState, useRef } from 'react'
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
-import { FiCheck, FiDownload, FiExternalLink, FiMapPin, FiMail, FiCompass } from 'react-icons/fi'
+import { FiCheck, FiDownload, FiExternalLink, FiMapPin, FiMail, FiCompass, FiFileText } from 'react-icons/fi'
 
 export default function About({ onOpenResume }) {
   const [isHovered, setIsHovered] = useState(false)
-  const [isBatmanActive, setIsBatmanActive] = useState(false)
   const cardRef = useRef(null)
 
   // Cursor-driven 3D Panimation physics
@@ -47,10 +46,6 @@ export default function About({ onOpenResume }) {
 
   const handleMouseEnter = () => {
     setIsHovered(true)
-  }
-
-  const toggleBatman = () => {
-    setIsBatmanActive((prev) => !prev)
   }
 
   return (
@@ -121,14 +116,15 @@ export default function About({ onOpenResume }) {
                     transition={{ duration: 0.3, ease: 'easeOut' }}
                     className="relative w-full h-full"
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={isBatmanActive ? '/images/Batman.jpg' : '/images/profile.jpg'}
+                      src="/images/profile.jpg"
                       alt="John Lloyd Galito"
                       className="w-full h-full object-cover object-center filter contrast-105 brightness-95 transition-all duration-700"
                     />
 
                     {/* Gradient overlay for depth */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                    <div className="about-portrait-overlay absolute inset-0" />
                   </motion.div>
 
                   {/* Dynamic Glare Reflection */}
@@ -143,25 +139,16 @@ export default function About({ onOpenResume }) {
                   <div className="absolute bottom-4 left-4 right-4 p-3.5 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-between">
                     <div>
                       <p className="text-xs font-bold text-white tracking-wide">
-                        {isBatmanActive ? 'The Dark Knight Protocol' : 'John Lloyd Galito'}
+                        John Lloyd Galito
                       </p>
                       <p className="text-[10px] text-white/50 font-mono tracking-wider">
-                        {isBatmanActive ? 'Gotham Guardian' : 'Full-Stack Developer'}
+                        Full-Stack Developer
                       </p>
                     </div>
 
-                    {/* Easter Egg Button */}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        toggleBatman()
-                      }}
-                      className="px-2.5 py-1 rounded-md text-[9px] font-mono tracking-widest uppercase bg-white/10 hover:bg-white/20 text-white/80 border border-white/10 transition-colors"
-                      title="Click for Easter Egg"
-                    >
-                      {isBatmanActive ? 'Reset ↺' : 'Secret ⚡'}
-                    </button>
+                    <span className="px-2.5 py-1 rounded-md text-[9px] font-mono tracking-widest uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                      VERIFIED
+                    </span>
                   </div>
                 </div>
               </motion.div>
@@ -222,7 +209,7 @@ export default function About({ onOpenResume }) {
                 >
                   <span className="absolute inset-0 bg-cyan-400 -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-[cubic-bezier(0.87,0,0.13,1)]" />
                   <span className="relative z-10 flex items-center gap-2 group-hover:text-black transition-colors">
-                    <FiDownload className="w-4 h-4" />
+                    <FiFileText className="w-4 h-4" />
                     <span>Show CV</span>
                   </span>
                 </button>
