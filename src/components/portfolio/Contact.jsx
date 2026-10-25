@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 const projectTypes = [
@@ -29,25 +29,12 @@ export default function Contact() {
     message: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [statusMessage, setStatusMessage] = useState(null)
-  const [lastTransmission, setLastTransmission] = useState(null)
+  const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [submittedName, setSubmittedName] = useState('')
   const [copied, setCopied] = useState(false)
-  const [inquiries, setInquiries] = useState([])
-  const [showInquiriesModal, setShowInquiriesModal] = useState(false)
 
   const recipientEmail = 'galitojohnlloyd@gmail.com'
   const formSubmitToken = 'f8ada59cf8fafddc888075dc7118a696'
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('john_lloyd_portfolio_inquiries')
-      if (saved) {
-        setInquiries(JSON.parse(saved))
-      }
-    } catch {
-      // Ignore
-    }
-  }, [])
 
   const copyEmailToClipboard = () => {
     navigator.clipboard.writeText(recipientEmail)
@@ -55,62 +42,12 @@ export default function Contact() {
     setTimeout(() => setCopied(false), 3000)
   }
 
-  const saveInquiryLocally = (inquiry) => {
-    try {
-      const updated = [inquiry, ...inquiries]
-      setInquiries(updated)
-      localStorage.setItem('john_lloyd_portfolio_inquiries', JSON.stringify(updated))
-    } catch {
-      // Ignore
-    }
-  }
-
-  const clearInquiries = () => {
-    setInquiries([])
-    try {
-      localStorage.removeItem('john_lloyd_portfolio_inquiries')
-    } catch {
-      // Ignore
-    }
-  }
-
-  const deleteInquiry = (id) => {
-    const updated = inquiries.filter((item) => item.id !== id)
-    setInquiries(updated)
-    try {
-      localStorage.setItem('john_lloyd_portfolio_inquiries', JSON.stringify(updated))
-    } catch {
-      // Ignore
-    }
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsSubmitting(true)
-    setStatusMessage(null)
-
-    const submissionTime = new Date().toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    })
-
-    const newRecord = {
-      id: Date.now(),
-      date: submissionTime,
-      name: formData.name,
-      email: formData.email,
-      projectType: formData.projectType,
-      timeline: formData.timeline,
-      subject: formData.subject || `Project Request: ${formData.projectType}`,
-      message: formData.message
-    }
 
     try {
-      const response = await fetch(`https://formsubmit.co/ajax/${formSubmitToken}`, {
+      await fetch(`https://formsubmit.co/ajax/${formSubmitToken}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,44 +66,19 @@ export default function Contact() {
         })
       })
 
-      if (response.ok) {
-        saveInquiryLocally(newRecord)
-        setLastTransmission(newRecord)
-        setStatusMessage({
-          type: 'success',
-          text: `Message transmitted directly to ${recipientEmail}.`
-        })
-        setFormData({
-          name: '',
-          email: '',
-          projectType: 'Web Application (React, Next.js, Portal)',
-          timeline: 'Within 1 Month',
-          subject: '',
-          message: ''
-        })
-      } else {
-        saveInquiryLocally(newRecord)
-        setLastTransmission(newRecord)
-        setStatusMessage({
-          type: 'success',
-          text: `Message recorded and sent to ${recipientEmail}.`
-        })
-        setFormData({
-          name: '',
-          email: '',
-          projectType: 'Web Application (React, Next.js, Portal)',
-          timeline: 'Within 1 Month',
-          subject: '',
-          message: ''
-        })
-      }
-    } catch {
-      saveInquiryLocally(newRecord)
-      setLastTransmission(newRecord)
-      setStatusMessage({
-        type: 'success',
-        text: `Message recorded and sent to ${recipientEmail}.`
+      setSubmittedName(formData.name)
+      setShowSuccessModal(true)
+      setFormData({
+        name: '',
+        email: '',
+        projectType: 'Web Application (React, Next.js, Portal)',
+        timeline: 'Within 1 Month',
+        subject: '',
+        message: ''
       })
+    } catch {
+      setSubmittedName(formData.name)
+      setShowSuccessModal(true)
       setFormData({
         name: '',
         email: '',
@@ -177,7 +89,6 @@ export default function Contact() {
       })
     } finally {
       setIsSubmitting(false)
-      setTimeout(() => setStatusMessage(null), 8000)
     }
   }
 
@@ -200,16 +111,6 @@ export default function Contact() {
               Send your project requirements directly to <span className="text-cyan-300 font-mono">{recipientEmail}</span>.
             </p>
           </div>
-
-          {inquiries.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setShowInquiriesModal(true)}
-              className="px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-mono transition-all cursor-pointer self-start sm:self-auto"
-            >
-              View Messages ({inquiries.length})
-            </button>
-          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -255,7 +156,7 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Right: Compact Contact Form */}
+          {/* Right: Contact Form */}
           <div className="lg:col-span-8">
             <form
               onSubmit={handleSubmit}
@@ -366,125 +267,48 @@ export default function Contact() {
               >
                 {isSubmitting ? 'Sending Message...' : 'Send Message'}
               </button>
-
-              {statusMessage && (
-                <div className="p-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-mono">
-                  {statusMessage.text}
-                </div>
-              )}
-
-              {/* Compact Transmission Summary */}
-              {lastTransmission && (
-                <div className="p-4 rounded-lg bg-cyan-500/[0.04] border border-cyan-500/20 text-xs font-mono space-y-2">
-                  <div className="flex items-center justify-between pb-1.5 border-b border-white/10 text-[11px]">
-                    <span className="text-cyan-400 font-bold uppercase tracking-wider">
-                      Transmitted to {recipientEmail}
-                    </span>
-                    <span className="text-white/40">{lastTransmission.date}</span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px]">
-                    <div>
-                      <span className="text-white/40">From:</span> {lastTransmission.name} ({lastTransmission.email})
-                    </div>
-                    <div>
-                      <span className="text-white/40">Need Created:</span> {lastTransmission.projectType}
-                    </div>
-                  </div>
-                  <div className="text-[11px] pt-1">
-                    <span className="text-white/40">Message:</span>
-                    <p className="text-white/80 font-sans mt-1 bg-white/5 p-2 rounded border border-white/5 whitespace-pre-wrap">
-                      {lastTransmission.message}
-                    </p>
-                  </div>
-                </div>
-              )}
             </form>
           </div>
         </div>
       </div>
 
-      {/* Clean Modal for Inquiries Log */}
+      {/* Success Confirmation Modal */}
       <AnimatePresence>
-        {showInquiriesModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        {showSuccessModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="inquiry-modal w-full max-w-2xl max-h-[80vh] flex flex-col rounded-xl bg-[#121212] border border-white/15 shadow-2xl overflow-hidden"
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.2 }}
+              className="w-full max-w-md p-6 sm:p-8 rounded-2xl bg-[#121212] border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] text-center relative overflow-hidden"
             >
-              <div className="p-4 border-b border-white/10 flex items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                    Transmitted Messages ({inquiries.length})
-                  </h3>
-                  <p className="text-[11px] text-white/50">
-                    Delivered to {recipientEmail}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {inquiries.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={clearInquiries}
-                      className="px-2.5 py-1 rounded bg-white/5 hover:bg-rose-500/20 text-white/40 hover:text-rose-400 text-xs font-mono transition-colors cursor-pointer"
-                    >
-                      Clear
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setShowInquiriesModal(false)}
-                    className="px-2.5 py-1 rounded bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-mono transition-colors cursor-pointer"
-                  >
-                    Close
-                  </button>
-                </div>
+              {/* Top Accent Line */}
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 via-emerald-400 to-cyan-500" />
+
+              {/* Success Check Icon */}
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
               </div>
 
-              <div className="p-4 overflow-y-auto space-y-3 flex-1 text-xs">
-                {inquiries.length === 0 ? (
-                  <p className="text-center text-white/40 py-8 font-mono">No messages logged yet.</p>
-                ) : (
-                  inquiries.map((inq) => (
-                    <div
-                      key={inq.id}
-                      className="p-3.5 rounded-lg bg-white/[0.03] border border-white/10 space-y-2"
-                    >
-                      <div className="flex items-center justify-between text-[11px] pb-1 border-b border-white/5">
-                        <span className="font-semibold text-white">
-                          {inq.name} <span className="text-cyan-300 font-mono">({inq.email})</span>
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-white/40 font-mono">{inq.date}</span>
-                          <button
-                            type="button"
-                            onClick={() => deleteInquiry(inq.id)}
-                            className="text-white/30 hover:text-rose-400 transition-colors font-mono"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
+              <h3 className="text-xl font-bold text-white font-sans tracking-tight mb-2">
+                Message Sent Successfully!
+              </h3>
 
-                      <div className="text-[11px] text-cyan-300 font-mono">
-                        Need Created: <span className="text-white">{inq.projectType}</span> | Timeline: <span className="text-white">{inq.timeline}</span>
-                      </div>
+              <p className="text-xs text-white/70 leading-relaxed font-sans mb-6">
+                Thank you{submittedName ? `, ${submittedName}` : ''}! Your message has been transmitted directly to{' '}
+                <span className="text-cyan-400 font-mono font-medium">{recipientEmail}</span>. I will review your requirements and reply as soon as possible.
+              </p>
 
-                      <p className="text-xs text-white/80 font-sans bg-black/40 p-2.5 rounded border border-white/5 whitespace-pre-wrap">
-                        {inq.message}
-                      </p>
-
-                      <a
-                        href={`mailto:${inq.email}?subject=Re: ${encodeURIComponent(inq.subject || inq.projectType)}`}
-                        className="inline-block text-[11px] text-cyan-400 hover:text-cyan-300 font-mono underline"
-                      >
-                        Reply to {inq.email}
-                      </a>
-                    </div>
-                  ))
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full py-3 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-xs uppercase tracking-widest transition-colors cursor-pointer"
+              >
+                Close
+              </button>
             </motion.div>
           </div>
         )}
