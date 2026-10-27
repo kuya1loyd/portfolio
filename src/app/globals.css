@@ -5,13 +5,13 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 html {
   scroll-behavior: smooth;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #0f172a;
   overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -19,8 +19,8 @@ html {
 body {
   margin: 0;
   padding: 0;
-  background-color: #000000;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #0f172a;
   font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -34,16 +34,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: #ffffff;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #222222;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #444444;
+  background: #94a3b8;
 }
 
 @keyframes scanline {
@@ -89,17 +89,17 @@ html.light .hero-marquee {
 /* ========================================================= */
 html.light {
   color-scheme: light;
-  background-color: #f1f5f9;
+  background-color: #ffffff;
   color: #0f172a;
 }
 
 html.light body {
-  background-color: #f1f5f9;
+  background-color: #ffffff;
   color: #0f172a;
 }
 
 html.light ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #ffffff;
 }
 
 html.light ::-webkit-scrollbar-thumb {
@@ -112,9 +112,9 @@ html.light ::-webkit-scrollbar-thumb:hover {
 
 /* --- LIGHT MODE NAVBAR & HEADERS --- */
 html.light header {
-  background-color: rgba(255, 255, 255, 0.92) !important;
-  border-bottom: 1px solid rgba(203, 213, 225, 0.8) !important;
-  box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05);
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.9) !important;
+  box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.04);
 }
 
 html.light header a,
@@ -135,7 +135,7 @@ html.light .hero-portrait-card {
 
 /* --- LIGHT MODE ALL CARDS & BOXES --- */
 html.light section {
-  border-top-color: rgba(203, 213, 225, 0.6) !important;
+  border-top-color: rgba(226, 232, 240, 0.8) !important;
 }
 
 html.light article,
@@ -145,12 +145,17 @@ html.light .bg-\[\#101010\],
 html.light .bg-\[\#111111\],
 html.light .bg-\[\#0d0d0d\],
 html.light .bg-\[\#0d0d0d\]\/80,
+html.light .bg-\[\#0d0d0d\]\/90,
 html.light .bg-\[\#0e0e0e\],
+html.light .bg-\[\#141414\],
+html.light .bg-\[\#161616\],
+html.light .bg-\[\#050505\],
+html.light .bg-\[\#07080b\],
 html.light .project-card,
 html.light .project-box {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
-  box-shadow: 0 12px 30px -6px rgba(15, 23, 42, 0.08), 0 4px 10px -3px rgba(15, 23, 42, 0.04) !important;
+  box-shadow: 0 12px 30px -6px rgba(15, 23, 42, 0.06), 0 2px 8px -2px rgba(15, 23, 42, 0.04) !important;
 }
 
 html.light .project-card h3,
@@ -184,29 +189,49 @@ html.light .bg-black\/60 {
 html.light h1:not(.hero-marquee),
 html.light h2:not(.hero-marquee),
 html.light h3,
-html.light h4,
-html.light .text-white {
+html.light h4 {
   color: #0f172a !important;
+}
+
+/* Ensure dark action buttons always have bright, crisp white text */
+html.light button.bg-slate-900,
+html.light a.bg-slate-900,
+html.light button.bg-slate-900 *,
+html.light a.bg-slate-900 *,
+html.light .bg-slate-900,
+html.light .bg-slate-900 *,
+html.light .bg-black *,
+html.light [class*="bg-slate-900"] *,
+html.light [class*="bg-cyan-600"] * {
+  color: #ffffff !important;
+}
+
+html.light p.text-white,
+html.light a.text-white:not([class*="bg-slate-900"] *):not([class*="bg-cyan-600"] *),
+html.light span.text-white:not([class*="bg-slate-900"] *):not([class*="bg-cyan-600"] *),
+html.light label.text-white,
+html.light div.text-white:not([class*="bg-slate-900"] *):not([class*="bg-cyan-600"] *) {
+  color: #0f172a;
 }
 
 html.light .text-white\/80,
 html.light .text-white\/70,
 html.light .text-white\/60,
 html.light .text-white\/50 {
-  color: #334155 !important;
+  color: #334155;
 }
 
 html.light .text-white\/40,
 html.light .text-white\/30,
 html.light .text-white\/20,
 html.light .text-white\/10 {
-  color: #64748b !important;
+  color: #64748b;
 }
 
 /* Headings with muted spans */
 html.light h2 span,
 html.light h1 span {
-  color: #64748b !important;
+  color: #64748b;
 }
 
 /* High-contrast cyber accents on white */
@@ -369,6 +394,26 @@ select.contact-input option {
 html.light select.contact-input option {
   background-color: #ffffff !important;
   color: #0f172a !important;
+}
+
+/* Resume Modal - Preserve cyber dark frame & backdrop */
+.resume-modal-shell,
+html.light .resume-modal-shell {
+  background-color: #0d1117 !important;
+  border-color: rgba(6, 182, 212, 0.35) !important;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.85) !important;
+}
+
+.resume-modal-header,
+html.light .resume-modal-header {
+  background-color: #161b22 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+.resume-viewport,
+html.light .resume-viewport {
+  background-color: #090d13 !important;
 }
 
 /* Print Rules for Resume */

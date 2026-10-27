@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { FiExternalLink, FiMaximize2, FiX, FiAward, FiCheckCircle, FiShield } from 'react-icons/fi'
+import { FiMaximize2, FiX, FiAward, FiShield } from 'react-icons/fi'
 
 const CERTIFICATES = [
   {
@@ -48,16 +48,7 @@ const CERTIFICATES = [
     issued: 'October 4, 2026',
     image: '/images/CyberSecurity%20Fundamentals.png',
     verifyUrl: 'https://www.codecred.dev/verify/dfd7b1aa-1570-42b8-bddd-60a3aceca282',
-    skills: ['Threat Vectors', 'OWASP Top 10', 'Data Encryption', 'Defense in Depth']
-  },
-  {
-    id: 'css-fundamentals',
-    title: 'Introduction to CSS & Styling',
-    issuer: 'SoloLearn',
-    issued: 'March 8, 2025',
-    image: '/images/css.jpg',
-    verifyUrl: 'https://www.sololearn.com/',
-    skills: ['Flexbox & Grid', 'Responsive Design', 'CSS Variables', 'Animation Physics']
+    skills: []
   }
 ]
 
@@ -65,7 +56,7 @@ export default function Certificates() {
   const [selectedCert, setSelectedCert] = useState(null)
 
   return (
-    <section id="certificates" className="relative py-28 px-6 lg:px-12 bg-transparent overflow-hidden text-white border-t border-white/5">
+    <section id="certificates" className="relative py-28 px-6 lg:px-12 bg-transparent overflow-hidden text-slate-900 border-t border-slate-200/80">
       {/* Background cyber grid accent */}
       <div className="absolute top-1/3 left-0 w-[450px] h-[450px] bg-cyan-500/[0.02] rounded-full blur-[140px] pointer-events-none" />
 
@@ -73,22 +64,22 @@ export default function Certificates() {
         {/* Section Header */}
         <div className="flex flex-col mb-16">
           <div className="flex items-center gap-3 mb-3">
-            <span className="flex items-center gap-2 text-[10px] uppercase tracking-[0.4em] text-cyan-400 font-mono">
-              <FiShield className="w-3.5 h-3.5 text-cyan-400" />
-              VERIFIED ACCREDITATIONS & LICENSES
+            <span className="flex items-center gap-2 text-xs uppercase tracking-[0.4em] text-cyan-600 font-mono font-bold">
+              <FiShield className="w-4 h-4 text-cyan-600" />
+              ACCREDITATIONS &amp; LICENSES
             </span>
-            <div className="h-px w-12 bg-white/20" />
+            <div className="h-px w-12 bg-slate-300" />
           </div>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight font-sans">
-              CERTIFICATES &amp; <span className="text-white/40">CREDENTIALS.</span>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight font-sans text-slate-900">
+              CERTIFICATES &amp; <span className="text-slate-400">CREDENTIALS.</span>
             </h2>
-            <span className="text-xs text-white/40 font-mono tracking-wider">
-              6 VERIFIED LICENSES // CLICK IMAGE TO ENLARGE
+            <span className="text-xs text-slate-500 font-mono tracking-wider font-semibold">
+              {CERTIFICATES.length} CREDENTIALS // CLICK TO VIEW
             </span>
           </div>
-          <p className="mt-3 text-sm text-white/50 max-w-xl font-light leading-relaxed">
-            Verified credentials in full-stack web architecture, system design fundamentals, and web performance engineering.
+          <p className="mt-3 text-sm sm:text-base text-slate-600 max-w-xl font-normal leading-relaxed">
+            Professional credentials in full-stack web architecture, system design fundamentals, and web performance engineering.
           </p>
         </div>
 
@@ -101,7 +92,7 @@ export default function Certificates() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.08 }}
-              className="group relative rounded-[2rem] bg-[#0d0d0d] border border-white/10 hover:border-cyan-500/40 transition-all duration-500 overflow-hidden flex flex-col justify-between shadow-2xl hover:shadow-cyan-500/10"
+              className="group relative rounded-[2rem] bg-[#0d0d0d]/90 backdrop-blur-md border border-white/10 hover:border-cyan-500/40 transition-all duration-500 overflow-hidden flex flex-col justify-between shadow-2xl hover:shadow-cyan-500/10"
             >
               {/* Picture Preview Frame */}
               <div
@@ -112,72 +103,50 @@ export default function Certificates() {
                   src={cert.image}
                   alt={cert.title}
                   loading="lazy"
-                  className="w-full h-full object-cover object-top filter brightness-95 contrast-105 group-hover:scale-105 group-hover:brightness-100 transition-all duration-700"
+                  className="w-full h-full object-cover object-top filter blur-[5px] brightness-95 contrast-105 group-hover:scale-102 transition-all duration-500"
                 />
 
                 {/* Dark Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d0d] via-black/20 to-transparent pointer-events-none" />
-
-                {/* Top Badge */}
-                <div className="absolute top-4 left-4 z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/15 text-[10px] font-mono tracking-wider text-cyan-400">
-                  <FiCheckCircle className="w-3 h-3 text-cyan-400" />
-                  <span>VERIFIED</span>
-                </div>
-
-                {/* Magnify Icon on Hover */}
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 pointer-events-none">
-                  <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-black font-semibold text-xs tracking-wider uppercase shadow-xl">
-                    <FiMaximize2 className="w-3.5 h-3.5" />
-                    <span>View Certificate</span>
-                  </div>
-                </div>
               </div>
 
               {/* Certificate Details */}
-              <div className="p-7 flex flex-col flex-grow justify-between">
+              <div className="p-6 sm:p-7 flex flex-col flex-grow justify-between">
                 <div>
-                  <div className="flex items-center justify-between text-[11px] font-mono text-white/40 mb-2">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-500 mb-2">
                     <span>{cert.issuer}</span>
                     <span>{cert.issued}</span>
                   </div>
 
-                  <h3 className="text-xl font-bold tracking-tight text-white mb-4 group-hover:text-cyan-300 transition-colors">
+                  <h3 className="text-xl font-bold tracking-tight text-slate-900 mb-4 group-hover:text-cyan-600 transition-colors">
                     {cert.title}
                   </h3>
 
                   {/* Skills tags */}
-                  <div className="flex flex-wrap gap-1.5 mb-6">
-                    {cert.skills.map((skill) => (
-                      <span
-                        key={skill}
-                        className="text-[10px] px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-white/60 font-mono"
-                      >
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
+                  {cert.skills && cert.skills.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {cert.skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 font-mono"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
-                {/* Card Action Row */}
-                <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+                {/* Card Action Row - Clean & Prominent */}
+                <div className="pt-4 border-t border-slate-100">
                   <button
                     type="button"
                     onClick={() => setSelectedCert(cert)}
-                    className="text-[11px] font-mono uppercase tracking-[0.2em] text-white/60 hover:text-white transition-colors flex items-center gap-1.5"
+                    className="w-full py-2.5 px-4 rounded-xl bg-slate-50 hover:bg-cyan-50 border border-slate-200 hover:border-cyan-200 text-sm font-bold text-slate-800 hover:text-cyan-700 transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <FiMaximize2 className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>View Image</span>
+                    <FiMaximize2 className="w-4 h-4 text-cyan-600" />
+                    <span>View Certificate</span>
                   </button>
-
-                  <a
-                    href={cert.verifyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[11px] font-mono uppercase tracking-[0.2em] text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1.5"
-                  >
-                    <span>Verify</span>
-                    <FiExternalLink className="w-3.5 h-3.5" />
-                  </a>
                 </div>
               </div>
             </motion.div>
@@ -228,12 +197,12 @@ export default function Certificates() {
                 </button>
               </div>
 
-              {/* Certificate Image Body */}
-              <div className="p-6 overflow-y-auto flex items-center justify-center bg-black/60">
+              {/* Certificate Image Body - Medium Blurred */}
+              <div className="relative p-6 overflow-y-auto flex items-center justify-center bg-black/60">
                 <img
                   src={selectedCert.image}
                   alt={selectedCert.title}
-                  className="max-h-[62vh] w-auto object-contain rounded-xl shadow-2xl border border-white/10"
+                  className="max-h-[62vh] w-auto object-contain rounded-xl shadow-2xl border border-white/10 filter blur-[6px] select-none pointer-events-none"
                 />
               </div>
 
@@ -250,15 +219,13 @@ export default function Certificates() {
                   ))}
                 </div>
 
-                <a
-                  href={selectedCert.verifyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-black font-semibold text-xs uppercase tracking-[0.15em] hover:bg-cyan-400 transition-all shadow-md"
+                <button
+                  type="button"
+                  onClick={() => setSelectedCert(null)}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-black font-semibold text-xs uppercase tracking-[0.15em] hover:bg-cyan-400 transition-all shadow-md cursor-pointer"
                 >
-                  <span>Official Verification Portal</span>
-                  <FiExternalLink className="w-4 h-4" />
-                </a>
+                  <span>Close</span>
+                </button>
               </div>
             </motion.div>
           </motion.div>

@@ -77,11 +77,11 @@ export default function Hero({ onOpenResume }) {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 mb-6 backdrop-blur-md self-start"
+            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-cyan-50 border border-cyan-200 mb-6 self-start shadow-sm"
           >
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <span className="text-[11px] font-mono tracking-widest uppercase text-cyan-300">
-              AVAILABLE FOR HIRE // FULL-STACK
+            <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse" />
+            <span className="text-xs font-mono font-bold tracking-wider uppercase text-cyan-700">
+              AVAILABLE FOR HIRE // AI-ASSISTED FULL-STACK
             </span>
           </motion.div>
 
@@ -90,10 +90,10 @@ export default function Hero({ onOpenResume }) {
             initial={{ opacity: 0, y: 25 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-white leading-[1.08] font-sans"
+            className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 leading-[1.08] font-sans"
           >
             JOHN LLOYD <br />
-            <span className="text-white/40">GALITO.</span>
+            <span className="text-slate-400">GALITO.</span>
           </motion.h1>
 
           {/* Subtitle / Role */}
@@ -101,9 +101,9 @@ export default function Hero({ onOpenResume }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="mt-6 text-sm sm:text-base md:text-lg text-white/70 max-w-xl font-light leading-relaxed"
+            className="mt-6 text-base sm:text-lg md:text-xl text-slate-600 max-w-xl font-normal leading-relaxed"
           >
-            Full-Stack Software Developer specializing in responsive React 19 web apps, scalable backend systems, database architecture, and cross-platform solutions.
+            AI-Assisted Full-Stack Developer leveraging artificial intelligence to build complete, production-ready systems significantly faster—delivering what others build in weeks or months in just a few days.
           </motion.p>
 
           {/* Actions & Social Links */}
@@ -115,43 +115,43 @@ export default function Hero({ onOpenResume }) {
           >
             <a
               href="#projects"
-              className="px-6 py-3 rounded-full bg-white text-black font-semibold text-xs uppercase tracking-wider hover:bg-cyan-400 hover:text-black transition-colors shadow-lg flex items-center gap-2"
+              className="px-7 py-3.5 rounded-full bg-slate-900 !text-white font-bold text-sm tracking-wide hover:bg-cyan-600 transition-all shadow-md flex items-center gap-2"
             >
-              <span>Explore Works</span>
-              <FiExternalLink className="w-3.5 h-3.5" />
+              <span className="!text-white">Explore Works</span>
+              <FiExternalLink className="w-4 h-4 !text-white" />
             </a>
 
             <button
               type="button"
               onClick={onOpenResume}
-              className="px-6 py-3 rounded-full bg-white/5 border border-white/15 text-white font-medium text-xs uppercase tracking-wider hover:bg-white/10 hover:border-cyan-400 transition-colors cursor-pointer flex items-center gap-2"
+              className="px-7 py-3.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-bold text-sm tracking-wide transition-all shadow-sm cursor-pointer flex items-center gap-2"
               title="Show Curriculum Vitae / Resume"
             >
-              <FiFileText className="w-3.5 h-3.5 text-cyan-400" />
+              <FiFileText className="w-4 h-4 text-cyan-600" />
               <span>Show CV</span>
             </button>
 
             <a
               href="#contact"
-              className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400 hover:scale-110 transition-all duration-300 shadow-lg"
+              className="w-12 h-12 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700 hover:text-cyan-600 hover:border-cyan-400 hover:scale-105 transition-all shadow-sm"
               title="Send Message"
             >
-              <FiMail className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" />
+              <FiMail className="w-5 h-5 text-cyan-600" />
             </a>
 
             <a
               href="https://www.facebook.com/johnlloyd.galito.33"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400 hover:scale-110 transition-all duration-300 shadow-lg"
+              className="w-12 h-12 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700 hover:text-cyan-600 hover:border-cyan-400 hover:scale-105 transition-all shadow-sm"
               title="Facebook Profile"
             >
-              <FaFacebook className="w-4 h-4 md:w-5 md:h-5" />
+              <FaFacebook className="w-5 h-5" />
             </a>
           </motion.div>
         </div>
 
-        {/* Right Column: Crisp, Framed Cyber Portrait (No Foggy Washes!) */}
+        {/* Right Column: Crisp, Framed Cyber Portrait (Real Photo) */}
         <div className="lg:col-span-5 flex items-center justify-center lg:justify-end">
           <motion.div
             style={{
@@ -164,32 +164,18 @@ export default function Hero({ onOpenResume }) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="hero-portrait-card relative w-full max-w-[440px] aspect-[4/5] rounded-[2rem] overflow-hidden border border-white/15 shadow-2xl p-2 bg-[#0d0d0d]/80 backdrop-blur-xl group"
+            className="hero-portrait-card relative w-full max-w-[320px] sm:max-w-[350px] aspect-[4/5] rounded-[2rem] overflow-hidden border border-slate-200 shadow-xl p-2 bg-white backdrop-blur-xl group"
           >
             {/* Ambient inner glow */}
             <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-transparent opacity-50 group-hover:opacity-80 transition-opacity pointer-events-none" />
 
             {/* Crisp Portrait Container */}
-            <div className="relative w-full h-full rounded-[1.6rem] overflow-hidden bg-[#07080b]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
+            <div className="relative w-full h-full rounded-[1.6rem] overflow-hidden bg-slate-900">
               <img
-                src="/images/profile.jpg"
+                src="/images/profile.jpg?v=real"
                 alt="John Lloyd Galito"
                 className="w-full h-full object-cover object-[center_20%] filter contrast-105 brightness-100 group-hover:scale-105 transition-transform duration-700"
               />
-
-              {/* Bottom Subtle Identity Tag */}
-              <div className="absolute bottom-3 left-3 right-3 p-3 rounded-xl bg-black/60 dark:bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-white tracking-wide">
-                    John Lloyd Galito
-                  </p>
-                  <p className="text-[10px] text-cyan-300 font-mono tracking-wider">
-                    Full-Stack Software Developer
-                  </p>
-                </div>
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-              </div>
             </div>
           </motion.div>
         </div>

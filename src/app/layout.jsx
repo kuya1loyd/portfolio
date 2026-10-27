@@ -9,15 +9,15 @@ export const metadata = {
 }
 
 export const viewport = {
-  themeColor: '#000000',
+  themeColor: '#ffffff',
   width: 'device-width',
   initialScale: 1,
 }
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className="overflow-x-hidden">
-      <body className="bg-black text-white font-sans antialiased overflow-x-hidden selection:bg-white selection:text-black">
+    <html lang="en" className="light overflow-x-hidden">
+      <body className="bg-white text-slate-900 font-sans antialiased overflow-x-hidden selection:bg-cyan-500 selection:text-white">
         {children}
       </body>
     </html>

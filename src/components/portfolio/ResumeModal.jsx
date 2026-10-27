@@ -49,14 +49,14 @@ export default function ResumeModal({ isOpen, onClose }) {
             exit={{ scale: 0.95, opacity: 0, y: 15 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             onClick={(e) => e.stopPropagation()}
-            className="relative max-w-4xl w-full bg-[#0d1117] border border-cyan-500/25 rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.8)] flex flex-col max-h-[94vh]"
+            className="resume-modal-shell relative max-w-4xl w-full bg-[#0d1117] border border-cyan-500/35 rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.85)] flex flex-col max-h-[92vh]"
           >
             {/* Modal Control Header */}
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/10 bg-[#161b22] text-white">
+            <div className="resume-modal-header flex items-center justify-between px-4 sm:px-6 py-3.5 border-b border-white/10 bg-[#161b22] text-white">
               <div className="flex items-center gap-2.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-                <h3 className="text-xs sm:text-sm font-bold tracking-wider uppercase font-mono text-white/90">
-                  John Lloyd Galito — Resume
+                <h3 className="text-xs sm:text-sm font-bold tracking-wider uppercase font-mono text-white/95">
+                  John Lloyd Galito — Curriculum Vitae
                 </h3>
               </div>
 
@@ -64,7 +64,7 @@ export default function ResumeModal({ isOpen, onClose }) {
                 <button
                   type="button"
                   onClick={copyEmail}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-mono transition-colors cursor-pointer border border-white/10"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/85 hover:text-white text-xs font-mono font-medium transition-colors cursor-pointer border border-white/10"
                   title="Copy email to clipboard"
                 >
                   {copied ? <FiCheck className="text-emerald-400" /> : <FiCopy className="text-cyan-400" />}
@@ -93,12 +93,11 @@ export default function ResumeModal({ isOpen, onClose }) {
             </div>
 
             {/* Resume Content Viewport */}
-            <div className="p-3 sm:p-6 md:p-8 overflow-y-auto flex justify-center bg-[#090d13]">
+            <div className="resume-viewport p-3 sm:p-6 md:p-8 overflow-y-auto flex justify-center bg-[#090d13]">
               {/* Paper Sheet Layout */}
               <div
                 id="printable-resume"
-                className="w-full max-w-3xl bg-white text-[#1a1a1a] p-6 sm:p-10 md:p-12 rounded-lg shadow-2xl font-sans text-[13px] leading-relaxed select-text"
-                style={{ minHeight: '1000px' }}
+                className="w-full max-w-3xl bg-white text-[#1a1a1a] p-6 sm:p-10 md:p-12 pb-16 sm:pb-20 rounded-xl shadow-2xl font-sans text-[13px] leading-relaxed select-text"
               >
                 {/* Header */}
                 <header className="text-center pb-4 mb-3 border-b border-gray-200">
@@ -106,7 +105,7 @@ export default function ResumeModal({ isOpen, onClose }) {
                     JOHN LLOYD GALITO
                   </h1>
                   <p className="text-sm sm:text-base font-semibold text-gray-700 mt-0.5">
-                    Full Stack Developer
+                    AI-Assisted Full Stack Developer
                   </p>
 
                   <div className="mt-2 text-[11px] sm:text-xs text-gray-600 flex flex-wrap justify-center items-center gap-x-2 gap-y-1">
@@ -140,7 +139,7 @@ export default function ResumeModal({ isOpen, onClose }) {
                     SUMMARY
                   </div>
                   <p className="text-gray-700 text-justify text-[12.5px] leading-relaxed px-1">
-                    Full stack developer who enjoys building websites and applications that are simple, useful, and easy to use. Experienced in developing responsive web projects, improving usability, and debugging practical issues. Uses AI-assisted tools to explore solutions, speed up development, and reduce repetitive tasks.
+                    AI-Assisted Full Stack Developer specialized in building complete, high-performance web and mobile systems significantly faster and in far fewer days. Combines deep software engineering fundamentals with modern AI developer tooling to rapidly architect, scaffold, and deliver production-ready applications with high reliability.
                   </p>
                 </section>
 
@@ -238,11 +237,11 @@ export default function ResumeModal({ isOpen, onClose }) {
                 </section>
 
                 {/* Languages Section */}
-                <section className="mb-2">
+                <section className="mb-4">
                   <div className="bg-[#e2e8f0] text-gray-900 font-bold px-2.5 py-1 text-xs uppercase tracking-wider rounded-sm mb-2">
                     LANGUAGES
                   </div>
-                  <p className="text-gray-700 text-[12px] px-1">
+                  <p className="text-gray-800 font-medium text-[12.5px] px-1">
                     English, Filipino
                   </p>
                 </section>

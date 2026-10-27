@@ -10,7 +10,6 @@ import Certificates from '../components/portfolio/Certificates'
 import Contact from '../components/portfolio/Contact'
 import Footer from '../components/portfolio/Footer'
 import ResumeModal from '../components/portfolio/ResumeModal'
-import CyberBackground from '../components/portfolio/CyberBackground'
 
 export default function HomePage() {
   const [isResumeOpen, setIsResumeOpen] = useState(false)
@@ -24,10 +23,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="relative min-h-screen bg-black text-white font-sans selection:bg-white selection:text-black">
-      {/* Animated Cybersecurity Matrix, Telemetry & Scanline Background */}
-      <CyberBackground />
-
+    <div className="relative min-h-screen bg-white text-slate-900 font-sans selection:bg-cyan-500 selection:text-white">
       {/* Top Navigation */}
       <Navbar onOpenResume={handleOpenResume} />
 

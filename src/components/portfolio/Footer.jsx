@@ -17,32 +17,32 @@ export default function Footer() {
   ]
 
   return (
-    <footer className="relative bg-transparent text-white py-16 px-6 lg:px-12 border-t border-white/5 overflow-hidden">
+    <footer className="relative bg-transparent text-slate-900 py-16 px-6 lg:px-12 border-t border-slate-200 overflow-hidden">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
         {/* Brand */}
         <div className="flex flex-col items-center md:items-start">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white text-black font-extrabold flex items-center justify-center text-xs tracking-tight">
+            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white font-extrabold flex items-center justify-center text-xs tracking-tight shadow-sm">
               JLG
             </div>
             <div>
-              <span className="text-base font-bold tracking-tight text-white block">
+              <span className="text-base font-bold tracking-tight text-slate-900 block">
                 JOHN LLOYD GALITO
               </span>
-              <span className="text-[10px] font-mono text-white/40 tracking-widest block uppercase">
-                Full-Stack Developer (Front-End &amp; Back-End)
+              <span className="text-xs font-mono text-slate-500 tracking-wider block uppercase font-medium">
+                AI-Assisted Full-Stack Developer
               </span>
             </div>
           </div>
         </div>
 
         {/* Links */}
-        <div className="flex flex-wrap items-center justify-center gap-6 text-[11px] font-mono tracking-[0.2em] text-white/50">
+        <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-mono tracking-widest text-slate-600 font-semibold">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              className="hover:text-white transition-colors"
+              className="hover:text-cyan-600 transition-colors"
             >
               {link.label}
             </a>
@@ -53,16 +53,16 @@ export default function Footer() {
         <div className="flex items-center gap-3">
           <a
             href="#contact"
-            className="w-10 h-10 rounded-full bg-white/5 hover:bg-white text-white/60 hover:text-black border border-white/10 flex items-center justify-center transition-all duration-300"
+            className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-cyan-600 border border-slate-300 flex items-center justify-center transition-all shadow-sm"
             title="Send Message"
           >
-            <FiMail className="w-4 h-4 text-cyan-400" />
+            <FiMail className="w-4 h-4 text-cyan-600" />
           </a>
           <a
             href="https://www.facebook.com/johnlloyd.galito.33"
             target="_blank"
             rel="noopener noreferrer"
-            className="w-10 h-10 rounded-full bg-white/5 hover:bg-[#1877F2] text-white/60 hover:text-white border border-white/10 flex items-center justify-center transition-all duration-300"
+            className="w-11 h-11 rounded-full bg-slate-100 hover:bg-[#1877F2] text-slate-700 hover:text-white border border-slate-300 flex items-center justify-center transition-all shadow-sm"
             title="Facebook Profile"
           >
             <FaFacebook className="w-4 h-4" />
@@ -70,7 +70,7 @@ export default function Footer() {
           <button
             type="button"
             onClick={scrollToTop}
-            className="w-10 h-10 rounded-full bg-white/5 hover:bg-white text-white/60 hover:text-black border border-white/10 flex items-center justify-center transition-all duration-300 shadow-md group"
+            className="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-900 text-slate-700 hover:text-white border border-slate-300 flex items-center justify-center transition-all shadow-sm cursor-pointer group"
             title="Scroll to top"
           >
             <FiArrowUp className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
@@ -78,11 +78,11 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/30 font-mono">
+      <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 font-mono">
         <p>© {new Date().getFullYear()} John Lloyd Galito. Built with passion &amp; precision.</p>
         <p className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          Status: Open to Full-Stack, Front-End &amp; Back-End Engineering Roles
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span>Status: Open to Full-Stack, Front-End &amp; Back-End Engineering Roles</span>
         </p>
       </div>
     </footer>

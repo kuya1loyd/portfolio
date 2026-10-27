@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { FiMail, FiMapPin, FiCopy, FiCheck, FiSend } from 'react-icons/fi'
+import { FaFacebook } from 'react-icons/fa'
 
 const projectTypes = [
   'Web Application (React, Next.js, Portal)',
@@ -93,65 +95,75 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="relative py-20 px-6 lg:px-12 bg-transparent text-white border-t border-white/5">
+    <section id="contact" className="relative py-24 sm:py-28 px-6 lg:px-12 bg-transparent text-slate-900 border-t border-slate-200/80">
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-mono">
+              <span className="text-xs uppercase tracking-[0.3em] text-cyan-600 font-mono font-bold">
                 CONTACT
               </span>
-              <div className="h-px w-8 bg-white/20" />
+              <div className="h-px w-10 bg-slate-300" />
             </div>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight font-sans">
-              LET&apos;S <span className="text-white/40">CONNECT.</span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight font-sans text-slate-900">
+              LET&apos;S <span className="text-slate-400">CONNECT.</span>
             </h2>
-            <p className="mt-2 text-xs text-white/50 max-w-lg font-light">
-              Send your project requirements directly to <span className="text-cyan-300 font-mono">{recipientEmail}</span>.
+            <p className="mt-2 text-sm sm:text-base text-slate-600 max-w-lg font-normal">
+              Send your project requirements directly to <span className="text-cyan-700 font-mono font-semibold">{recipientEmail}</span>.
             </p>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left: Compact Contact Info */}
-          <div className="lg:col-span-4 p-5 rounded-xl bg-[#121212] border border-white/10 space-y-4">
+          {/* Left: Direct Contact Information Card */}
+          <div className="lg:col-span-4 p-6 sm:p-7 rounded-2xl bg-slate-50 border border-slate-200 shadow-sm space-y-6">
             <div>
-              <p className="text-[10px] font-mono tracking-widest uppercase text-white/40 mb-1">
-                Email
-              </p>
-              <p className="text-sm font-semibold text-white break-all">
+              <div className="flex items-center gap-2 text-xs font-mono tracking-wider uppercase text-slate-500 font-bold mb-1.5">
+                <FiMail className="w-4 h-4 text-cyan-600" />
+                <span>Email Address</span>
+              </div>
+              <p className="text-sm sm:text-base font-bold text-slate-900 break-all">
                 {recipientEmail}
               </p>
               <button
                 type="button"
                 onClick={copyEmailToClipboard}
-                className="mt-2 text-xs font-mono text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer"
+                className="mt-2 inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-cyan-600 hover:text-cyan-700 transition-colors cursor-pointer py-1"
               >
-                {copied ? 'Copied to clipboard' : 'Copy Email'}
+                {copied ? <FiCheck className="w-3.5 h-3.5 text-emerald-600" /> : <FiCopy className="w-3.5 h-3.5" />}
+                <span>{copied ? 'Copied to clipboard!' : 'Copy Email'}</span>
               </button>
             </div>
 
-            <div className="pt-3 border-t border-white/5">
-              <p className="text-[10px] font-mono tracking-widest uppercase text-white/40 mb-1">
-                Facebook
-              </p>
+            <div className="pt-4 border-t border-slate-200">
+              <div className="flex items-center gap-2 text-xs font-mono tracking-wider uppercase text-slate-500 font-bold mb-1.5">
+                <FaFacebook className="w-4 h-4 text-[#1877F2]" />
+                <span>Facebook Profile</span>
+              </div>
               <a
                 href="https://www.facebook.com/johnlloyd.galito.33"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-semibold text-white hover:text-cyan-300 transition-colors inline-block"
+                className="text-sm sm:text-base font-bold text-cyan-700 hover:text-cyan-800 hover:underline transition-colors inline-block"
               >
                 John Lloyd Galito
               </a>
+              <p className="text-xs text-slate-500 mt-0.5 font-mono">
+                facebook.com/johnlloyd.galito.33
+              </p>
             </div>
 
-            <div className="pt-3 border-t border-white/5">
-              <p className="text-[10px] font-mono tracking-widest uppercase text-white/40 mb-1">
-                Location
-              </p>
-              <p className="text-sm font-semibold text-white">
+            <div className="pt-4 border-t border-slate-200">
+              <div className="flex items-center gap-2 text-xs font-mono tracking-wider uppercase text-slate-500 font-bold mb-1.5">
+                <FiMapPin className="w-4 h-4 text-cyan-600" />
+                <span>Location</span>
+              </div>
+              <p className="text-sm sm:text-base font-bold text-slate-900">
                 Butuan City, Philippines (GMT+8)
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Available for local &amp; remote global projects
               </p>
             </div>
           </div>
@@ -160,18 +172,18 @@ export default function Contact() {
           <div className="lg:col-span-8">
             <form
               onSubmit={handleSubmit}
-              className="p-6 md:p-7 rounded-xl bg-[#121212] border border-white/10 space-y-4 shadow-xl"
+              className="p-6 sm:p-8 rounded-2xl bg-white border border-slate-200 shadow-md space-y-5"
             >
               {/* Row 1: What do you need created? & Estimated Timeline */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-cyan-400 mb-1.5 font-medium">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
                     What do you need created?
                   </label>
                   <select
                     value={formData.projectType}
                     onChange={(e) => setFormData({ ...formData, projectType: e.target.value })}
-                    className="contact-input w-full px-3.5 py-2.5 rounded-lg border text-sm font-sans focus:outline-none cursor-pointer"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-sm font-sans focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none cursor-pointer transition-all"
                   >
                     {projectTypes.map((type) => (
                       <option key={type} value={type}>
@@ -182,13 +194,13 @@ export default function Contact() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-white/60 mb-1.5 font-medium">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
                     Estimated Timeline
                   </label>
                   <select
                     value={formData.timeline}
                     onChange={(e) => setFormData({ ...formData, timeline: e.target.value })}
-                    className="contact-input w-full px-3.5 py-2.5 rounded-lg border text-sm font-sans focus:outline-none cursor-pointer"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-sm font-sans focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none cursor-pointer transition-all"
                   >
                     {timelineOptions.map((time) => (
                       <option key={time} value={time}>
@@ -202,7 +214,7 @@ export default function Contact() {
               {/* Row 2: Name & Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-white/60 mb-1.5 font-medium">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
                     Your Name
                   </label>
                   <input
@@ -211,12 +223,12 @@ export default function Contact() {
                     placeholder="e.g. Alex Morgan"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="contact-input w-full px-3.5 py-2.5 rounded-lg border text-sm font-sans focus:outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-sm font-sans focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none transition-all placeholder:text-slate-400"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-mono uppercase tracking-wider text-white/60 mb-1.5 font-medium">
+                  <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
                     Email Address
                   </label>
                   <input
@@ -225,28 +237,28 @@ export default function Contact() {
                     placeholder="alex@example.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="contact-input w-full px-3.5 py-2.5 rounded-lg border text-sm font-sans focus:outline-none"
+                    className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-sm font-sans focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none transition-all placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
               {/* Row 3: Subject */}
               <div>
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-white/60 mb-1.5 font-medium">
+                <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
                   Subject / Topic
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Project Inquiry"
+                  placeholder="e.g. System Development Inquiry"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  className="contact-input w-full px-3.5 py-2.5 rounded-lg border text-sm font-sans focus:outline-none"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-sm font-sans focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none transition-all placeholder:text-slate-400"
                 />
               </div>
 
               {/* Row 4: Message / Requirements */}
               <div>
-                <label className="block text-[11px] font-mono uppercase tracking-wider text-white/70 mb-1.5 font-medium">
+                <label className="block text-xs font-mono uppercase tracking-wider text-slate-700 mb-1.5 font-bold">
                   Project Details / What You Need Created
                 </label>
                 <textarea
@@ -255,7 +267,7 @@ export default function Contact() {
                   placeholder="Describe what you want built (features, purpose, platforms, or specifications)..."
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="contact-input w-full px-3.5 py-2.5 rounded-lg border text-sm font-sans focus:outline-none resize-none leading-relaxed"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-300 bg-slate-50 text-slate-900 text-sm font-sans focus:bg-white focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 focus:outline-none resize-none leading-relaxed transition-all placeholder:text-slate-400"
                 />
               </div>
 
@@ -263,9 +275,10 @@ export default function Contact() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-3 rounded-lg bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-cyan-400 transition-colors disabled:opacity-60 cursor-pointer"
+                className="w-full py-4 rounded-xl bg-slate-900 !text-white font-bold text-sm uppercase tracking-wider hover:bg-cyan-600 transition-all disabled:opacity-60 cursor-pointer shadow-md flex items-center justify-center gap-2"
               >
-                {isSubmitting ? 'Sending Message...' : 'Send Message'}
+                <FiSend className="w-4 h-4 !text-white" />
+                <span className="!text-white">{isSubmitting ? 'Sending Message...' : 'Send Message'}</span>
               </button>
             </form>
           </div>
