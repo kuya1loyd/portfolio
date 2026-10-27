@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FiCheck, FiMapPin, FiFileText, FiCode, FiDatabase, FiSmartphone, FiShield, FiArrowRight } from 'react-icons/fi'
+import { FiCheck, FiMapPin, FiCode, FiDatabase, FiSmartphone, FiShield, FiArrowRight } from 'react-icons/fi'
 
 const HIGHLIGHTS = [
   {
@@ -95,21 +95,12 @@ export default function About({ onOpenResume }) {
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center gap-4 pt-4">
-              <button
-                type="button"
-                onClick={onOpenResume}
-                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-slate-900 !text-white font-bold text-sm tracking-wide hover:bg-cyan-600 transition-all shadow-md cursor-pointer"
-              >
-                <FiFileText className="w-4 h-4 !text-white" />
-                <span className="!text-white">Show CV</span>
-              </button>
-
               <a
                 href="#contact"
-                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 hover:text-slate-900 font-bold text-sm tracking-wide transition-all shadow-sm"
+                className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-slate-900 hover:bg-cyan-600 !text-white font-bold text-sm tracking-wide transition-all shadow-md group"
               >
-                <span>Get In Touch</span>
-                <FiArrowRight className="w-4 h-4 text-cyan-600" />
+                <span className="!text-white">Get In Touch</span>
+                <FiArrowRight className="w-4 h-4 !text-white group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
           </div>
