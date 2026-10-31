@@ -1,191 +1,201 @@
 'use client'
 
-import { useRef } from 'react'
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
-import { FiExternalLink, FiMail, FiFileText } from 'react-icons/fi'
-import { FaFacebook } from 'react-icons/fa'
+import { useRef, useState, useEffect } from 'react'
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion'
+import { FiFileText, FiArrowDown } from 'react-icons/fi'
+import { FaFacebook, FaLinkedinIn, FaInstagram } from 'react-icons/fa'
+import SwingingBadge from './SwingingBadge'
 
 export default function Hero({ onOpenResume }) {
   const heroRef = useRef(null)
+  const [isMobile, setIsMobile] = useState(false)
 
-  // 3D Parallax & Cursor Pan physics
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
+  useEffect(() => {
+    const checkViewport = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkViewport()
+    window.addEventListener('resize', checkViewport)
+    return () => window.removeEventListener('resize', checkViewport)
+  }, [])
 
-  const springConfig = { damping: 30, stiffness: 140, mass: 0.8 }
-  const smoothX = useSpring(mouseX, springConfig)
-  const smoothY = useSpring(mouseY, springConfig)
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end end']
+  })
 
-  const rotateX = useTransform(smoothY, [-0.5, 0.5], [6, -6])
-  const rotateY = useTransform(smoothX, [-0.5, 0.5], [-8, 8])
-  const panX = useTransform(smoothX, [-0.5, 0.5], [-15, 15])
-  const panY = useTransform(smoothY, [-0.5, 0.5], [-12, 12])
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 110,
+    damping: 24,
+    mass: 0.35
+  })
 
-  const handleMouseMove = (e) => {
-    if (!heroRef.current) return
-    const rect = heroRef.current.getBoundingClientRect()
-    const width = rect.width
-    const height = rect.height
-    const clientX = e.clientX - rect.left
-    const clientY = e.clientY - rect.top
+  // Badge scroll animation: starts centered in front of "HI, I'M JOHN LLOYD",
+  // then glides up-left & tilts as you scroll to reveal "FULL-STACK DEVELOPER"
+  const badgeX = useTransform(
+    smoothProgress,
+    [0, 0.55],
+    [0, isMobile ? -58 : -195]
+  )
+  const badgeY = useTransform(
+    smoothProgress,
+    [0, 0.55],
+    [0, isMobile ? -55 : -92]
+  )
+  const badgeRotate = useTransform(smoothProgress, [0, 0.55], [0, -7])
 
-    mouseX.set(clientX / width - 0.5)
-    mouseY.set(clientY / height - 0.5)
-  }
+  // "FULL-STACK DEVELOPER" scroll reveal animation
+  const roleOpacity = useTransform(smoothProgress, [0.1, 0.48], [0, 1])
+  const roleY = useTransform(smoothProgress, [0.1, 0.48], [44, 0])
+  const roleScale = useTransform(smoothProgress, [0.1, 0.48], [0.94, 1])
 
-  const handleMouseLeave = () => {
-    mouseX.set(0)
-    mouseY.set(0)
-  }
+  // Subtle shift of "HI, I'M JOHN LLOYD" as role text reveals underneath
+  const titleY = useTransform(smoothProgress, [0, 0.55], [0, isMobile ? -12 : -22])
+
+  // Bottom-left bio & bottom-center scroll indicator fade out smoothly on scroll
+  const bioOpacity = useTransform(smoothProgress, [0, 0.35], [1, 0])
+  const bioY = useTransform(smoothProgress, [0, 0.35], [0, 18])
+  const scrollHintOpacity = useTransform(smoothProgress, [0, 0.22], [1, 0])
 
   return (
     <section
       id="hero"
       ref={heroRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      className="relative w-full min-h-[100vh] flex items-center justify-center overflow-hidden bg-transparent select-none pt-28 pb-16"
+      className="relative w-full h-[195vh] select-none bg-transparent"
     >
-      {/* Ambient Grid Background */}
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.05] bg-[radial-gradient(#00f0ff_1px,transparent_1px)] [background-size:32px_32px]" />
-      
-      {/* Ambient Cyber Glow */}
-      <div className="absolute right-10 top-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/[0.04] rounded-full blur-[140px] pointer-events-none" />
+      {/* Sticky Full-Viewport Stage */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col items-center justify-center">
+        {/* Ambient Starfield & Grid Background */}
+        <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.14] dark:opacity-[0.22] bg-[radial-gradient(#64748b_1px,transparent_1px)] dark:bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:48px_48px]" />
+        <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.08] dark:opacity-[0.14] bg-[radial-gradient(#06b6d4_1.2px,transparent_1.2px)] [background-size:110px_110px] [background-position:24px_36px]" />
 
-      {/* ============================================================== */}
-      {/* TRANSPARENT OUTLINE SLIDING MARQUEE WATERMARK */}
-      {/* ============================================================== */}
-      <div className="absolute top-[28%] left-0 right-0 overflow-hidden pointer-events-none select-none whitespace-nowrap z-0">
+        {/* Top Center Ambient Lanyard Spotlight Glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[320px] h-[160px] bg-blue-500/15 dark:bg-indigo-500/25 rounded-full blur-[70px] pointer-events-none z-0" />
+
+        {/* Ambient Center Glow for Role Reveal */}
         <motion.div
-          className="hero-marquee inline-block text-[14vw] font-black tracking-tighter uppercase font-sans leading-none pointer-events-none"
-          animate={{ x: [0, -1500] }}
-          transition={{ repeat: Infinity, duration: 28, ease: 'linear' }}
-        >
-          JOHN LLOYD GALITO — FULL-STACK DEVELOPER — JOHN LLOYD GALITO — FULL-STACK DEVELOPER —
-        </motion.div>
-      </div>
+          style={{ opacity: roleOpacity }}
+          className="absolute top-[38%] left-[55%] -translate-x-1/2 -translate-y-1/2 w-[480px] h-[260px] bg-purple-500/10 dark:bg-purple-500/15 rounded-full blur-[120px] pointer-events-none z-0"
+        />
 
-      {/* ============================================================== */}
-      {/* HERO MAIN CONTENT GRID (Two-Column Balanced Layout) */}
-      {/* ============================================================== */}
-      <div className="relative z-10 w-full max-w-[1500px] mx-auto px-6 md:px-14 lg:px-20 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center min-h-[75vh]">
-        
-        {/* Left Column: Typography & Actions */}
-        <div className="lg:col-span-7 flex flex-col justify-center">
-          {/* Status Kicker Pill */}
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-cyan-50 border border-cyan-200 mb-6 self-start shadow-sm"
-          >
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse" />
-            <span className="text-xs font-mono font-bold tracking-wider uppercase text-cyan-700">
-              AVAILABLE FOR HIRE // AI-ASSISTED FULL-STACK
-            </span>
-          </motion.div>
-
-          {/* Main Hero Header */}
+        {/* ============================================================== */}
+        {/* CENTER TYPOGRAPHY STAGE ("HI, I'M JOHN LLOYD" + SCROLL REVEAL) */}
+        {/* ============================================================== */}
+        <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-8 flex flex-col items-center justify-center -mt-20 sm:-mt-16 lg:-mt-20 pointer-events-none">
+          {/* Giant Metallic Headline */}
           <motion.h1
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 leading-[1.08] font-sans"
+            style={{ y: titleY }}
+            className="text-[clamp(2.15rem,7.6vw,7.4rem)] font-black tracking-tight uppercase leading-none text-center whitespace-nowrap bg-gradient-to-b from-slate-900 via-slate-700 to-slate-400 dark:from-white dark:via-slate-200 dark:to-slate-500 bg-clip-text text-transparent drop-shadow-xs"
           >
-            JOHN LLOYD <br />
-            <span className="text-slate-400">GALITO.</span>
+            HI, I&apos;M JOHN LLOYD
           </motion.h1>
 
-          {/* Subtitle / Role */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="mt-6 text-base sm:text-lg md:text-xl text-slate-600 max-w-xl font-normal leading-relaxed"
-          >
-            AI-Assisted Full-Stack Developer leveraging artificial intelligence to build complete, production-ready systems significantly faster—delivering what others build in weeks or months in just a few days.
-          </motion.p>
-
-          {/* Actions & Social Links */}
+          {/* Scroll-Revealed "FULL-STACK DEVELOPER" Underneath Right/Center */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="mt-8 flex flex-wrap items-center gap-4"
+            style={{
+              opacity: roleOpacity,
+              y: roleY,
+              scale: roleScale
+            }}
+            className="mt-2 sm:mt-3 md:mt-4 self-center md:self-end md:mr-[6%] lg:mr-[10%] text-center md:text-left"
           >
-            <a
-              href="#projects"
-              className="px-7 py-3.5 rounded-full bg-slate-900 !text-white font-bold text-sm tracking-wide hover:bg-cyan-600 transition-all shadow-md flex items-center gap-2"
+            <div
+              style={{
+                backgroundImage:
+                  'linear-gradient(90deg, rgba(236, 72, 153, 0.85) 0%, rgba(168, 85, 247, 0.88) 50%, rgba(56, 189, 248, 0.9) 100%)',
+                WebkitBackgroundClip: 'text',
+                backgroundClip: 'text',
+                color: 'transparent'
+              }}
+              className="text-[clamp(1.85rem,6.2vw,5.8rem)] font-black tracking-tight uppercase leading-[0.96] font-sans select-none"
             >
-              <span className="!text-white">Explore Works</span>
-              <FiExternalLink className="w-4 h-4 !text-white" />
-            </a>
+              <div>FULL-STACK</div>
+              <div>DEVELOPER</div>
+            </div>
+          </motion.div>
+        </div>
 
+        {/* ============================================================== */}
+        {/* HANGING INTERACTIVE FSUU ID BADGE (CENTER -> SWINGS UP-LEFT)   */}
+        {/* ============================================================== */}
+        <div className="absolute top-0 inset-x-0 flex justify-center z-20 pointer-events-none">
+          <motion.div
+            style={{
+              x: badgeX,
+              y: badgeY,
+              rotate: badgeRotate
+            }}
+            className="origin-top scale-[0.78] sm:scale-90 lg:scale-95 xl:scale-100 pointer-events-none"
+          >
+            <SwingingBadge lanyardHeight={215} />
+          </motion.div>
+        </div>
+
+        {/* ============================================================== */}
+        {/* BOTTOM-LEFT BIO & QUICK PORTFOLIO LINKS                        */}
+        {/* ============================================================== */}
+        <motion.div
+          style={{ opacity: bioOpacity, y: bioY }}
+          className="absolute bottom-16 sm:bottom-9 left-5 sm:left-10 lg:left-14 z-30 max-w-[290px] sm:max-w-xs"
+        >
+          <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-200 leading-relaxed">
+            An AI-assisted full-stack developer passionate about building fast,
+            reliable, and memorable web apps.
+          </p>
+
+          <div className="mt-3.5 flex flex-wrap items-center gap-2">
             <button
               type="button"
               onClick={onOpenResume}
-              className="px-7 py-3.5 rounded-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-bold text-sm tracking-wide transition-all shadow-sm cursor-pointer flex items-center gap-2"
+              className="px-3.5 py-1.5 rounded-full bg-slate-900/90 hover:bg-cyan-600 dark:bg-white/10 dark:hover:bg-white/20 border border-slate-800 dark:border-white/15 text-white font-bold text-xs tracking-wide transition-all cursor-pointer inline-flex items-center gap-1.5 shadow-xs"
               title="Show Curriculum Vitae / Resume"
             >
-              <FiFileText className="w-4 h-4 text-cyan-600" />
-              <span>Show CV</span>
+              <FiFileText className="w-3.5 h-3.5 text-cyan-400" />
+              <span className="!text-white">Show CV</span>
             </button>
 
             <a
-              href="#contact"
-              className="w-12 h-12 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700 hover:text-cyan-600 hover:border-cyan-400 hover:scale-105 transition-all shadow-sm"
-              title="Send Message"
+              href="https://www.linkedin.com/in/john-lloyd-galito-299a80422/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-[#0077B5] dark:bg-white/10 dark:hover:bg-[#0077B5] border border-slate-300 dark:border-white/15 flex items-center justify-center text-slate-700 dark:text-white hover:text-white transition-all"
+              title="LinkedIn Profile"
             >
-              <FiMail className="w-5 h-5 text-cyan-600" />
+              <FaLinkedinIn className="w-3.5 h-3.5" />
+            </a>
+
+            <a
+              href="https://www.instagram.com/john_lloyd_galito/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-[#E4405F] dark:bg-white/10 dark:hover:bg-[#E4405F] border border-slate-300 dark:border-white/15 flex items-center justify-center text-slate-700 dark:text-white hover:text-white transition-all"
+              title="Instagram Profile"
+            >
+              <FaInstagram className="w-3.5 h-3.5" />
             </a>
 
             <a
               href="https://www.facebook.com/johnlloyd.galito.33"
               target="_blank"
               rel="noopener noreferrer"
-              className="w-12 h-12 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-700 hover:text-cyan-600 hover:border-cyan-400 hover:scale-105 transition-all shadow-sm"
+              className="w-8 h-8 rounded-full bg-slate-200/80 hover:bg-[#1877F2] dark:bg-white/10 dark:hover:bg-[#1877F2] border border-slate-300 dark:border-white/15 flex items-center justify-center text-slate-700 dark:text-white hover:text-white transition-all"
               title="Facebook Profile"
             >
-              <FaFacebook className="w-5 h-5" />
+              <FaFacebook className="w-3.5 h-3.5" />
             </a>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
 
-        {/* Right Column: Crisp, Framed Cyber Portrait (Real Photo) */}
-        <div className="lg:col-span-5 flex items-center justify-center lg:justify-end">
-          <motion.div
-            style={{
-              rotateX,
-              rotateY,
-              x: panX,
-              y: panY,
-              transformPerspective: 1000
-            }}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="hero-portrait-card relative w-full max-w-[320px] sm:max-w-[350px] aspect-[4/5] rounded-[2rem] overflow-hidden border border-slate-200 shadow-xl p-2 bg-white backdrop-blur-xl group"
-          >
-            {/* Ambient inner glow */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/10 via-transparent to-transparent opacity-50 group-hover:opacity-80 transition-opacity pointer-events-none" />
-
-            {/* Crisp Portrait Container */}
-            <div className="relative w-full h-full rounded-[1.6rem] overflow-hidden bg-slate-900">
-              <img
-                src="/images/profile.jpg?v=real"
-                alt="John Lloyd Galito"
-                className="w-full h-full object-cover object-[center_20%] filter contrast-105 brightness-100 group-hover:scale-105 transition-transform duration-700"
-              />
-            </div>
-          </motion.div>
-        </div>
-
-      </div>
-
-      {/* Bottom HUD Coordinates */}
-      <div className="absolute bottom-6 right-6 z-20 hidden sm:flex items-center gap-1.5 text-[9px] font-mono text-white/40 tracking-widest uppercase pointer-events-none">
-        <span className="text-cyan-400">&gt;_</span>
-        <span>SYS_STATUS: ONLINE</span>
+        {/* ============================================================== */}
+        {/* BOTTOM-CENTER "SCROLL ↓" INDICATOR                             */}
+        {/* ============================================================== */}
+        <motion.div
+          style={{ opacity: scrollHintOpacity }}
+          className="absolute bottom-4 sm:bottom-7 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400 pointer-events-none"
+        >
+          <span>SCROLL</span>
+          <FiArrowDown className="w-3.5 h-3.5 animate-bounce" />
+        </motion.div>
       </div>
     </section>
   )

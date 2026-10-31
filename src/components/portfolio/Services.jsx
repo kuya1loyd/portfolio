@@ -42,22 +42,24 @@ const Services = () => {
   const reduceMotion = useReducedMotion()
 
   return (
-    <section id="services" className="relative w-full py-20 px-6 md:px-16 lg:px-24 bg-transparent text-white overflow-hidden border-t border-white/5">
+    <section
+      id="services"
+      className="relative w-full py-24 px-6 md:px-16 lg:px-24 bg-transparent text-slate-900 dark:text-white overflow-hidden border-t border-slate-200/80 dark:border-white/10"
+    >
       <div className="max-w-[1500px] mx-auto space-y-12">
-        
         {/* Section Header */}
-        <div className="flex flex-col gap-2">
-          <span className="text-[10px] uppercase tracking-[0.5em] text-white/40 font-mono">
+        <div className="flex flex-col gap-2.5">
+          <span className="text-xs sm:text-sm uppercase tracking-[0.35em] text-cyan-700 dark:text-cyan-400 font-mono font-bold">
             WHAT I DO // CORE COMPETENCIES
           </span>
-          <div className="h-px w-[min(70vw,420px)] bg-gradient-to-r from-white/60 via-white/20 to-transparent" />
-          <h2 className="text-[clamp(2.4rem,calc(6vw+.8rem),5rem)] font-bold text-white leading-none tracking-tight select-none">
+          <div className="h-px w-[min(70vw,420px)] bg-gradient-to-r from-slate-400 via-slate-200 to-transparent dark:from-white/60 dark:via-white/20 dark:to-transparent" />
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 dark:text-white leading-none tracking-tight select-none">
             Services
           </h2>
         </div>
 
-        {/* Adjusted Sleek Service Cards (Compact & Connected to Skills) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Service Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-7">
           {services.map((service, index) => {
             const Icon = service.icon
             return (
@@ -67,42 +69,42 @@ const Services = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.5, delay: index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                className="group relative bg-[#121212] rounded-[1.75rem] border border-white/10 p-6 md:p-7 flex flex-col justify-between transition-all duration-300 hover:border-cyan-400/40 hover:-translate-y-1 overflow-hidden shadow-xl"
+                className="group relative bg-white dark:bg-[#131722] rounded-[1.75rem] border border-slate-200 dark:border-white/10 p-6 sm:p-8 flex flex-col justify-between transition-all duration-300 hover:border-cyan-500/60 dark:hover:border-cyan-400/50 hover:-translate-y-1 overflow-hidden shadow-md hover:shadow-xl"
               >
                 {/* Background Subtle Gradient Glow */}
-                <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/[0.03] rounded-full blur-2xl pointer-events-none group-hover:bg-cyan-500/[0.08] transition-colors duration-500" />
+                <div className="absolute top-0 right-0 w-48 h-48 bg-cyan-500/[0.04] rounded-full blur-2xl pointer-events-none group-hover:bg-cyan-500/[0.1] transition-colors duration-500" />
 
                 {/* Top Card Bar */}
-                <div className="relative z-10 flex items-center justify-between mb-4">
-                  <span className="text-[10px] font-mono tracking-widest uppercase text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-3 py-1 rounded-full">
+                <div className="relative z-10 flex items-center justify-between mb-5">
+                  <span className="text-xs font-mono font-bold tracking-widest uppercase text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-500/15 border border-cyan-200 dark:border-cyan-400/30 px-3.5 py-1 rounded-full">
                     {service.tag}
                   </span>
-                  <span className="text-[10px] font-mono text-white/30">
+                  <span className="text-xs font-mono font-semibold text-slate-500 dark:text-slate-400">
                     0{index + 1} // ARCHITECTURE
                   </span>
                 </div>
 
                 {/* Card Main Information */}
                 <div className="relative z-10">
-                  <div className="flex items-center gap-3.5 mb-3">
-                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/80 group-hover:scale-105 group-hover:border-cyan-400/40 group-hover:text-cyan-400 transition-all duration-300">
-                      <Icon className="w-4 h-4" />
+                  <div className="flex items-center gap-3.5 mb-3.5">
+                    <div className="w-11 h-11 rounded-xl bg-cyan-50 dark:bg-white/10 border border-cyan-200 dark:border-white/15 flex items-center justify-center text-cyan-700 dark:text-cyan-300 group-hover:scale-105 group-hover:bg-cyan-600 group-hover:text-white transition-all duration-300">
+                      <Icon className="w-5 h-5" />
                     </div>
-                    <h3 className="text-xl md:text-2xl font-bold tracking-tight text-white group-hover:text-cyan-300 transition-colors">
+                    <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
                       {service.title}
                     </h3>
                   </div>
 
-                  <p className="text-xs md:text-[13px] text-white/60 leading-relaxed font-light mb-4">
+                  <p className="text-sm sm:text-base text-slate-700 dark:text-slate-300 leading-relaxed font-normal mb-5">
                     {service.description}
                   </p>
 
                   {/* Connected Skills Pill Badges */}
-                  <div className="flex flex-wrap items-center gap-1.5 mb-5">
+                  <div className="flex flex-wrap items-center gap-2 mb-6">
                     {service.skills.map((skill) => (
                       <span
                         key={skill}
-                        className="text-[10px] font-mono px-2.5 py-0.5 rounded-md bg-white/5 border border-white/10 text-white/70 group-hover:border-cyan-400/30 group-hover:text-cyan-300 transition-colors"
+                        className="text-xs font-mono font-semibold px-3 py-1 rounded-lg bg-slate-100 dark:bg-white/10 border border-slate-300 dark:border-white/15 text-slate-800 dark:text-slate-200 group-hover:border-cyan-500/40 dark:group-hover:border-cyan-400/40 transition-colors"
                       >
                         {skill}
                       </span>
@@ -113,13 +115,13 @@ const Services = () => {
                 {/* Bottom Interactive Link to Skills */}
                 <a
                   href="#about"
-                  className="relative z-10 flex items-center justify-between border-t border-white/10 pt-3.5 text-xs text-white/40 hover:text-cyan-400 group/link transition-colors"
+                  className="relative z-10 flex items-center justify-between border-t border-slate-200 dark:border-white/10 pt-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300 hover:text-cyan-700 dark:hover:text-cyan-400 group/link transition-colors"
                 >
-                  <span className="text-[10px] font-mono text-cyan-400 tracking-wider uppercase flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                  <span className="text-xs font-mono font-bold text-cyan-700 dark:text-cyan-400 tracking-wider uppercase flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
                     Connect to Skills
                   </span>
-                  <span className="text-sm transition-transform duration-300 group-hover/link:translate-x-1.5 text-white/60 group-hover/link:text-cyan-400">
+                  <span className="text-base font-bold transition-transform duration-300 group-hover/link:translate-x-1.5 text-slate-700 dark:text-slate-300 group-hover/link:text-cyan-600 dark:group-hover/link:text-cyan-400">
                     →
                   </span>
                 </a>
@@ -127,7 +129,6 @@ const Services = () => {
             )
           })}
         </div>
-
       </div>
     </section>
   )
