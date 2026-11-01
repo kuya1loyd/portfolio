@@ -116,9 +116,11 @@ export default function VisitorGuestbook() {
     init()
 
     const poll = setInterval(refresh, 30000)
+    window.addEventListener('visitor-updated', refresh)
     return () => {
       cancelled = true
       clearInterval(poll)
+      window.removeEventListener('visitor-updated', refresh)
     }
   }, [refresh])
 
@@ -207,9 +209,17 @@ export default function VisitorGuestbook() {
                 <div>
                   <div className="flex items-start justify-between gap-2 mb-3.5">
                     <div className="flex items-center gap-3 min-w-0">
-                      <span className="text-2xl p-2 rounded-xl bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 shadow-xs shrink-0">
-                        {item.avatar || '👋'}
-                      </span>
+                      {item.avatar && (item.avatar.startsWith('http') || item.avatar.startsWith('data:')) ? (
+                        <img
+                          src={item.avatar}
+                          alt={item.name}
+                          className="w-11 h-11 rounded-2xl object-cover border border-slate-200 dark:border-white/10 shadow-xs shrink-0"
+                        />
+                      ) : (
+                        <span className="text-2xl w-11 h-11 flex items-center justify-center rounded-2xl bg-white dark:bg-white/10 border border-slate-200 dark:border-white/10 shadow-xs shrink-0">
+                          {item.avatar || '👋'}
+                        </span>
+                      )}
                       <div className="min-w-0">
                         <div className="text-base font-bold text-slate-900 dark:text-white leading-tight truncate">
                           {item.name}
@@ -254,6 +264,20 @@ export default function VisitorGuestbook() {
                 </div>
               </motion.div>
             ))}
+          </div>
+        )}
+
+        {guests.length === 0 && !loading && (
+          <div className="p-8 rounded-2xl border border-dashed border-slate-300 dark:border-white/15 text-center flex flex-col items-center justify-center bg-slate-50/50 dark:bg-white/[0.02]">
+            <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 flex items-center justify-center mb-3">
+              <FiUsers className="w-6 h-6" />
+            </div>
+            <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+              No Named Visitors Yet
+            </h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+              Visitors who confirm with Google One-Tap will automatically appear here with their verified name and Google profile picture.
+            </p>
           </div>
         )}
       </div>

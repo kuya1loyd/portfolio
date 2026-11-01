@@ -232,7 +232,7 @@ export async function POST(req) {
       const role = clean(body.role, 60) || null
       const company = clean(body.company, 60) || null
       const message = clean(body.message, 240) || null
-      const avatar = clean(body.avatar, 8) || '👋'
+      const avatar = clean(body.avatar, 500) || '👋'
 
       await sql`
         INSERT INTO visitors

@@ -3,13 +3,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion'
 import {
-  FiExternalLink,
   FiAward,
-  FiFileText,
   FiChevronLeft,
   FiChevronRight,
   FiX,
-  FiEye
+  FiEye,
+  FiShield,
+  FiLock
 } from 'react-icons/fi'
 
 const CERTIFICATES = [
@@ -79,6 +79,7 @@ export default function Certificates() {
   const [cardsPerView, setCardsPerView] = useState(3)
   const [hoverZone, setHoverZone] = useState(null) // 'prev' | 'next' | 'center' | null
   const [selectedCert, setSelectedCert] = useState(null)
+  const [isScreenShieldActive, setIsScreenShieldActive] = useState(false)
 
   const containerRef = useRef(null)
   const x = useMotionValue(0)
@@ -194,6 +195,130 @@ export default function Certificates() {
     }
   }
 
+  // Anti-Screenshot & DRM Security Guard when viewing a certificate
+  useEffect(() => {
+    if (!selectedCert) return
+
+    // When screen capture tools (Snipping Tool, Win+Shift+S, Lightshot) open or user switches windows
+    const handleWindowBlur = () => {
+      setIsScreenShieldActive(true)
+    }
+
+    const handleWindowFocus = () => {
+      // Keep shield active until user explicitly clicks resume
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setIsScreenShieldActive(true)
+      }
+    }
+
+    // When cursor leaves the browser window (e.g. clicking snipping tool in taskbar)
+    const handleMouseLeaveDoc = (e) => {
+      if (!e.relatedTarget && !e.toElement) {
+        setIsScreenShieldActive(true)
+      }
+    }
+
+    // DevTools inspection detection
+    const checkDevTools = () => {
+      const widthThreshold = window.outerWidth - window.innerWidth > 160
+      const heightThreshold = window.outerHeight - window.innerHeight > 160
+      if (widthThreshold || heightThreshold) {
+        setIsScreenShieldActive(true)
+      }
+    }
+
+    // Intercept copy attempts
+    const handleCopy = (e) => {
+      e.preventDefault()
+      setIsScreenShieldActive(true)
+      try {
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText('')
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    // Intercept screenshot and print shortcut keys
+    const handleKeyDown = (e) => {
+      // PrintScreen key
+      if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
+        e.preventDefault()
+        setIsScreenShieldActive(true)
+        try {
+          if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText('')
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      // Windows Snipping Tool (Win+Shift+S) or Mac Screenshot (Cmd+Shift+3/4/5)
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey) {
+        setIsScreenShieldActive(true)
+      }
+
+      // Ctrl+P / Cmd+P (Print)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault()
+        setIsScreenShieldActive(true)
+      }
+
+      // Ctrl+S / Cmd+S (Save webpage / image)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+        e.preventDefault()
+        setIsScreenShieldActive(true)
+      }
+
+      // DevTools (F12 / Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C / Ctrl+U)
+      if (
+        e.key === 'F12' ||
+        ((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U')) ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'i' || e.key === 'I' || e.key === 'c' || e.key === 'C' || e.key === 'j' || e.key === 'J'))
+      ) {
+        setIsScreenShieldActive(true)
+      }
+    }
+
+    const handleKeyUp = (e) => {
+      if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
+        setIsScreenShieldActive(true)
+        try {
+          if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText('')
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    window.addEventListener('blur', handleWindowBlur)
+    window.addEventListener('focus', handleWindowFocus)
+    window.addEventListener('resize', checkDevTools)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    document.documentElement.addEventListener('mouseleave', handleMouseLeaveDoc)
+    document.addEventListener('copy', handleCopy)
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+
+    return () => {
+      window.removeEventListener('blur', handleWindowBlur)
+      window.removeEventListener('focus', handleWindowFocus)
+      window.removeEventListener('resize', checkDevTools)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      document.documentElement.removeEventListener('mouseleave', handleMouseLeaveDoc)
+      document.removeEventListener('copy', handleCopy)
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
+    }
+  }, [selectedCert])
+
   const handleMouseLeave = () => {
     setHoverZone(null)
     targetVelocityRef.current = -0.65
@@ -269,7 +394,13 @@ export default function Certificates() {
       didDragMoveRef.current = false
       return
     }
+    setIsScreenShieldActive(false)
     setSelectedCert(cert)
+  }
+
+  const closeCertificateViewer = () => {
+    setSelectedCert(null)
+    setIsScreenShieldActive(false)
   }
 
   return (
@@ -379,8 +510,21 @@ export default function Certificates() {
                             alt={cert.title}
                             draggable={false}
                             loading="lazy"
-                            className="w-full h-full object-contain p-1 filter blur-[3px] sm:blur-[4px] contrast-105 group-hover:blur-0 group-hover:scale-[1.02] transition-all duration-700 ease-out select-none"
+                            className="w-full h-full object-contain p-1 filter contrast-105 group-hover:blur-[3.5px] group-hover:scale-[1.02] transition-all duration-500 ease-out select-none"
                           />
+
+                          {/* Hover Blur Security Overlay */}
+                          <div className="absolute inset-0 bg-slate-950/25 dark:bg-slate-950/45 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-3 text-center pointer-events-none">
+                            <div className="w-10 h-10 rounded-2xl bg-cyan-500 text-black flex items-center justify-center shadow-lg mb-1.5">
+                              <FiShield className="w-5 h-5" />
+                            </div>
+                            <span className="text-xs font-mono font-bold uppercase tracking-wider text-white drop-shadow-md">
+                              View Securely
+                            </span>
+                            <span className="text-[10px] text-cyan-200 mt-0.5 font-mono">
+                              Protected Credential
+                            </span>
+                          </div>
                         </div>
 
                         {/* Top-Right Index Pill */}
@@ -447,38 +591,48 @@ export default function Certificates() {
         </div>
       </div>
 
-      {/* ===== MOBILE & DESKTOP CERTIFICATE LIGHTBOX VIEWER ===== */}
+      {/* ===== MOBILE & DESKTOP CERTIFICATE LIGHTBOX VIEWER (TRANSPARENT GLASSMORPHIC DRM) ===== */}
       <AnimatePresence>
         {selectedCert && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/85 backdrop-blur-xl"
-            onClick={() => setSelectedCert(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/25 backdrop-blur-sm overflow-hidden"
+            onClick={closeCertificateViewer}
           >
+            {/* Ambient Translucent Glow Orbs Behind the Glass Card */}
+            <div className="absolute -top-32 -left-32 w-96 h-96 bg-cyan-500/15 rounded-full blur-[140px] pointer-events-none" />
+            <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
+
             <motion.div
               initial={{ opacity: 0, scale: 0.94, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 16 }}
               transition={{ type: 'spring', stiffness: 320, damping: 28 }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-4xl max-h-[92vh] bg-white dark:bg-[#0f1420] border border-slate-200 dark:border-white/15 rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+              className="certificate-lightbox-modal relative w-full max-w-4xl max-h-[92vh] bg-slate-950/45 dark:bg-black/50 backdrop-blur-2xl border border-white/20 dark:border-cyan-500/30 rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_45px_rgba(6,182,212,0.15)] overflow-hidden flex flex-col select-none"
             >
-              {/* Modal Top Header */}
-              <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-b border-slate-200 dark:border-white/10 flex items-center justify-between gap-3">
+              {/* Modal Top Glass Header */}
+              <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-b border-white/10 dark:border-white/10 bg-white/[0.04] dark:bg-white/[0.02] backdrop-blur-xl flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/20"
                     style={{
                       background: 'linear-gradient(135deg, #06b6d4 0%, #2563eb 100%)',
                       color: '#ffffff'
                     }}
                   >
-                    <FiAward className="w-5 h-5" style={{ color: '#ffffff' }} />
+                    <FiAward className="w-5 h-5 text-white" />
                   </div>
                   <div className="min-w-0">
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white truncate">
-                      {selectedCert.title}
-                    </h4>
-                    <p className="text-xs font-mono text-cyan-700 dark:text-cyan-400 truncate">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h4 className="text-sm sm:text-base font-bold text-white truncate drop-shadow-sm">
+                        {selectedCert.title}
+                      </h4>
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 shadow-[0_0_12px_rgba(6,182,212,0.25)]">
+                        <FiShield className="w-3 h-3 text-cyan-400" />
+                        Encrypted Record
+                      </span>
+                    </div>
+                    <p className="text-xs font-mono text-cyan-300/80 truncate mt-0.5">
                       {selectedCert.issuer} · {selectedCert.issued}
                     </p>
                   </div>
@@ -486,56 +640,148 @@ export default function Certificates() {
 
                 <button
                   type="button"
-                  onClick={() => setSelectedCert(null)}
-                  className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 text-slate-700 dark:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                  onClick={closeCertificateViewer}
+                  className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer shrink-0 border border-white/10 hover:border-cyan-400/40"
                   aria-label="Close certificate viewer"
                 >
                   <FiX className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* High-Resolution Certificate Image Preview (works on all cellphones & desktop) */}
-              <div className="p-3 sm:p-6 overflow-y-auto bg-slate-100 dark:bg-[#080b11] flex items-center justify-center flex-1">
-                <img
-                  src={selectedCert.image}
-                  alt={selectedCert.title}
-                  className="max-h-[65vh] w-auto max-w-full object-contain rounded-xl shadow-lg border border-slate-200 dark:border-white/10"
-                />
+              {/* Transparent Display Stage */}
+              <div
+                onContextMenu={(e) => e.preventDefault()}
+                className="relative p-3 sm:p-6 overflow-hidden bg-transparent flex flex-col items-center justify-center flex-1 select-none min-h-[380px] sm:min-h-[460px]"
+              >
+                {/* Certificate Glass Mount */}
+                <div
+                  onContextMenu={(e) => e.preventDefault()}
+                  className="relative max-h-[64vh] w-auto max-w-full rounded-2xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.65)] border border-white/25 dark:border-cyan-400/35 select-none flex items-center justify-center bg-black/40 backdrop-blur-md"
+                >
+                  {/* High-Security Anti-Theft Watermark Stamped Across Certificate */}
+                  <div
+                    className="absolute inset-0 z-20 pointer-events-none select-none flex flex-wrap items-center justify-around overflow-hidden text-[11px] sm:text-xs font-mono font-black uppercase tracking-wider text-slate-900/25 dark:text-cyan-100/30 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]"
+                    style={{ transform: 'rotate(-24deg) scale(1.35)' }}
+                  >
+                    {Array.from({ length: 36 }).map((_, i) => (
+                      <span key={i} className="p-3 sm:p-4 whitespace-nowrap">
+                        VERIFIED OFFICIAL RECORD · JOHN LLOYD GALITO · DO NOT COPY
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Official Verification Security Badge */}
+                  <div className="absolute top-3 left-3 z-30 pointer-events-none flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 backdrop-blur-xl border border-cyan-400/40 text-[11px] font-mono font-bold text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.35)]">
+                    <FiShield className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
+                    <span>VERIFIED DIGITAL CREDENTIAL</span>
+                  </div>
+
+                  {/* Transparent DRM Shield (Prevents Right-Click, Drag, Copy & Save) */}
+                  <div
+                    className="absolute inset-0 z-40 pointer-events-auto"
+                    onContextMenu={(e) => e.preventDefault()}
+                    onDragStart={(e) => e.preventDefault()}
+                  />
+
+                  {/* Crisp High-Resolution Certificate Image */}
+                  <img
+                    src={selectedCert.image}
+                    alt={selectedCert.title}
+                    draggable={false}
+                    onContextMenu={(e) => e.preventDefault()}
+                    onDragStart={(e) => e.preventDefault()}
+                    className="max-h-[64vh] w-auto max-w-full object-contain select-none pointer-events-none filter contrast-[1.04]"
+                  />
+                </div>
               </div>
 
-              {/* Modal Bottom Action Bar */}
-              <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-t border-slate-200 dark:border-white/10 bg-white dark:bg-[#0f1420] flex flex-wrap items-center justify-between gap-3">
-                <span className="text-xs font-mono text-slate-600 dark:text-slate-400">
-                  Verified Credential · Official Copy
-                </span>
+              {/* Modal Bottom Glass Action Bar */}
+              <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-t border-white/10 bg-white/[0.04] dark:bg-white/[0.02] backdrop-blur-xl flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-xs font-mono text-slate-300">
+                  <FiLock className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                  <span className="truncate">
+                    Encrypted DRM Active · Anti-Screenshot & Watermark Shield
+                  </span>
+                </div>
 
                 <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
                   <button
                     type="button"
-                    onClick={() => setSelectedCert(null)}
-                    className="px-4 py-2.5 rounded-xl text-xs font-mono font-bold uppercase tracking-wider bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-slate-700 dark:text-white transition-colors cursor-pointer"
+                    onClick={closeCertificateViewer}
+                    className="px-6 py-2.5 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 border border-white/15 hover:border-cyan-400/40 text-white transition-all shadow-md cursor-pointer"
                   >
                     Close
                   </button>
-
-                  <a
-                    href={selectedCert.pdfUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      background: 'linear-gradient(135deg, #06b6d4 0%, #2563eb 100%)',
-                      color: '#ffffff'
-                    }}
-                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-mono font-bold text-xs uppercase tracking-wider shadow-md hover:opacity-95 transition-all cursor-pointer"
-                  >
-                    <FiFileText className="w-4 h-4" style={{ color: '#ffffff' }} />
-                    <span style={{ color: '#ffffff' }}>Open Official PDF</span>
-                    <FiExternalLink className="w-3.5 h-3.5" style={{ color: '#ffffff' }} />
-                  </a>
                 </div>
               </div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* ===== DEDICATED SCREENSHOT BLOCKING MODAL (TRANSPARENT FROSTED GLASS) ===== */}
+      <AnimatePresence>
+        {selectedCert && isScreenShieldActive && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[99999] bg-slate-950/20 backdrop-blur-sm flex items-center justify-center p-4 select-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.92, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.92, y: 12 }}
+              transition={{ type: 'spring', stiffness: 350, damping: 26 }}
+              className="relative w-full max-w-md bg-slate-950/40 dark:bg-black/45 backdrop-blur-2xl border border-white/20 dark:border-rose-500/40 rounded-3xl p-6 sm:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.5),0_0_60px_rgba(244,63,94,0.25)] text-center flex flex-col items-center overflow-hidden"
+            >
+              {/* Subtle Ambient Red Glow inside the card */}
+              <div className="absolute -top-16 -right-16 w-44 h-44 bg-rose-500/20 rounded-full blur-[60px] pointer-events-none" />
+              <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-rose-600/15 rounded-full blur-[60px] pointer-events-none" />
+
+              {/* Glowing Shield Icon with Alert Animation */}
+              <div className="relative w-16 h-16 rounded-2xl bg-rose-500/15 border-2 border-rose-500/40 flex items-center justify-center text-rose-400 mb-4 shadow-[0_0_30px_rgba(244,63,94,0.35)] animate-pulse">
+                <FiLock className="w-8 h-8" />
+              </div>
+
+              {/* Status Pill */}
+              <span className="relative inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/40 mb-3 shadow-[0_0_15px_rgba(244,63,94,0.2)]">
+                <FiShield className="w-3.5 h-3.5 text-rose-400" />
+                Screenshot Blocked
+              </span>
+
+              {/* Heading */}
+              <h3
+                style={{ color: '#ffffff' }}
+                className="relative text-xl sm:text-2xl font-black font-sans tracking-tight uppercase !text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+              >
+                Screen Capture Blocked
+              </h3>
+
+              {/* Description */}
+              <p
+                style={{ color: '#e2e8f0' }}
+                className="relative mt-3 text-xs sm:text-sm !text-slate-200 leading-relaxed font-normal drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
+              >
+                Screenshots, snipping tools, and screen recordings are strictly prohibited for verified certificates to protect credential authenticity and prevent duplication.
+              </p>
+
+              {/* Action Button to Resume Viewing */}
+              <button
+                type="button"
+                onClick={() => setIsScreenShieldActive(false)}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(244,63,94,0.9) 0%, rgba(225,29,72,0.95) 100%)',
+                  color: '#ffffff'
+                }}
+                className="relative mt-6 w-full py-3.5 px-6 rounded-xl !text-white font-mono font-bold text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(244,63,94,0.35)] hover:shadow-[0_0_35px_rgba(244,63,94,0.55)] border border-rose-400/40 hover:opacity-95 transition-all cursor-pointer active:scale-[0.98]"
+              >
+                Resume Viewing
+              </button>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </section>

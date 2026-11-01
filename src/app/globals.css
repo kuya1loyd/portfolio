@@ -730,6 +730,16 @@ html.light .starburst-ray {
   box-shadow: 0 0 6px rgba(2, 132, 199, 0.6);
 }
 
+/* Anti-Screenshot & DRM Print Protection */
+@media print {
+  .certificate-secure-guard,
+  .certificate-lightbox-modal,
+  #certificates {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+
 
 
 

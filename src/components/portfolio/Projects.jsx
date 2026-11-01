@@ -1,58 +1,131 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   FiPlus,
   FiChevronUp,
   FiExternalLink,
-  FiLayers
+  FiLayers,
+  FiActivity
 } from 'react-icons/fi'
 
-const REAL_PROJECTS = [
+const FALLBACK_PROJECTS = [
   {
     id: 'rentrack',
-    name: 'RenTrack',
     title: 'RenTrack',
     subtitle: 'Web application · Property & Rental Management',
     year: '2026',
     category: 'Web Application',
+    status: 'live',
     description:
       'A comprehensive property rental management, automated billing, payments, and receivables monitoring system built with Next.js. Streamlines lease contracts, tenant payment histories, monthly statements, and occupancy telemetry in an intuitive dashboard designed to replace fragmented spreadsheets.',
     liveLink: 'https://rentrack-beige.vercel.app/',
+    githubLink: null,
     image: '/images/projects/rentrack.png',
     tags: ['Next.js 15', 'React 19', 'PostgreSQL', 'Tailwind CSS', 'Vercel']
   },
   {
     id: 'buildtrack-application',
-    name: 'BuildTrack',
     title: 'BuildTrack',
     subtitle: 'Mobile app · Construction Management System',
     year: '2026',
     category: 'Mobile Application',
+    status: 'building',
     description:
       'A cross-platform mobile application engineered specifically for on-site construction tracking, material warehouse inventory, workforce attendance logs, and milestone scheduling. Features offline-first synchronisation with Neon PostgreSQL to ensure job site engineers never lose vital project updates.',
     liveLink: null,
+    githubLink: null,
     image: '/images/projects/buildtrack_phone.png',
     tags: ['Flutter', 'Dart', 'Neon Postgres', 'REST API', 'Cross-Platform']
   },
   {
     id: 'carvex-carparts',
-    name: 'CarVex',
     title: 'CarVex',
     subtitle: 'Web platform · Automotive Procurement & E-Commerce',
     year: '2026',
     category: 'E-Commerce Platform',
+    status: 'live',
     description:
       'An automotive components catalog and procurement hub built for frictionless discovery. Combines instant multi-tiered filtering by vehicle year, make, and model with smart inventory caching and lightning-fast checkout workflows for automotive repair specialists and distributors.',
     liveLink: 'https://carvex-carparts-omega.vercel.app/',
+    githubLink: null,
     image: '/images/projects/carvex.png',
     tags: ['React', 'Vite', 'E-Commerce', 'Tailwind CSS', 'Frictionless POS']
   }
 ]
 
+function StatusBadge({ status }) {
+  const norm = (status || 'live').toLowerCase()
+
+  if (norm === 'building' || norm === 'in_progress' || norm === 'deploying') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+        Building
+      </span>
+    )
+  }
+
+  if (norm === 'updated' || norm === 'new' || norm === 'deployed') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
+        <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
+        Newly Updated
+      </span>
+    )
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
+      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+      Live
+    </span>
+  )
+}
+
 export default function Projects() {
+  const [projects, setProjects] = useState(FALLBACK_PROJECTS)
   const [expandedId, setExpandedId] = useState(null)
+  const [isLiveConnected, setIsLiveConnected] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const poll = async () => {
+      try {
+        const res = await fetch('/api/projects', { cache: 'no-store' })
+        if (!res.ok || cancelled) return
+        const data = await res.json()
+        if (data?.projects && Array.isArray(data.projects) && data.projects.length > 0 && !cancelled) {
+          setProjects(data.projects)
+          setIsLiveConnected(data.source === 'neon')
+        }
+      } catch {
+        // Keep fallback data on transient network hiccups
+      }
+    }
+
+    const raf = requestAnimationFrame(() => {
+      if (!cancelled) {
+        poll()
+      }
+    })
+
+    // Real-time automatic background polling every 25 seconds
+    const interval = setInterval(poll, 25000)
+    const handleFocus = () => {
+      poll()
+    }
+    window.addEventListener('focus', handleFocus)
+
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(raf)
+      clearInterval(interval)
+      window.removeEventListener('focus', handleFocus)
+    }
+  }, [])
 
   const toggleProject = (id) => {
     setExpandedId((prev) => (prev === id ? null : id))
@@ -68,27 +141,38 @@ export default function Projects() {
 
       <div className="relative z-10 max-w-5xl mx-auto">
         {/* Section Header */}
-        <div className="flex flex-col mb-14">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="flex items-center gap-2 text-xs uppercase tracking-[0.4em] text-cyan-600 dark:text-cyan-400 font-mono font-bold">
-              <FiLayers className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-              PORTFOLIO SHOWCASE
-            </span>
-            <div className="h-px w-12 bg-slate-300 dark:bg-white/15" />
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <span className="flex items-center gap-2 text-xs uppercase tracking-[0.4em] text-cyan-600 dark:text-cyan-400 font-mono font-bold">
+                <FiLayers className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
+                PORTFOLIO SHOWCASE
+              </span>
+              <div className="h-px w-12 bg-slate-300 dark:bg-white/15" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight font-sans text-slate-900 dark:text-white">
+              FEATURED <span className="text-slate-400 dark:text-slate-500">PROJECTS.</span>
+            </h2>
+            <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-xl font-normal leading-relaxed">
+              Explore live builds and systems currently in active development. Click any project to expand its architecture, features, and deployment telemetry.
+            </p>
           </div>
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight font-sans text-slate-900 dark:text-white">
-            FEATURED <span className="text-slate-400 dark:text-slate-500">PROJECTS.</span>
-          </h2>
-          <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-xl font-normal leading-relaxed">
-            Click any project to expand its architecture, features, and deployment telemetry. Click the header again to collapse it back up.
-          </p>
+
+          {/* Live Auto-Sync Indicator */}
+          {isLiveConnected && (
+            <div className="self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-mono font-medium shrink-0">
+              <FiActivity className="w-3.5 h-3.5 animate-pulse text-emerald-500" />
+              <span>Auto-Sync: Live</span>
+            </div>
+          )}
         </div>
 
         {/* Expandable Project List */}
         <div className="space-y-4">
-          {REAL_PROJECTS.map((project) => {
+          {projects.map((project) => {
             const isExpanded = expandedId === project.id
             const isMobile = project.category === 'Mobile Application'
+            const isBuilding = project.status === 'building' || project.status === 'in_progress'
 
             return (
               <div
@@ -116,19 +200,21 @@ export default function Projects() {
                           <img
                             src={project.image}
                             alt={project.title}
-                            className={`w-full h-full ${
-                              isMobile
+                            className={`w-full h-full ${isMobile
                                 ? 'object-contain p-1'
                                 : 'object-cover object-top'
-                            } group-hover:scale-105 transition-transform duration-300`}
+                              } group-hover:scale-105 transition-transform duration-300`}
                           />
                         </div>
 
-                        {/* Title & Subtitle */}
+                        {/* Title, Status Badge & Subtitle */}
                         <div className="min-w-0">
-                          <h3 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors truncate">
-                            {project.title}
-                          </h3>
+                          <div className="flex items-center gap-2.5 flex-wrap">
+                            <h3 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors truncate">
+                              {project.title}
+                            </h3>
+                            <StatusBadge status={project.status} />
+                          </div>
                           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-normal truncate mt-0.5">
                             {project.subtitle}
                           </p>
@@ -170,24 +256,24 @@ export default function Projects() {
                             <img
                               src={project.image}
                               alt={project.title}
-                              className={`w-full h-full ${
-                                isMobile
+                              className={`w-full h-full ${isMobile
                                   ? 'object-contain p-1'
                                   : 'object-cover object-top'
-                              }`}
+                                }`}
                             />
                           </div>
 
                           <div className="min-w-0">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2.5 flex-wrap">
                               <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white group-hover/hdr:text-cyan-600 dark:group-hover/hdr:text-cyan-400 transition-colors truncate">
                                 {project.title}
                               </h3>
+                              <StatusBadge status={project.status} />
                               <span className="text-[11px] font-mono text-cyan-600 dark:text-cyan-400 font-medium opacity-0 group-hover/hdr:opacity-100 transition-opacity">
                                 (click to collapse ↑)
                               </span>
                             </div>
-                            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-normal truncate">
+                            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-normal truncate mt-0.5">
                               {project.subtitle}
                             </p>
                           </div>
@@ -277,7 +363,7 @@ export default function Projects() {
                           </div>
 
                           {/* Bottom Primary Action Button */}
-                          <div className="pt-2">
+                          <div className="pt-2 flex flex-wrap items-center gap-3">
                             {project.liveLink ? (
                               <a
                                 href={project.liveLink}
@@ -288,6 +374,11 @@ export default function Projects() {
                                 <span className="!text-white">Visit Live Site</span>
                                 <FiExternalLink className="w-3.5 h-3.5 !text-white" />
                               </a>
+                            ) : isBuilding ? (
+                              <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-xs font-mono font-bold tracking-wide shadow-xs">
+                                <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+                                <span>In Active Development</span>
+                              </span>
                             ) : (
                               <span className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-slate-900 dark:bg-cyan-500 dark:text-black !text-white text-xs font-bold font-sans tracking-wide shadow-sm">
                                 <span className="!text-white dark:!text-black">Mobile Application</span>
