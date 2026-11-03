@@ -13,6 +13,7 @@ import Footer from '../components/portfolio/Footer'
 import ResumeModal from '../components/portfolio/ResumeModal'
 import ClickSparkle from '../components/portfolio/ClickSparkle'
 import SoundSystem from '../components/portfolio/SoundSystem'
+import PeekingCompanion from '../components/portfolio/PeekingCompanion'
 
 export default function HomePage() {
   const [isResumeOpen, setIsResumeOpen] = useState(false)
@@ -32,6 +33,9 @@ export default function HomePage() {
 
       {/* Interactive Sound System (Tactile Click SFX & Ambient Cyber Music) */}
       <SoundSystem />
+
+      {/* Interactive Peeking Cat Companion (Tracks cursor & touch screen) */}
+      <PeekingCompanion />
 
       {/* Compact Floating Sidebar Capsule Navigation */}
       <Navbar onOpenResume={handleOpenResume} />
