@@ -68,7 +68,13 @@ export default function Testimonials() {
           }
         })
 
-        setTestimonials(Array.from(mergedMap.values()))
+        const freshList = Array.from(mergedMap.values())
+        setTestimonials(freshList)
+        try {
+          localStorage.setItem('galito_testimonials', JSON.stringify(freshList))
+        } catch {
+          // ignore
+        }
       })
       .catch(() => {
         if (localItems.length > 0) {
@@ -199,7 +205,7 @@ export default function Testimonials() {
       {/* Background Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/[0.03] dark:bg-cyan-500/[0.05] rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-5xl mx-auto">
+      <div className="relative z-10 max-w-4xl mx-auto">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>
@@ -252,8 +258,17 @@ export default function Testimonials() {
             })}
           </div>
 
-          {/* Carousel Next / Prev Buttons */}
+          {/* Carousel Next / Prev Buttons & Add Feedback Button */}
           <div className="flex items-center gap-2.5 self-end sm:self-auto">
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 text-xs font-semibold transition-all cursor-pointer mr-1 shadow-xs hover:scale-[1.02]"
+            >
+              <FiPlus className="w-3.5 h-3.5" />
+              <span>Add Feedback</span>
+            </button>
+
             <span className="text-xs font-mono text-slate-500 dark:text-slate-400 mr-1">
               {filteredList.length > 0 ? `${currentIndex + 1} / ${filteredList.length}` : '0 / 0'}
             </span>
@@ -280,64 +295,62 @@ export default function Testimonials() {
 
         {/* Carousel Showcase Card */}
         {filteredList.length > 0 && activeItem && (
-          <div className="relative min-h-[320px] sm:min-h-[290px]">
+          <div className="relative">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeItem.id}
-                initial={{ opacity: 0, x: 28 }}
+                initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -28 }}
-                transition={{ duration: 0.32, ease: 'easeOut' }}
-                className="group relative p-7 sm:p-9 md:p-11 rounded-3xl bg-[#f8fafc] dark:bg-[#131722] border border-slate-200 dark:border-white/10 hover:border-cyan-500/40 dark:hover:border-cyan-400/40 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.28, ease: 'easeOut' }}
+                className="group relative p-5 sm:p-6 md:p-7 rounded-2xl bg-[#f8fafc] dark:bg-[#131722] border border-slate-200 dark:border-white/10 hover:border-cyan-500/40 dark:hover:border-cyan-400/40 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
-                  {/* Top Bar: Stars, Tag, and Date */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                  {/* Top Bar: Stars, Tag */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5">
                     <div className="flex items-center gap-1 text-amber-500 dark:text-amber-400">
                       {[...Array(activeItem.rating || 5)].map((_, i) => (
-                        <FiStar key={i} className="w-4 h-4 fill-amber-500 text-amber-500" />
+                        <FiStar key={i} className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
                       ))}
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/25">
-                        <FiCheckCircle className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-                        <span>{activeItem.tag || 'Verified Endorsement'}</span>
-                      </span>
-                    </div>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-mono font-semibold px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border border-cyan-500/25">
+                      <FiCheckCircle className="w-3 h-3 text-cyan-600 dark:text-cyan-400" />
+                      <span>{activeItem.tag || 'Verified Feedback'}</span>
+                    </span>
                   </div>
 
                   {/* Main Recommendation Quote */}
-                  <div className="relative mb-8">
-                    <FaQuoteLeft className="w-6 h-6 text-cyan-600/25 dark:text-cyan-400/25 mb-3" />
-                    <p className="text-base sm:text-lg md:text-xl text-slate-800 dark:text-slate-100 leading-relaxed font-normal">
+                  <div className="relative mb-5">
+                    <FaQuoteLeft className="w-4 h-4 text-cyan-600/30 dark:text-cyan-400/30 mb-2" />
+                    <p className="text-sm sm:text-base text-slate-800 dark:text-slate-100 leading-relaxed font-normal">
                       &ldquo;{activeItem.quote}&rdquo;
                     </p>
                   </div>
                 </div>
 
                 {/* Author Info Footer */}
-                <div className="pt-6 border-t border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3.5 min-w-0">
-                    {/* Real Profile Photo */}
+                <div className="pt-4 border-t border-slate-200/80 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Profile Photo */}
                     <div className="relative shrink-0">
                       <img
                         src={getAvatarUrl(activeItem.name, activeItem.avatar)}
                         alt={activeItem.name}
-                        className="w-13 h-13 rounded-2xl object-cover border-2 border-cyan-500/30 shadow-md"
+                        className="w-10 h-10 rounded-xl object-cover border border-cyan-500/30 shadow-xs"
                         onError={(e) => {
                           e.currentTarget.onerror = null
                           e.currentTarget.src = getAvatarUrl(activeItem.name)
                         }}
                       />
-                      <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-[#131722]" />
+                      <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white dark:border-[#131722]" />
                     </div>
 
                     <div className="min-w-0">
-                      <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight truncate">
+                      <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight truncate">
                         {activeItem.name}
                       </h4>
-                      <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
                         {activeItem.role} &bull;{' '}
                         <span className="text-cyan-600 dark:text-cyan-400 font-semibold">
                           {activeItem.company}
@@ -351,7 +364,7 @@ export default function Testimonials() {
                       <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 dark:text-slate-500 block">
                         Scope / Focus
                       </span>
-                      <span className="text-xs sm:text-sm font-mono font-medium text-slate-700 dark:text-slate-300 truncate max-w-[220px] block">
+                      <span className="text-xs font-mono font-medium text-slate-700 dark:text-slate-300 truncate max-w-[240px] block">
                         {activeItem.project}
                       </span>
                     </div>
