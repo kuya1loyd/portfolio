@@ -276,8 +276,9 @@ export default function VisitorGuestbook() {
               No Named Visitors Yet
             </h4>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
-              Visitors who confirm with Google One-Tap will automatically appear here with their verified name and Google profile picture.
+              Confirm with Google to appear here with your verified name and profile picture.
             </p>
+            <div id="google-signin-btn-container" className="mt-4 flex justify-center" />
           </div>
         )}
       </div>

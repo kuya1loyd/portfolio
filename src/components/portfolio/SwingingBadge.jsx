@@ -146,21 +146,21 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
   })
 
   useEffect(() => {
-    const N = 8
+    const N = 10
     const segLen = lanyardHeight / (N - 1)
 
-    // Initialize vertical rope nodes completely at rest (x = 0)
+    // Initialize smooth ribbon spine nodes completely at rest (x = 0)
     const nodes = Array.from({ length: N }, (_, i) => ({
       x: 0,
       y: i * segLen,
       ox: 0,
-      oy: i * segLen,
-      mass: i === 0 ? 0 : i === N - 1 ? 6.5 : 0.85
+      oy: i * segLen
     }))
 
     const state = {
       nodes,
       segLen,
+      bellyX: 0,
       theta: 0,
       omega: 0,
       flipAngle: 0,
@@ -175,111 +175,121 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
       const dt = Math.min(0.025, Math.max(0.004, (now - lastTime) / 1000))
       lastTime = now
 
-      const { nodes: pts, segLen: L } = state
-      const prevTipVx = pts[N - 1].x - pts[N - 1].ox
+      const { nodes: pts } = state
+      const tip = pts[N - 1]
+      const prevTipVx = tip.x - tip.ox
       const isDragging = dragStateRef.current.active
-
       const targetFlip = flippedRef.current ? 180 : 0
-      const tipNode = pts[N - 1]
+
+      const tipVxStep = tip.x - tip.ox
+      const tipVyStep = tip.y - tip.oy
+
       const isAtRest =
         !isDragging &&
-        Math.abs(tipNode.x) < 0.15 &&
-        Math.abs(tipNode.x - tipNode.ox) < 0.02 &&
-        Math.abs(tipNode.y - lanyardHeight) < 0.25 &&
-        Math.abs(tipNode.y - tipNode.oy) < 0.02 &&
-        Math.abs(state.theta) < 0.002 &&
-        Math.abs(state.omega) < 0.01 &&
-        Math.abs(state.flipAngle - targetFlip) < 0.1 &&
-        Math.abs(state.flipVel) < 0.1
+        Math.abs(tip.x) < 0.08 &&
+        Math.abs(tipVxStep) < 0.015 &&
+        Math.abs(tip.y - lanyardHeight) < 0.15 &&
+        Math.abs(tipVyStep) < 0.015 &&
+        Math.abs(state.bellyX) < 0.08 &&
+        Math.abs(state.theta) < 0.0015 &&
+        Math.abs(state.omega) < 0.008 &&
+        Math.abs(state.flipAngle - targetFlip) < 0.08 &&
+        Math.abs(state.flipVel) < 0.08
 
       if (!isAtRest) {
-        const gravity = 1550
-        const damping = isDragging ? 0.86 : 0.94
-
-        for (let i = 1; i < N; i++) {
-          const p = pts[i]
-          const vx = (p.x - p.ox) * damping
-          const vy = (p.y - p.oy) * damping
-          p.ox = p.x
-          p.oy = p.y
-          p.x += vx
-          p.y += vy + gravity * dt * dt
-        }
-
         if (isDragging) {
-          const tip = pts[N - 1]
-          tip.x += (dragStateRef.current.targetX - tip.x) * 0.82
-          tip.y += (dragStateRef.current.targetY - tip.y) * 0.82
-        }
+          tip.x += (dragStateRef.current.targetX - tip.x) * 0.84
+          tip.y += (dragStateRef.current.targetY - tip.y) * 0.84
+          tip.ox = tip.x
+          tip.oy = tip.y
+        } else {
+          const gravity = 1550
+          const damping = 0.992
 
-        const iterations = isDragging ? 10 : 12
-        const springStiffness = isDragging ? 0.45 : 0.88
+          const vx = (tip.x - tip.ox) * damping
+          const vy = (tip.y - tip.oy) * damping
+          tip.ox = tip.x
+          tip.oy = tip.y
+          tip.x += vx
+          tip.y += vy + gravity * dt * dt
 
-        for (let iter = 0; iter < iterations; iter++) {
-          pts[0].x = 0
-          pts[0].y = 0
-
-          for (let i = 0; i < N - 1; i++) {
-            const a = pts[i]
-            const b = pts[i + 1]
-            const dx = b.x - a.x
-            const dy = b.y - a.y
-            const dist = Math.hypot(dx, dy) || 0.0001
-            const diff = ((dist - L) / dist) * springStiffness
-
-            const invA = a.mass === 0 ? 0 : 1 / a.mass
-            const invB = isDragging && i === N - 2 ? 0 : b.mass === 0 ? 0 : 1 / b.mass
-            const totalInv = invA + invB || 1
-
-            const wA = invA / totalInv
-            const wB = invB / totalInv
-
-            a.x += dx * diff * wA
-            a.y += dy * diff * wA
-            b.x -= dx * diff * wB
-            b.y -= dy * diff * wB
-          }
-
-          for (let i = 1; i < N - 1; i++) {
-            const prev = pts[i - 1]
-            const curr = pts[i]
-            const next = pts[i + 1]
-            const midX = (prev.x + next.x) * 0.5
-            const midY = (prev.y + next.y) * 0.5
-            curr.x += (midX - curr.x) * (isDragging ? 0.35 : 0.1)
-            if (isDragging) {
-              curr.y += (midY - curr.y) * 0.35
-            }
+          // Pendulum length constraint from top anchor (0, 0)
+          const dist = Math.hypot(tip.x, tip.y) || 0.0001
+          if (dist > lanyardHeight) {
+            const diff = (dist - lanyardHeight) / dist
+            tip.x -= tip.x * diff * 0.98
+            tip.y -= tip.y * diff * 0.98
+          } else if (tip.y < 30) {
+            tip.y = 30
           }
         }
 
-        const tip = pts[N - 1]
+        const currentDist = Math.hypot(tip.x, tip.y) || 0.0001
+        const currentTipVx = tip.x - tip.ox
+
+        // Authentic fabric ribbon dynamics:
+        // When pushed upward (currentDist < lanyardHeight), ribbon bows outward in a single,
+        // smooth, natural C-curve (NO sharp accordion zigzags or kinks).
+        let sagX = 0
+        if (currentDist < lanyardHeight) {
+          const bowDir = tip.x >= 0 ? 1 : -1
+          sagX = Math.sqrt(Math.max(0, lanyardHeight * lanyardHeight - currentDist * currentDist)) * 0.38 * bowDir
+        }
+        // Subtle aerodynamic sway lag when swinging
+        const dynamicSway = -clamp(currentTipVx * 1.5, -40, 40)
+        const targetBellyX = sagX + dynamicSway
+        state.bellyX += (targetBellyX - state.bellyX) * 0.22
+
+        // Synthesize perfectly smooth, monotonic ribbon spine points:
+        // Guaranteed mathematically to have ZERO zigzags, ZERO pleats, ZERO kinks!
+        for (let i = 0; i < N; i++) {
+          const t = i / (N - 1)
+          const chordX = t * tip.x
+          const chordY = t * tip.y
+
+          // Smooth bell curve: 0 at top anchor (t=0) and 0 at bottom tip (t=1)
+          const bowFactor = Math.sin(Math.PI * Math.pow(t, 0.92))
+          const sagY = (currentDist < lanyardHeight) ? (lanyardHeight - currentDist) * 0.22 * bowFactor : 0
+
+          pts[i].x = chordX + state.bellyX * bowFactor
+          pts[i].y = chordY + sagY
+        }
+
         const prevNode = pts[N - 2]
-        const tipVxStep = tip.x - tip.ox
-        const tipDeltaVx = tipVxStep - prevTipVx
+        const tipDeltaVx = currentTipVx - prevTipVx
         const ropeAngle = Math.atan2(tip.x - prevNode.x, tip.y - prevNode.y)
 
+        // Smooth angular coupling so the badge card swings harmoniously with the lanyard
         const angularAcc =
-          -26 * Math.sin(state.theta - ropeAngle * 0.6) -
-          clamp(tipDeltaVx * 1.8, -14, 14) -
-          state.omega * 4.5
+          -18 * Math.sin(state.theta - ropeAngle * 0.75) -
+          clamp(tipDeltaVx * 1.2, -10, 10) -
+          state.omega * 2.2
         state.omega += angularAcc * dt
         state.theta = clamp(state.theta + state.omega * dt, -0.75, 0.75)
 
+        // Rest once oscillation has completely and naturally settled down
         if (
           !isDragging &&
-          Math.abs(state.theta) < 0.003 &&
-          Math.abs(state.omega) < 0.015 &&
-          Math.abs(tip.x) < 0.3
+          Math.abs(state.theta) < 0.0015 &&
+          Math.abs(state.omega) < 0.008 &&
+          Math.abs(tip.x) < 0.08 &&
+          Math.abs(currentTipVx) < 0.015 &&
+          Math.abs(tip.y - lanyardHeight) < 0.15 &&
+          Math.abs(state.bellyX) < 0.08
         ) {
+          tip.x = 0
+          tip.ox = 0
+          tip.y = lanyardHeight
+          tip.oy = lanyardHeight
+          state.bellyX = 0
+          state.theta = 0
+          state.omega = 0
           for (let i = 0; i < N; i++) {
             pts[i].x = 0
             pts[i].ox = 0
-            pts[i].y = i * L
-            pts[i].oy = i * L
+            pts[i].y = (i / (N - 1)) * lanyardHeight
+            pts[i].oy = (i / (N - 1)) * lanyardHeight
           }
-          state.theta = 0
-          state.omega = 0
         }
 
         const flipForce = (targetFlip - state.flipAngle) * 75 - state.flipVel * 11
@@ -288,9 +298,7 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
       }
 
       // Compute two-strap V-loop geometry from spine points
-      const tip = pts[N - 1]
       const prevNode = pts[N - 2]
-      const tipVxStep = tip.x - tip.ox
       const ropeAngle = Math.atan2(tip.x - prevNode.x, tip.y - prevNode.y)
       const cx = 180
       const ptsSvg = pts.map((p) => ({ x: cx + p.x, y: p.y }))
@@ -504,6 +512,11 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
       offsetY: pointerRelY - tip.y,
       targetX: tip.x,
       targetY: tip.y,
+      lastClientX: e.clientX,
+      lastClientY: e.clientY,
+      lastClientTime: performance.now(),
+      vx: 0,
+      vy: 0,
       moved: false
     }
   }
@@ -516,6 +529,17 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
     if (Math.hypot(dx, dy) > 6) {
       dragStateRef.current.moved = true
     }
+
+    const now = performance.now()
+    const dt = Math.max(1, now - (dragStateRef.current.lastClientTime || now))
+    const currentVx = ((e.clientX - dragStateRef.current.lastClientX) / dt) * 16.67
+    const currentVy = ((e.clientY - dragStateRef.current.lastClientY) / dt) * 16.67
+    // Smooth moving average of flick velocity
+    dragStateRef.current.vx = (dragStateRef.current.vx || 0) * 0.4 + currentVx * 0.6
+    dragStateRef.current.vy = (dragStateRef.current.vy || 0) * 0.4 + currentVy * 0.6
+    dragStateRef.current.lastClientX = e.clientX
+    dragStateRef.current.lastClientY = e.clientY
+    dragStateRef.current.lastClientTime = now
 
     const rect = stageRef.current.getBoundingClientRect()
     const centerX = rect.left + rect.width / 2
@@ -531,20 +555,30 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
   const handlePointerUp = (e) => {
     if (!dragStateRef.current.active) return
     const wasClick = !dragStateRef.current.moved
+    const flickVx = dragStateRef.current.vx || 0
+    const flickVy = dragStateRef.current.vy || 0
     dragStateRef.current.active = false
     e.currentTarget.releasePointerCapture?.(e.pointerId)
 
+    const state = physicsRef.current
     if (wasClick) {
       const next = !flippedRef.current
       flippedRef.current = next
       setFlipped(next)
 
-      const state = physicsRef.current
       if (state) {
         const tip = state.nodes[state.nodes.length - 1]
-        tip.ox -= next ? 6 : -6
-        state.omega += next ? -0.9 : 0.9
+        tip.ox -= next ? 5 : -5
+        state.omega += next ? -0.5 : 0.5
       }
+    } else if (state) {
+      // Natural flick release: impart pointer velocity into the tip so it swings fluidly
+      const tip = state.nodes[state.nodes.length - 1]
+      const clampedVx = clamp(flickVx, -38, 38)
+      const clampedVy = clamp(flickVy, -28, 28)
+      tip.ox = tip.x - clampedVx * 0.92
+      tip.oy = tip.y - clampedVy * 0.92
+      state.omega += clamp(clampedVx * 0.03, -0.85, 0.85)
     }
   }
 

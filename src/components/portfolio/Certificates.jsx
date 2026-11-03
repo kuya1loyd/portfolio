@@ -510,21 +510,8 @@ export default function Certificates() {
                             alt={cert.title}
                             draggable={false}
                             loading="lazy"
-                            className="w-full h-full object-contain p-1 filter contrast-105 group-hover:blur-[3.5px] group-hover:scale-[1.02] transition-all duration-500 ease-out select-none"
+                            className="w-full h-full object-contain p-1 filter contrast-105 group-hover:scale-[1.03] transition-transform duration-500 ease-out select-none"
                           />
-
-                          {/* Hover Blur Security Overlay */}
-                          <div className="absolute inset-0 bg-slate-950/25 dark:bg-slate-950/45 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-3 text-center pointer-events-none">
-                            <div className="w-10 h-10 rounded-2xl bg-cyan-500 text-black flex items-center justify-center shadow-lg mb-1.5">
-                              <FiShield className="w-5 h-5" />
-                            </div>
-                            <span className="text-xs font-mono font-bold uppercase tracking-wider text-white drop-shadow-md">
-                              View Securely
-                            </span>
-                            <span className="text-[10px] text-cyan-200 mt-0.5 font-mono">
-                              Protected Credential
-                            </span>
-                          </div>
                         </div>
 
                         {/* Top-Right Index Pill */}

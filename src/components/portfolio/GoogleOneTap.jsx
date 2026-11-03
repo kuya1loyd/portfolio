@@ -80,46 +80,82 @@ export default function GoogleOneTap() {
   }, [])
 
   useEffect(() => {
-    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
-    if (!clientId) return
+    let cancelled = false
 
     // Don't reprompt if already identified in this browser
     const alreadyIdentified = localStorage.getItem('jl-portfolio-visitor-name')
     if (alreadyIdentified) return
 
-    const loadScript = () => {
-      if (document.getElementById('google-gsi-script')) {
-        initOneTap()
-        return
+    const resolveAndInit = async () => {
+      let clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID
+      if (!clientId) {
+        try {
+          const res = await fetch('/api/visitors', { cache: 'no-store' })
+          if (res.ok) {
+            const data = await res.json()
+            if (data?.googleClientId) clientId = data.googleClientId
+          }
+        } catch {
+          // ignore
+        }
       }
-      const script = document.createElement('script')
-      script.id = 'google-gsi-script'
-      script.src = 'https://accounts.google.com/gsi/client'
-      script.async = true
-      script.defer = true
-      script.onload = initOneTap
-      document.body.appendChild(script)
+
+      if (!clientId || cancelled) return
+
+      const loadScript = () => {
+        if (document.getElementById('google-gsi-script')) {
+          initOneTap(clientId)
+          return
+        }
+        const script = document.createElement('script')
+        script.id = 'google-gsi-script'
+        script.src = 'https://accounts.google.com/gsi/client'
+        script.async = true
+        script.defer = true
+        script.onload = () => initOneTap(clientId)
+        document.body.appendChild(script)
+      }
+
+      const initOneTap = (activeId) => {
+        if (typeof window === 'undefined' || !window.google?.accounts?.id) return
+
+        try {
+          window.google.accounts.id.initialize({
+            client_id: activeId,
+            callback: handleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: false
+          })
+
+          // Render official Google button if container is present on the page
+          const btnContainer = document.getElementById('google-signin-btn-container')
+          if (btnContainer && btnContainer.childNodes.length === 0) {
+            window.google.accounts.id.renderButton(btnContainer, {
+              theme: 'outline',
+              size: 'medium',
+              text: 'continue_with',
+              shape: 'pill'
+            })
+          }
+
+          // Chrome FedCM requires a secure HTTPS context. On HTTP (localhost),
+          // Chrome rejects silent FedCM with NetworkError, so we only invoke One Tap prompt on HTTPS.
+          if (window.location.protocol === 'https:') {
+            window.google.accounts.id.prompt()
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      loadScript()
     }
 
-    const initOneTap = () => {
-      if (typeof window === 'undefined' || !window.google?.accounts?.id) return
+    resolveAndInit()
 
-      try {
-        window.google.accounts.id.initialize({
-          client_id: clientId,
-          callback: handleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: false,
-          use_fedcm_for_prompt: false
-        })
-
-        window.google.accounts.id.prompt()
-      } catch {
-        // ignore
-      }
+    return () => {
+      cancelled = true
     }
-
-    loadScript()
   }, [handleCredentialResponse])
 
   return null

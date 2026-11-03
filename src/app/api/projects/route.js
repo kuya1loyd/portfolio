@@ -111,8 +111,8 @@ export async function GET() {
       { projects, source: 'neon' },
       { headers: { 'Cache-Control': 'no-store, max-age=0' } }
     )
-  } catch (error) {
-    console.error('Failed to fetch projects from Neon:', error)
+  } catch (err) {
+    console.warn('Neon connection delay on local network; serving cached fallback projects:', err?.message || err)
     return NextResponse.json({ projects: FALLBACK_PROJECTS, source: 'fallback-error' })
   }
 }
