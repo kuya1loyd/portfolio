@@ -30,27 +30,44 @@ export default function Hero({ onOpenResume }) {
     mass: 0.35
   })
 
-  // Badge scroll animation: starts centered in front of "HI, I'M JOHN LLOYD",
-  // then glides up-left & tilts as you scroll to reveal "FULL-STACK DEVELOPER"
-  const badgeX = useTransform(
-    smoothProgress,
-    [0, 0.55],
-    [0, isMobile ? -58 : -195]
-  )
-  const badgeY = useTransform(
-    smoothProgress,
-    [0, 0.55],
-    [0, isMobile ? -55 : -92]
-  )
-  const badgeRotate = useTransform(smoothProgress, [0, 0.55], [0, -7])
+  // Badge scroll animation: smoothly glides to the left side on scroll
+  // to fully unveil "FULL-STACK DEVELOPER" while remaining gracefully anchored
+  const badgeX = useTransform(smoothProgress, (p) => {
+    const t = Math.min(1, Math.max(0, p / 0.46))
+    const targetX = isMobile ? -135 : -285
+    return t * targetX
+  })
+
+  const badgeY = useTransform(smoothProgress, (p) => {
+    const t = Math.min(1, Math.max(0, p / 0.46))
+    const targetY = isMobile ? -10 : -22
+    return t * targetY
+  })
+
+  const badgeScale = useTransform(smoothProgress, (p) => {
+    const t = Math.min(1, Math.max(0, p / 0.46))
+    const startScale = isMobile ? 0.78 : 0.96
+    const endScale = isMobile ? 0.68 : 0.86
+    return startScale + (endScale - startScale) * t
+  })
+
+  const badgeRotate = useTransform(smoothProgress, (p) => {
+    const t = Math.min(1, Math.max(0, p / 0.46))
+    const targetRot = isMobile ? -3 : -5.5
+    return t * targetRot
+  })
 
   // "FULL-STACK DEVELOPER" scroll reveal animation
-  const roleOpacity = useTransform(smoothProgress, [0.1, 0.48], [0, 1])
-  const roleY = useTransform(smoothProgress, [0.1, 0.48], [44, 0])
-  const roleScale = useTransform(smoothProgress, [0.1, 0.48], [0.94, 1])
+  const roleOpacity = useTransform(smoothProgress, [0.1, 0.45], [0, 1])
+  const roleY = useTransform(smoothProgress, [0.1, 0.45], [44, 0])
+  const roleScale = useTransform(smoothProgress, [0.1, 0.45], [0.94, 1])
 
   // Subtle shift of "HI, I'M JOHN LLOYD" as role text reveals underneath
-  const titleY = useTransform(smoothProgress, [0, 0.55], [0, isMobile ? -12 : -22])
+  const titleY = useTransform(smoothProgress, (p) => {
+    const t = Math.min(1, Math.max(0, p / 0.52))
+    const targetY = isMobile ? -12 : -22
+    return t * targetY
+  })
 
   // Bottom-left bio & bottom-center scroll indicator fade out smoothly on scroll
   const bioOpacity = useTransform(smoothProgress, [0, 0.35], [1, 0])
@@ -97,7 +114,7 @@ export default function Hero({ onOpenResume }) {
               y: roleY,
               scale: roleScale
             }}
-            className="mt-2 sm:mt-3 md:mt-4 self-center md:self-end md:mr-[6%] lg:mr-[10%] text-center md:text-left"
+            className="mt-2 sm:mt-3 md:mt-4 self-end mr-4 sm:mr-8 md:mr-[6%] lg:mr-[10%] text-right md:text-left"
           >
             <div
               style={{
@@ -123,9 +140,10 @@ export default function Hero({ onOpenResume }) {
             style={{
               x: badgeX,
               y: badgeY,
+              scale: badgeScale,
               rotate: badgeRotate
             }}
-            className="origin-top scale-[0.78] sm:scale-90 lg:scale-95 xl:scale-100 pointer-events-none"
+            className="origin-top pointer-events-none"
           >
             <SwingingBadge lanyardHeight={215} />
           </motion.div>

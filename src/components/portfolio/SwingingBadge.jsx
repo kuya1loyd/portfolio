@@ -149,19 +149,31 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
     const N = 10
     const segLen = lanyardHeight / (N - 1)
 
-    // Initialize smooth ribbon spine nodes completely at rest (x = 0)
-    const nodes = Array.from({ length: N }, (_, i) => ({
-      x: 0,
-      y: i * segLen,
-      ox: 0,
-      oy: i * segLen
-    }))
+    // Start with a natural introductory entrance swing on refresh (offset ~55px)
+    // so the badge smoothly sways into view rather than starting stuck/frozen
+    const initX = 55
+    const initY = Math.sqrt(Math.max(100, lanyardHeight * lanyardHeight - initX * initX))
+    const initTheta = Math.asin(clamp(initX / lanyardHeight, -0.7, 0.7))
+    const initBelly = 15
+
+    const nodes = Array.from({ length: N }, (_, i) => {
+      const t = i / (N - 1)
+      const bow = Math.sin(Math.PI * Math.pow(t, 0.92))
+      const nx = t * initX + initBelly * bow
+      const ny = t * initY
+      return {
+        x: nx,
+        y: ny,
+        ox: nx,
+        oy: ny
+      }
+    })
 
     const state = {
       nodes,
       segLen,
-      bellyX: 0,
-      theta: 0,
+      bellyX: initBelly,
+      theta: initTheta,
       omega: 0,
       flipAngle: 0,
       flipVel: 0
@@ -170,6 +182,7 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
 
     let rafId = null
     let lastTime = performance.now()
+    let scrollImpulse = 0
 
     const step = (now) => {
       const dt = Math.min(0.025, Math.max(0.004, (now - lastTime) / 1000))
@@ -219,8 +232,21 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
             const diff = (dist - lanyardHeight) / dist
             tip.x -= tip.x * diff * 0.98
             tip.y -= tip.y * diff * 0.98
-          } else if (tip.y < 30) {
-            tip.y = 30
+          }
+
+          // Gentle scroll-induced sway: subtle, organic rock that never flings the badge
+          if (Math.abs(scrollImpulse) > 0.005) {
+            const nudge = clamp(scrollImpulse * 0.32, -1.1, 1.1)
+            tip.ox -= nudge
+            state.omega += clamp(scrollImpulse * 0.01, -0.035, 0.035)
+            scrollImpulse *= 0.88
+          }
+
+          // Keep badge naturally hanging downward, preventing it from swinging up into the ceiling
+          const minHangingY = lanyardHeight * 0.86
+          if (tip.y < minHangingY) {
+            tip.y = minHangingY
+            tip.oy = Math.max(tip.oy, minHangingY)
           }
         }
 
@@ -470,15 +496,23 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
       rafId = requestAnimationFrame(step)
     }
 
-    let lastScrollY = window.scrollY
+    scrollImpulse = 0
+    let lastScrollY = typeof window !== 'undefined' ? window.scrollY : 0
+    let lastScrollTime = performance.now()
+
     const handleScrollSwing = () => {
+      const now = performance.now()
+      const dt = Math.max(8, now - lastScrollTime)
       const currY = window.scrollY
       const dy = currY - lastScrollY
       lastScrollY = currY
+      lastScrollTime = now
+
       if (!dragStateRef.current.active && Math.abs(dy) > 0.5) {
-        const tip = state.nodes[N - 1]
-        tip.ox += clamp(dy * 0.06, -2.8, 2.8)
-        state.omega += clamp(dy * 0.0035, -0.22, 0.22)
+        // Normalized scroll velocity with gentle rate-limiting
+        const scrollSpeed = clamp((dy / dt) * 16.67, -24, 24)
+        // Soft low-pass impulse accumulation: provides a gentle natural sway
+        scrollImpulse = clamp(scrollImpulse * 0.72 + scrollSpeed * 0.065, -2.6, 2.6)
       }
     }
     window.addEventListener('scroll', handleScrollSwing, { passive: true })

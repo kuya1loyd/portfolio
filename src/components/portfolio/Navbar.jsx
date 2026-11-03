@@ -9,7 +9,8 @@ import {
   FiMail,
   FiMenu,
   FiX,
-  FiFileText
+  FiFileText,
+  FiMessageSquare
 } from 'react-icons/fi'
 import { HiSparkles } from 'react-icons/hi2'
 import { FaTrophy, FaGithub, FaLinkedinIn, FaInstagram, FaFacebookF } from 'react-icons/fa'
@@ -21,6 +22,7 @@ const PRIMARY_NAV = [
   { name: 'Projects', href: '#projects', icon: FiFolder },
   { name: 'Skills', href: '#services', icon: HiSparkles },
   { name: 'Certificates', href: '#certificates', icon: FaTrophy },
+  { name: 'Reviews', href: '#testimonials', icon: FiMessageSquare },
   { name: 'Contact', href: '#contact', icon: FiMail },
 ]
 
@@ -35,7 +37,7 @@ export default function Navbar({ onOpenResume }) {
 
   // Scrollspy to detect active section in view
   useEffect(() => {
-    const sectionIds = ['hero', 'about', 'projects', 'services', 'certificates', 'contact']
+    const sectionIds = ['hero', 'about', 'projects', 'services', 'certificates', 'testimonials', 'contact']
     const handleScroll = () => {
       const scrollPos = window.scrollY + 200
       for (const id of sectionIds) {

@@ -7,13 +7,12 @@ import Services from '../components/portfolio/Services'
 import Projects from '../components/portfolio/Projects'
 import About from '../components/portfolio/About'
 import Certificates from '../components/portfolio/Certificates'
-import VisitorGuestbook from '../components/portfolio/VisitorGuestbook'
+import Testimonials from '../components/portfolio/Testimonials'
 import Contact from '../components/portfolio/Contact'
 import Footer from '../components/portfolio/Footer'
 import ResumeModal from '../components/portfolio/ResumeModal'
 import ClickSparkle from '../components/portfolio/ClickSparkle'
 import SoundSystem from '../components/portfolio/SoundSystem'
-import GoogleOneTap from '../components/portfolio/GoogleOneTap'
 
 export default function HomePage() {
   const [isResumeOpen, setIsResumeOpen] = useState(false)
@@ -33,9 +32,6 @@ export default function HomePage() {
 
       {/* Interactive Sound System (Tactile Click SFX & Ambient Cyber Music) */}
       <SoundSystem />
-
-      {/* Google One-Tap Automatic Identity */}
-      <GoogleOneTap />
 
       {/* Compact Floating Sidebar Capsule Navigation */}
       <Navbar onOpenResume={handleOpenResume} />
@@ -58,8 +54,8 @@ export default function HomePage() {
           {/* Interactive Certificates Carousel (Opens PDF in New Tab) */}
           <Certificates />
 
-          {/* Interactive Visitor Log & Guestbook (See & Put Who's Visiting) */}
-          <VisitorGuestbook />
+          {/* Testimonials & Endorsements */}
+          <Testimonials />
 
           {/* Contact / Collaboration */}
           <Contact />
