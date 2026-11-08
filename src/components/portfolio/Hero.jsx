@@ -96,15 +96,30 @@ export default function Hero({ onOpenResume }) {
         />
 
         {/* ============================================================== */}
-        {/* CENTER TYPOGRAPHY STAGE ("HI, I'M JOHN LLOYD" + SCROLL REVEAL) */}
+        {/* CENTER TYPOGRAPHY STAGE (JOHN LLOYD GALITO + SCROLL REVEAL)   */}
         {/* ============================================================== */}
         <div className="relative z-10 w-full max-w-[1440px] mx-auto px-4 sm:px-8 flex flex-col items-center justify-center -mt-20 sm:-mt-16 lg:-mt-20 pointer-events-none">
-          {/* Giant Metallic Headline */}
+          {/* Headline Styled Exactly Like Rey Jane Andrada: JOHN LLOYD (Outline) + GALITO (Solid) */}
           <motion.h1
             style={{ y: titleY }}
-            className="text-[clamp(2.15rem,7.6vw,7.4rem)] font-black tracking-tight uppercase leading-none text-center whitespace-nowrap bg-gradient-to-b from-slate-900 via-slate-700 to-slate-400 dark:from-white dark:via-slate-200 dark:to-slate-500 bg-clip-text text-transparent drop-shadow-xs"
+            className="text-[clamp(2.15rem,7.4vw,7.4rem)] font-black tracking-tight uppercase leading-none text-center whitespace-nowrap flex items-center justify-center gap-x-3 sm:gap-x-5 md:gap-x-7 select-none"
           >
-            HI, I&apos;M JOHN LLOYD
+            <span
+              className="title-outline-text font-black"
+              style={{
+                letterSpacing: '0.02em'
+              }}
+            >
+              JOHN LLOYD
+            </span>
+            <span
+              className="title-solid-text font-black"
+              style={{
+                letterSpacing: '0.02em'
+              }}
+            >
+              GALITO
+            </span>
           </motion.h1>
 
           {/* Scroll-Revealed "FULL-STACK DEVELOPER" Underneath Right/Center */}

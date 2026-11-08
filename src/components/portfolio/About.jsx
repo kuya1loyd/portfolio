@@ -1,28 +1,29 @@
 'use client'
 
+import { FiCheck, FiMapPin, FiArrowRight, FiCode, FiDatabase, FiSmartphone, FiShield } from 'react-icons/fi'
 import { motion } from 'framer-motion'
-import { FiCheck, FiMapPin, FiCode, FiDatabase, FiSmartphone, FiShield, FiArrowRight } from 'react-icons/fi'
+import WorkspaceDiorama from './WorkspaceDiorama'
 
 const HIGHLIGHTS = [
   {
     icon: FiCode,
     title: 'AI-Assisted Engineering',
-    description: 'Leveraging AI copilot tooling and intelligent workflows to deliver high-quality, resilient full-stack applications with high velocity.'
+    description: 'Compressing sprint cycles using modern AI pair-programming, generative workflows, and automated scaffolding to ship production systems in days.'
   },
   {
     icon: FiDatabase,
     title: 'Database Architecture',
-    description: 'Relational schema design, transactions, and real-time syncing using PostgreSQL, Neon, and Supabase.'
+    description: 'Designing rock-solid relational schemas with PostgreSQL, Neon, and Supabase. Realtime sync, row-level security, and optimized query performance.'
   },
   {
     icon: FiSmartphone,
-    title: 'Cross-Platform Applications',
-    description: 'Crafting responsive mobile experiences with Flutter, maintaining parity between mobile and web workflows.'
+    title: 'Cross-Platform Apps',
+    description: 'Building offline-capable, responsive mobile & web interfaces with Flutter, Dart, React, and Next.js that feel snappy and cohesive.'
   },
   {
     icon: FiShield,
     title: 'Performance & Security',
-    description: 'Optimizing for Core Web Vitals, data encryption, defense-in-depth principles, and clean, resilient code.'
+    description: 'Enforcing strict authentication, certified cybersecurity fundamentals, clean modular component architecture, and high runtime speed.'
   }
 ]
 
@@ -58,8 +59,8 @@ export default function About() {
           </div>
         </div>
 
-        {/* Two-Column Grid: Narrative on Left, Competency Cards on Right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-start">
+        {/* Two-Column Grid: Narrative on Left, 3D Workspace Diorama on Right */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-14 items-center">
           {/* LEFT: Developer Story & Narrative */}
           <div className="lg:col-span-6 flex flex-col justify-between space-y-6">
             <div className="space-y-4">
@@ -105,34 +106,39 @@ export default function About() {
             </div>
           </div>
 
-          {/* RIGHT: Modern 4-Card Capability Showcase */}
-          <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {HIGHLIGHTS.map((item, idx) => {
-              const Icon = item.icon
-              return (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 15 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: idx * 0.08 }}
-                  className="p-6 rounded-2xl bg-white dark:bg-[#131722] border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-md hover:border-cyan-500/40 dark:hover:border-cyan-400/40 transition-all duration-300 flex flex-col justify-between group"
-                >
-                  <div>
-                    <div className="w-11 h-11 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200 dark:border-cyan-800 flex items-center justify-center text-cyan-700 dark:text-cyan-400 mb-4 group-hover:bg-cyan-600 group-hover:text-white transition-colors duration-300">
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight mb-2">
-                      {item.title}
-                    </h4>
-                    <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
-                      {item.description}
-                    </p>
-                  </div>
-                </motion.div>
-              )
-            })}
+          {/* RIGHT: 3D Isometric Developer Workspace Diorama */}
+          <div className="lg:col-span-6 flex items-center justify-center">
+            <WorkspaceDiorama />
           </div>
+        </div>
+
+        {/* 4 Distinct Capability Cards Showcase */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-16 pt-12 border-t border-slate-200/70 dark:border-white/10">
+          {HIGHLIGHTS.map((item, idx) => {
+            const Icon = item.icon
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: idx * 0.08 }}
+                className="p-6 rounded-2xl bg-white dark:bg-[#131722] border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-md hover:border-cyan-500/40 dark:hover:border-cyan-400/40 transition-all duration-300 flex flex-col justify-between group"
+              >
+                <div>
+                  <div className="w-11 h-11 rounded-xl bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200 dark:border-cyan-800 flex items-center justify-center text-cyan-700 dark:text-cyan-400 mb-4 group-hover:bg-cyan-600 group-hover:text-white transition-colors duration-300">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h4 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white tracking-tight mb-2">
+                    {item.title}
+                  </h4>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
+                    {item.description}
+                  </p>
+                </div>
+              </motion.div>
+            )
+          })}
         </div>
       </div>
     </section>

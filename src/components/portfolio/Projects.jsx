@@ -1,400 +1,1207 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useRef, useCallback, useSyncExternalStore } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import {
-  FiPlus,
-  FiChevronUp,
   FiExternalLink,
-  FiLayers,
-  FiActivity
+  FiX,
+  FiHome,
+  FiTruck,
+  FiServer,
+  FiShoppingCart,
+  FiSmartphone,
+  FiCode,
+  FiActivity,
+  FiCoffee,
+  FiCheckSquare,
+  FiChevronLeft,
+  FiChevronRight
 } from 'react-icons/fi'
+import {
+  SiNextdotjs,
+  SiReact,
+  SiPostgresql,
+  SiTailwindcss,
+  SiVercel,
+  SiVite,
+  SiFlutter,
+  SiDart,
+  SiTypescript,
+  SiJavascript,
+  SiHtml5,
+  SiCss3
+} from 'react-icons/si'
 
-const FALLBACK_PROJECTS = [
+const INK = '#0c2a43'
+const INK_SOFT = 'rgba(12,42,67,0.68)'
+const INK_MUTED = 'rgba(12,42,67,0.5)'
+
+// John Lloyd's real projects (from github.com/kuya1loyd)
+const REAL_PROJECTS = [
   {
-    id: 'rentrack',
-    title: 'RenTrack',
-    subtitle: 'Web application · Property & Rental Management',
-    year: '2026',
-    category: 'Web Application',
+    id: 'skytech',
+    num: '01',
+    title: 'SkyTech',
+    role: 'FULL-STACK · 2026',
     status: 'live',
-    description:
-      'A comprehensive property rental management, automated billing, payments, and receivables monitoring system built with Next.js. Streamlines lease contracts, tenant payment histories, monthly statements, and occupancy telemetry in an intuitive dashboard designed to replace fragmented spreadsheets.',
-    liveLink: 'https://rentrack-beige.vercel.app/',
-    githubLink: null,
-    image: '/images/projects/rentrack.png',
-    tags: ['Next.js 15', 'React 19', 'PostgreSQL', 'Tailwind CSS', 'Vercel']
+    description: 'Cutting-edge tech platform with dynamic service catalogs and real-time cloud deployment.',
+    fullDescription:
+      'A cutting-edge tech showcase and services management platform built with TypeScript and Tailwind CSS. Features dynamic service catalogs, interactive UI components, and real-time responsive architecture deployed on Vercel.',
+    liveLink: 'https://sky-tech-xi.vercel.app',
+    githubLink: 'https://github.com/kuya1loyd/SkyTech',
+    image: '/images/projects/skytech.png',
+    tags: ['TypeScript', 'React', 'Tailwind CSS', 'Vercel'],
+    tint: { a: 'rgba(186,230,253,0.26)', b: 'rgba(199,210,254,0.18)', accent: '#0284c7' },
+    iconBg: 'linear-gradient(145deg, #38bdf8 0%, #0284c7 100%)',
+    icon: 'server'
   },
   {
-    id: 'buildtrack-application',
-    title: 'BuildTrack',
-    subtitle: 'Mobile app · Construction Management System',
-    year: '2026',
-    category: 'Mobile Application',
-    status: 'building',
-    description:
-      'A cross-platform mobile application engineered specifically for on-site construction tracking, material warehouse inventory, workforce attendance logs, and milestone scheduling. Features offline-first synchronisation with Neon PostgreSQL to ensure job site engineers never lose vital project updates.',
-    liveLink: null,
-    githubLink: null,
-    image: '/images/projects/buildtrack_phone.png',
-    tags: ['Flutter', 'Dart', 'Neon Postgres', 'REST API', 'Cross-Platform']
+    id: 'rentrack',
+    num: '02',
+    title: 'RenTrack',
+    role: 'SOLO · 2026',
+    status: 'live',
+    description: 'Property rental management with automated billing, payments, and tenant tracking.',
+    fullDescription:
+      'A comprehensive property rental management, automated billing, payments, and receivables monitoring system built with Next.js and PostgreSQL. Streamlines lease contracts, tenant payment histories, monthly statements, and occupancy telemetry in an intuitive dashboard designed to replace fragmented spreadsheets.',
+    liveLink: 'https://rentrack-beige.vercel.app/',
+    githubLink: 'https://github.com/kuya1loyd/RenTrack',
+    image: '/images/projects/rentrack.png',
+    tags: ['TypeScript', 'React', 'PostgreSQL', 'Tailwind CSS', 'Vercel'],
+    tint: { a: 'rgba(167,243,208,0.22)', b: 'rgba(186,230,253,0.14)', accent: '#047857' },
+    iconBg: 'linear-gradient(145deg, #34d399 0%, #047857 100%)',
+    icon: 'home'
   },
   {
     id: 'carvex-carparts',
+    num: '03',
     title: 'CarVex',
-    subtitle: 'Web platform · Automotive Procurement & E-Commerce',
-    year: '2026',
-    category: 'E-Commerce Platform',
+    role: 'SOLO · 2026',
     status: 'live',
-    description:
+    description: 'Auto-parts catalog with instant filtering by vehicle year, make, and model.',
+    fullDescription:
       'An automotive components catalog and procurement hub built for frictionless discovery. Combines instant multi-tiered filtering by vehicle year, make, and model with smart inventory caching and lightning-fast checkout workflows for automotive repair specialists and distributors.',
     liveLink: 'https://carvex-carparts-omega.vercel.app/',
-    githubLink: null,
+    githubLink: 'https://github.com/kuya1loyd/Carvex-Carparts',
     image: '/images/projects/carvex.png',
-    tags: ['React', 'Vite', 'E-Commerce', 'Tailwind CSS', 'Frictionless POS']
+    tags: ['React', 'Vite', 'Tailwind CSS', 'E-Commerce'],
+    tint: { a: 'rgba(186,230,253,0.24)', b: 'rgba(199,210,254,0.14)', accent: '#1d4ed8' },
+    iconBg: 'linear-gradient(145deg, #60a5fa 0%, #1d4ed8 100%)',
+    icon: 'car'
+  },
+  {
+    id: 'buildtrack-application',
+    num: '04',
+    title: 'BuildTrack',
+    role: 'MOBILE · 2026',
+    status: 'building',
+    description: 'On-site construction tracking: inventory, attendance, and milestones, offline-first.',
+    fullDescription:
+      'A cross-platform mobile application engineered specifically for on-site construction tracking, material warehouse inventory, workforce attendance logs, and milestone scheduling. Features offline-first synchronisation with Neon PostgreSQL to ensure job site engineers never lose vital project updates.',
+    liveLink: null,
+    githubLink: 'https://github.com/kuya1loyd/BuildTrack-Application',
+    image: '/images/projects/buildtrack_phone.png',
+    isMobileApp: true,
+    tags: ['Flutter', 'Dart', 'Neon Postgres', 'REST API'],
+    tint: { a: 'rgba(254,240,200,0.24)', b: 'rgba(186,230,253,0.14)', accent: '#b45309' },
+    iconBg: '#1f2335',
+    iconImage: '/images/projects/buildtrack_logo.png',
+    icon: 'tool'
   }
 ]
 
-function StatusBadge({ status }) {
-  const norm = (status || 'live').toLowerCase()
+const TAG_ICONS = {
+  'Next.js': SiNextdotjs,
+  React: SiReact,
+  TypeScript: SiTypescript,
+  JavaScript: SiJavascript,
+  HTML5: SiHtml5,
+  CSS3: SiCss3,
+  PostgreSQL: SiPostgresql,
+  'Neon Postgres': SiPostgresql,
+  'Tailwind CSS': SiTailwindcss,
+  Vercel: SiVercel,
+  Vite: SiVite,
+  Flutter: SiFlutter,
+  Dart: SiDart,
+  'REST API': FiServer,
+  'E-Commerce': FiShoppingCart,
+  'Cross-Platform': FiSmartphone,
+  Healthcare: FiActivity,
+  'Food Ordering': FiCoffee,
+  Productivity: FiCheckSquare
+}
 
-  if (norm === 'building' || norm === 'in_progress' || norm === 'deploying') {
+const tagChip = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 5,
+  fontSize: 11,
+  padding: '4px 10px',
+  borderRadius: 8,
+  color: '#0c2a43',
+  background: 'rgba(255, 255, 255, 0.82)',
+  backdropFilter: 'blur(10px)',
+  WebkitBackdropFilter: 'blur(10px)',
+  border: '1px solid rgba(12, 42, 67, 0.1)',
+  boxShadow: '0 2px 6px rgba(12, 42, 67, 0.05)'
+}
+
+function TagIcon({ tag, size = 12 }) {
+  const Icon = TAG_ICONS[tag] || FiCode
+  return <Icon style={{ width: size, height: size, flexShrink: 0 }} />
+}
+
+function ProjectGlyph({ project, size }) {
+  if (project.iconImage) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
-        Building
-      </span>
+      <img
+        src={project.iconImage}
+        alt=""
+        draggable={false}
+        style={{ width: '82%', height: '82%', objectFit: 'contain', pointerEvents: 'none' }}
+      />
     )
   }
+  let Icon = FiCode
+  if (project.icon === 'home') Icon = FiHome
+  else if (project.icon === 'car') Icon = FiTruck
+  else if (project.icon === 'clinic') Icon = FiActivity
+  else if (project.icon === 'food') Icon = FiCoffee
+  else if (project.icon === 'todo') Icon = FiCheckSquare
+  return <Icon style={{ width: size * 0.5, height: size * 0.5, color: '#fff' }} />
+}
 
-  if (norm === 'updated' || norm === 'new' || norm === 'deployed') {
-    return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
-        <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse" />
-        Newly Updated
-      </span>
-    )
-  }
-
+function StatusPill({ status }) {
+  const live = status === 'live'
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30">
-      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-      Live
+    <span
+      style={{
+        fontSize: 11,
+        fontWeight: 600,
+        padding: '3px 10px',
+        borderRadius: 999,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        color: live ? '#047857' : '#b45309',
+        background: live ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.14)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        border: live ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(245, 158, 11, 0.3)'
+      }}
+    >
+      <span
+        style={{
+          width: 5,
+          height: 5,
+          borderRadius: '50%',
+          backgroundColor: live ? '#10b981' : '#f59e0b',
+          boxShadow: live ? '0 0 8px #10b981' : '0 0 8px #f59e0b'
+        }}
+      />
+      {live ? 'Live' : 'Building'}
     </span>
   )
 }
 
-export default function Projects() {
-  const [projects, setProjects] = useState(FALLBACK_PROJECTS)
-  const [expandedId, setExpandedId] = useState(null)
-  const [isLiveConnected, setIsLiveConnected] = useState(false)
+/* Modern Outline + Solid "PROJECTS" Title in light theme */
+function ProjectsTitle() {
+  return (
+    <div style={{ textAlign: 'center', userSelect: 'none', marginBottom: 20, position: 'relative' }}>
+      {/* Category Kicker */}
+      <div
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          fontSize: 12,
+          fontFamily: 'monospace',
+          fontWeight: 700,
+          letterSpacing: '0.24em',
+          textTransform: 'uppercase',
+          color: '#0284c7',
+          marginBottom: 10
+        }}
+      >
+        <span
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: '50%',
+            backgroundColor: '#10b981',
+            boxShadow: '0 0 10px #10b981',
+            display: 'inline-block'
+          }}
+        />
+        <span>/ SELECTED WORKS</span>
+      </div>
 
+      {/* Main Headline: PRO (Hollow Cyan Outline) + JECTS (Deep Navy Bold) */}
+      <h2
+        className="font-black tracking-tight uppercase leading-none text-center select-none flex items-center justify-center"
+        style={{
+          fontSize: 'clamp(2.8rem, 8vw, 5.6rem)',
+          margin: 0,
+          padding: 0
+        }}
+      >
+        <span
+          className="title-outline-text"
+          style={{
+            WebkitTextStroke: '2px #0284c7',
+            color: 'transparent',
+            WebkitTextFillColor: 'transparent',
+            letterSpacing: '0.03em',
+            fontFamily: "'Arial Black', 'Helvetica Neue', system-ui, sans-serif"
+          }}
+        >
+          PRO
+        </span>
+        <span
+          className="title-solid-text"
+          style={{
+            color: '#0c2a43',
+            WebkitTextFillColor: '#0c2a43',
+            fontWeight: 900,
+            letterSpacing: '0.03em',
+            fontFamily: "'Arial Black', 'Helvetica Neue', system-ui, sans-serif"
+          }}
+        >
+          JECTS
+        </span>
+      </h2>
+
+      <p
+        style={{
+          marginTop: 14,
+          fontSize: 14,
+          color: 'rgba(12, 42, 67, 0.65)',
+          textAlign: 'center'
+        }}
+      >
+        Drag or use the arrow keys · Select a card for details
+      </p>
+    </div>
+  )
+}
+
+/* Crystal Clear Fiberglass Project Card on White Background (Matching Reference Design Layout) */
+function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
+  return (
+    <motion.div
+      suppressHydrationWarning
+      role="button"
+      tabIndex={0}
+      aria-label={isCenter ? `Open ${project.title} details` : `Show ${project.title}`}
+      whileHover={{
+        y: isCenter ? -6 : -3,
+        scale: isCenter ? 1.018 : 0.96,
+        transition: { type: 'spring', stiffness: 240, damping: 20 }
+      }}
+      whileTap={{
+        scale: 0.982,
+        transition: { type: 'spring', stiffness: 350, damping: 25 }
+      }}
+      onClick={onActivate}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') onActivate()
+      }}
+      className="project-glass-card"
+      style={{
+        position: 'relative',
+        height: dims.h,
+        width: dims.w,
+        padding: dims.pad,
+        borderRadius: 24,
+        cursor: 'pointer',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+        /* Crystal Clear Fiberglass Glassmorphism on White */
+        background: isCenter
+          ? 'linear-gradient(155deg, rgba(255, 255, 255, 0.94) 0%, rgba(240, 249, 255, 0.85) 100%)'
+          : 'linear-gradient(155deg, rgba(255, 255, 255, 0.82) 0%, rgba(245, 250, 255, 0.68) 100%)',
+        backdropFilter: 'blur(24px) saturate(190%)',
+        WebkitBackdropFilter: 'blur(24px) saturate(190%)',
+        border: isCenter
+          ? `2px solid ${project.tint.accent}`
+          : '1.5px solid rgba(255, 255, 255, 0.95)',
+        boxShadow: isCenter
+          ? `0 24px 60px -15px rgba(12, 42, 67, 0.16), 0 0 32px -8px ${project.tint.accent}40, inset 0 1.5px 2px #fff`
+          : '0 16px 36px -12px rgba(12, 42, 67, 0.08), inset 0 1px 2px #fff'
+      }}
+    >
+      {/* Radiant Color Halo Glow Behind Center Card */}
+      {isCenter && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            inset: -25,
+            borderRadius: 45,
+            background: project.tint.accent,
+            filter: 'blur(50px)',
+            opacity: 0.22,
+            zIndex: 0,
+            pointerEvents: 'none'
+          }}
+        />
+      )}
+
+      {/* Glass Top Edge Specular Light Highlight */}
+      <div
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 1.5,
+          background:
+            'linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.95) 50%, transparent 100%)',
+          pointerEvents: 'none',
+          zIndex: 1
+        }}
+      />
+
+      {/* Card Internal Grid matching screenshot */}
+      <div
+        suppressHydrationWarning
+        style={{
+          position: 'relative',
+          zIndex: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          boxSizing: 'border-box'
+        }}
+      >
+        {/* ROW 1: Number on left, Status Pill on right */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span
+            style={{
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+              fontSize: 14,
+              fontWeight: 800,
+              color: project.tint.accent,
+              letterSpacing: '0.04em'
+            }}
+          >
+            {project.num}
+          </span>
+          <StatusPill status={project.status} />
+        </div>
+
+        {/* ROW 2: Large App Icon on left, "View details →" pill button on right */}
+        <div
+          style={{
+            marginTop: 18,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          {/* Large App Icon with glowing outline */}
+          <div
+            style={{
+              width: dims.icon || 58,
+              height: dims.icon || 58,
+              borderRadius: 16,
+              background: project.iconBg,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: isCenter
+                ? `1.5px solid ${project.tint.accent}`
+                : '1.5px solid rgba(255, 255, 255, 0.95)',
+              boxShadow: isCenter
+                ? `0 8px 24px -4px ${project.tint.accent}44, 0 4px 12px rgba(12, 42, 67, 0.12)`
+                : '0 8px 20px -4px rgba(12, 42, 67, 0.1)',
+              flexShrink: 0
+            }}
+          >
+            <ProjectGlyph project={project} size={dims.icon || 58} />
+          </div>
+
+          {/* View Details Button */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onDetails()
+            }}
+            style={{
+              padding: '6px 14px',
+              borderRadius: 999,
+              background: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              border: '1px solid rgba(12, 42, 67, 0.12)',
+              color: '#0c2a43',
+              boxShadow: '0 2px 8px rgba(12, 42, 67, 0.05)',
+              fontSize: 11.5,
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            View details →
+          </button>
+        </div>
+
+        {/* ROW 3: Role / Category Kicker (Monospace muted uppercase) */}
+        <div style={{ marginTop: 20 }}>
+          <p
+            style={{
+              fontSize: 10.5,
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+              letterSpacing: '0.12em',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              color: 'rgba(12, 42, 67, 0.55)',
+              margin: '0 0 6px'
+            }}
+          >
+            {project.role}
+          </p>
+
+          {/* ROW 4: Bold Crisp Navy Title */}
+          <h3
+            style={{
+              fontSize: dims.title || 27,
+              fontWeight: 800,
+              letterSpacing: '-0.025em',
+              color: '#0c2a43',
+              margin: 0,
+              lineHeight: 1.15
+            }}
+          >
+            {project.title}
+          </h3>
+        </div>
+
+        {/* ROW 5: 2-line Description */}
+        <p
+          style={{
+            fontSize: 13,
+            lineHeight: 1.5,
+            color: 'rgba(12, 42, 67, 0.72)',
+            margin: '12px 0 0',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden'
+          }}
+        >
+          {project.description}
+        </p>
+
+        {/* ROW 6: Tech Stack Tags at bottom */}
+        <div
+          style={{
+            marginTop: 'auto',
+            paddingTop: 18,
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 6
+          }}
+        >
+          {project.tags.slice(0, 4).map((tag) => (
+            <span key={tag} style={tagChip}>
+              <TagIcon tag={tag} size={11} />
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
+// Authentic crystal glass tap / chime synthesizer (Web Audio API)
+function playGlassSound() {
+  if (typeof window === 'undefined') return
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext
+    if (!AudioCtx) return
+    if (!playGlassSound.ctx) {
+      playGlassSound.ctx = new AudioCtx()
+    }
+    const ctx = playGlassSound.ctx
+    if (ctx.state === 'suspended') {
+      ctx.resume().catch(() => {})
+    }
+    const now = ctx.currentTime
+
+    // 1. Primary crystal glass resonance carrier (~2850 Hz)
+    const osc1 = ctx.createOscillator()
+    const gain1 = ctx.createGain()
+    osc1.type = 'sine'
+    osc1.frequency.setValueAtTime(2850, now)
+    osc1.frequency.exponentialRampToValueAtTime(2800, now + 0.35)
+    gain1.gain.setValueAtTime(0.0001, now)
+    gain1.gain.linearRampToValueAtTime(0.24, now + 0.003)
+    gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.35)
+    osc1.connect(gain1)
+    gain1.connect(ctx.destination)
+
+    // 2. High harmonic crystal shimmer overtone (~5620 Hz)
+    const osc2 = ctx.createOscillator()
+    const gain2 = ctx.createGain()
+    osc2.type = 'sine'
+    osc2.frequency.setValueAtTime(5620, now)
+    gain2.gain.setValueAtTime(0.0001, now)
+    gain2.gain.linearRampToValueAtTime(0.12, now + 0.002)
+    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.16)
+    osc2.connect(gain2)
+    gain2.connect(ctx.destination)
+
+    // 3. Crisp physical tap impact transient
+    const osc3 = ctx.createOscillator()
+    const gain3 = ctx.createGain()
+    osc3.type = 'triangle'
+    osc3.frequency.setValueAtTime(1420, now)
+    gain3.gain.setValueAtTime(0.16, now)
+    gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.035)
+    osc3.connect(gain3)
+    gain3.connect(ctx.destination)
+
+    osc1.start(now)
+    osc2.start(now)
+    osc3.start(now)
+
+    osc1.stop(now + 0.36)
+    osc2.stop(now + 0.18)
+    osc3.stop(now + 0.04)
+  } catch {
+    // Graceful fallback if audio is not permitted by browser policy
+  }
+}
+
+const subscribeResize = (callback) => {
+  if (typeof window === 'undefined') return () => {}
+  window.addEventListener('resize', callback)
+  return () => window.removeEventListener('resize', callback)
+}
+const getIsMobile = () => (typeof window !== 'undefined' ? window.innerWidth < 768 : false)
+const getServerIsMobile = () => false
+
+export default function Projects() {
+  const [projects, setProjects] = useState(REAL_PROJECTS)
+  const [activeIndex, setActiveIndex] = useState(0)
+  const [selectedProject, setSelectedProject] = useState(null)
+  const isMobile = useSyncExternalStore(subscribeResize, getIsMobile, getServerIsMobile)
+  const reduceMotion = useReducedMotion()
+
+  const dragRef = useRef({ active: false, startX: 0, moved: false })
+  const wheelLockRef = useRef(false)
+
+  // Auto-sync status / links from the Neon database & GitHub
   useEffect(() => {
     let cancelled = false
+    const sync = () =>
+      fetch('/api/projects', { cache: 'no-store' })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (cancelled || !Array.isArray(data?.projects) || data.projects.length === 0) return
+          const remote = new Map(data.projects.map((p) => [p.id, p]))
+          const baseIds = new Set(REAL_PROJECTS.map((b) => b.id))
 
-    const poll = async () => {
-      try {
-        const res = await fetch('/api/projects', { cache: 'no-store' })
-        if (!res.ok || cancelled) return
-        const data = await res.json()
-        if (data?.projects && Array.isArray(data.projects) && data.projects.length > 0 && !cancelled) {
-          setProjects(data.projects)
-          setIsLiveConnected(data.source === 'neon')
-        }
-      } catch {
-        // Keep fallback data on transient network hiccups
-      }
-    }
+          const updatedBase = REAL_PROJECTS.map((base) => {
+            const r = remote.get(base.id)
+            if (!r) return base
+            return {
+              ...base,
+              status: r.status || base.status,
+              liveLink: r.liveLink || base.liveLink,
+              githubLink: r.githubLink || base.githubLink,
+              image: base.image || r.image,
+              fullDescription: r.description || base.fullDescription
+            }
+          })
 
-    const raf = requestAnimationFrame(() => {
-      if (!cancelled) {
-        poll()
-      }
-    })
+          const newRemote = data.projects
+            .filter((p) => {
+              const id = (p.id || '').toLowerCase()
+              const title = (p.title || '').toLowerCase()
+              return (
+                !baseIds.has(p.id) &&
+                !id.includes('romnick') &&
+                !title.includes('romnick') &&
+                !id.includes('schoolsystem') &&
+                !title.includes('schoolsystem') &&
+                !id.includes('portfolio')
+              )
+            })
+            .map((p, idx) => ({
+              id: p.id,
+              num: String(REAL_PROJECTS.length + idx + 1).padStart(2, '0'),
+              title: p.title,
+              role: p.subtitle || p.category || 'PROJECT · 2026',
+              status: p.status || 'live',
+              description: p.description?.slice(0, 110) || '',
+              fullDescription: p.description || '',
+              liveLink: p.liveLink || null,
+              githubLink: p.githubLink || null,
+              image: p.image || '/images/projects/rentrack.png',
+              tags: Array.isArray(p.tags) ? p.tags : ['Full-Stack', 'Next.js'],
+              tint: { a: 'rgba(186,230,253,0.24)', b: 'rgba(199,210,254,0.14)', accent: '#0284c7' },
+              iconBg: 'linear-gradient(145deg, #38bdf8 0%, #0284c7 100%)',
+              icon: 'code'
+            }))
 
-    // Real-time automatic background polling every 25 seconds
-    const interval = setInterval(poll, 25000)
-    const handleFocus = () => {
-      poll()
-    }
-    window.addEventListener('focus', handleFocus)
-
+          setProjects([...updatedBase, ...newRemote])
+        })
+        .catch(() => {})
+    sync()
+    const id = setInterval(sync, 60000)
     return () => {
       cancelled = true
-      cancelAnimationFrame(raf)
-      clearInterval(interval)
-      window.removeEventListener('focus', handleFocus)
+      clearInterval(id)
     }
   }, [])
 
-  const toggleProject = (id) => {
-    setExpandedId((prev) => (prev === id ? null : id))
+  const count = projects.length
+  const handleNext = useCallback(() => {
+    playGlassSound()
+    setActiveIndex((i) => (i + 1) % count)
+  }, [count])
+  const handlePrev = useCallback(() => {
+    playGlassSound()
+    setActiveIndex((i) => (i - 1 + count) % count)
+  }, [count])
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (selectedProject) return
+      if (e.key === 'ArrowLeft') handlePrev()
+      else if (e.key === 'ArrowRight') handleNext()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [selectedProject, handleNext, handlePrev])
+
+  // Horizontal trackpad swipe while hovering the carousel (vertical scroll still scrolls the page)
+  const handleWheel = (e) => {
+    const horizontal = Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey
+    if (!horizontal || wheelLockRef.current) return
+    const delta = Math.abs(e.deltaX) > 0 ? e.deltaX : e.deltaY
+    if (Math.abs(delta) < 18) return
+    wheelLockRef.current = true
+    if (delta > 0) handleNext()
+    else handlePrev()
+    setTimeout(() => {
+      wheelLockRef.current = false
+    }, 380)
   }
+
+  // Mouse / touch drag
+  const onPointerDown = (e) => {
+    dragRef.current = { active: true, startX: e.clientX, moved: false }
+  }
+  const onPointerMove = (e) => {
+    const d = dragRef.current
+    if (!d.active) return
+    const diff = e.clientX - d.startX
+    if (Math.abs(diff) > 8) d.moved = true
+    if (Math.abs(diff) > 55) {
+      d.startX = e.clientX
+      if (diff < 0) handleNext()
+      else handlePrev()
+    }
+  }
+  const endDrag = () => {
+    dragRef.current.active = false
+    setTimeout(() => {
+      dragRef.current.moved = false
+    }, 0)
+  }
+
+  const activate = (idx, isCenter, project) => {
+    if (dragRef.current.moved) return
+    playGlassSound()
+    if (isCenter) setSelectedProject(project)
+    else setActiveIndex(idx)
+  }
+
+  const dims = isMobile
+    ? { w: 285, h: 430, gap: 295, title: 23, pad: '22px 20px 18px', icon: 52 }
+    : { w: 325, h: 445, gap: 385, title: 26, pad: '24px 22px 20px', icon: 58 }
 
   return (
     <section
       id="projects"
-      className="relative py-24 sm:py-28 px-6 lg:px-12 bg-transparent overflow-hidden text-slate-900 dark:text-white border-t border-slate-200/80 dark:border-white/10"
+      suppressHydrationWarning
+      onWheel={handleWheel}
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        padding: '84px 16px 90px',
+        color: '#0c2a43',
+        userSelect: 'none',
+        background:
+          'radial-gradient(75% 45% at 50% 60%, rgba(186, 230, 253, 0.28) 0%, rgba(255, 255, 255, 0) 70%), #ffffff'
+      }}
     >
-      {/* Background Ambient Glow */}
-      <div className="absolute top-1/4 right-0 w-[450px] h-[450px] bg-cyan-500/[0.02] dark:bg-cyan-500/[0.06] rounded-full blur-[140px] pointer-events-none" />
+      <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <ProjectsTitle />
 
-      <div className="relative z-10 max-w-5xl mx-auto">
-        {/* Section Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <span className="flex items-center gap-2 text-xs uppercase tracking-[0.4em] text-cyan-600 dark:text-cyan-400 font-mono font-bold">
-                <FiLayers className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-                PORTFOLIO SHOWCASE
-              </span>
-              <div className="h-px w-12 bg-slate-300 dark:bg-white/15" />
-            </div>
-            <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight font-sans text-slate-900 dark:text-white">
-              FEATURED <span className="text-slate-400 dark:text-slate-500">PROJECTS.</span>
-            </h2>
-            <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-xl font-normal leading-relaxed">
-              Explore live builds and systems currently in active development. Click any project to expand its architecture, features, and deployment telemetry.
-            </p>
-          </div>
-
-          {/* Live Auto-Sync Indicator */}
-          {isLiveConnected && (
-            <div className="self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-mono font-medium shrink-0">
-              <FiActivity className="w-3.5 h-3.5 animate-pulse text-emerald-500" />
-              <span>Auto-Sync: Live</span>
-            </div>
-          )}
-        </div>
-
-        {/* Expandable Project List */}
-        <div className="space-y-4">
-          {projects.map((project) => {
-            const isExpanded = expandedId === project.id
-            const isMobile = project.category === 'Mobile Application'
-            const isBuilding = project.status === 'building' || project.status === 'in_progress'
+        {/* Carousel stage */}
+        <div
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerLeave={endDrag}
+          onPointerCancel={endDrag}
+          style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: 1200,
+            height: dims.h + 20,
+            marginTop: 24,
+            perspective: 1400,
+            touchAction: 'pan-y',
+            cursor: 'grab'
+          }}
+        >
+          {projects.map((project, idx) => {
+            let o = idx - activeIndex
+            if (o > count / 2) o -= count
+            if (o < -count / 2) o += count
+            const isCenter = o === 0
+            const abs = Math.abs(o)
+            const isVisible = abs <= 1.2
 
             return (
-              <div
+              <motion.div
                 key={project.id}
-                className="overflow-hidden transition-all duration-300"
+                initial={false}
+                animate={{
+                  x: o * dims.gap,
+                  y: isCenter ? 0 : 14,
+                  z: -abs * 80,
+                  rotateZ: o * 5,
+                  rotateY: -o * 8,
+                  scale: isCenter ? 1 : 0.88,
+                  opacity: isCenter ? 1 : isVisible ? 0.65 : 0
+                }}
+                transition={{ type: 'spring', stiffness: 160, damping: 24, mass: 1.05 }}
+                style={{
+                  position: 'absolute',
+                  left: '50%',
+                  top: 0,
+                  width: dims.w,
+                  marginLeft: -dims.w / 2,
+                  zIndex: isCenter ? 30 : isVisible ? 15 : 0,
+                  pointerEvents: isCenter ? 'auto' : isVisible ? 'auto' : 'none',
+                  transformStyle: 'preserve-3d'
+                }}
               >
-                <AnimatePresence initial={false} mode="wait">
-                  {!isExpanded ? (
-                    /* ============================================================ */
-                    /* COLLAPSED PROJECT ROW (Deni-Style Pill)                      */
-                    /* ============================================================ */
-                    <motion.div
-                      key="collapsed"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2 }}
-                      onClick={() => toggleProject(project.id)}
-                      className="project-collapsed-card group flex items-center justify-between p-4 sm:p-5 rounded-[1.75rem] bg-[#f1f3f6] hover:bg-[#e9ecf0] dark:bg-[#131722] dark:hover:bg-[#181d2a] border border-slate-200/90 dark:border-white/10 shadow-xs hover:shadow-md transition-all duration-200 cursor-pointer"
-                    >
-                      {/* Left: Thumbnail & Titles */}
-                      <div className="flex items-center gap-4 sm:gap-5 min-w-0">
-                        {/* Thumbnail Badge */}
-                        <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-white dark:bg-black/80 border border-slate-200/80 dark:border-white/15 shadow-sm shrink-0 flex items-center justify-center p-0.5">
-                          <img
-                            src={project.image}
-                            alt={project.title}
-                            className={`w-full h-full ${isMobile
-                                ? 'object-contain p-1'
-                                : 'object-cover object-top'
-                              } group-hover:scale-105 transition-transform duration-300`}
-                          />
-                        </div>
-
-                        {/* Title, Status Badge & Subtitle */}
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2.5 flex-wrap">
-                            <h3 className="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors truncate">
-                              {project.title}
-                            </h3>
-                            <StatusBadge status={project.status} />
-                          </div>
-                          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-normal truncate mt-0.5">
-                            {project.subtitle}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Right: Year & Plus Button */}
-                      <div className="flex items-center gap-4 shrink-0 pl-3">
-                        <span className="text-xs sm:text-sm font-mono text-slate-500 dark:text-slate-400 font-medium">
-                          {project.year}
-                        </span>
-
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white hover:bg-white text-slate-800 border border-slate-200/80 dark:bg-white/10 dark:hover:bg-white/20 dark:text-white dark:border-white/15 flex items-center justify-center transition-colors shadow-xs">
-                          <FiPlus className="w-4 h-4 transition-transform group-hover:rotate-90 duration-200" />
-                        </div>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    /* ============================================================ */
-                    /* EXPANDED CARD (Click header bar to drop back up / collapse)  */
-                    /* ============================================================ */
-                    <motion.div
-                      key="expanded"
-                      initial={{ opacity: 0, scale: 0.98 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.98 }}
-                      transition={{ duration: 0.25, ease: 'easeOut' }}
-                      className="rounded-3xl bg-white dark:bg-[#131722] border border-slate-200/90 dark:border-white/10 shadow-xl p-6 sm:p-8 transition-all"
-                    >
-                      {/* Entire Top Header Row is Clickable to Drop-Up / Collapse */}
-                      <div
-                        onClick={() => toggleProject(project.id)}
-                        className="group/hdr flex items-center justify-between pb-6 border-b border-slate-100 dark:border-white/10 cursor-pointer select-none transition-colors"
-                        title="Click to collapse / drop up"
-                      >
-                        {/* Left: Thumbnail & Titles */}
-                        <div className="flex items-center gap-4 min-w-0">
-                          <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-slate-900 dark:bg-black/80 border border-slate-200 dark:border-white/15 shadow-xs shrink-0 flex items-center justify-center">
-                            <img
-                              src={project.image}
-                              alt={project.title}
-                              className={`w-full h-full ${isMobile
-                                  ? 'object-contain p-1'
-                                  : 'object-cover object-top'
-                                }`}
-                            />
-                          </div>
-
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2.5 flex-wrap">
-                              <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white group-hover/hdr:text-cyan-600 dark:group-hover/hdr:text-cyan-400 transition-colors truncate">
-                                {project.title}
-                              </h3>
-                              <StatusBadge status={project.status} />
-                              <span className="text-[11px] font-mono text-cyan-600 dark:text-cyan-400 font-medium opacity-0 group-hover/hdr:opacity-100 transition-opacity">
-                                (click to collapse ↑)
-                              </span>
-                            </div>
-                            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-normal truncate mt-0.5">
-                              {project.subtitle}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Right: Year & Drop-Up Chevron Toggle */}
-                        <div className="flex items-center gap-3 shrink-0 pl-3">
-                          <span className="text-xs sm:text-sm font-mono text-slate-500 dark:text-slate-400 font-medium">
-                            {project.year}
-                          </span>
-
-                          <div
-                            className="w-9 h-9 rounded-full bg-slate-100 group-hover/hdr:bg-[#111622] group-hover/hdr:text-white dark:bg-white/10 dark:group-hover/hdr:bg-cyan-500 dark:group-hover/hdr:text-black text-slate-700 dark:text-white flex items-center justify-center transition-all shadow-xs"
-                            title="Drop up / Collapse"
-                          >
-                            <FiChevronUp className="w-5 h-5 group-hover/hdr:-translate-y-0.5 transition-transform" />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Body Content Grid (Two Columns on Desktop) */}
-                      <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                        {/* LEFT COLUMN: Clean Project Image Showcase */}
-                        <div className="lg:col-span-5">
-                          {isMobile ? (
-                            /* Clean Mobile Phone Showcase */
-                            <div className="relative w-full aspect-[16/11] rounded-2xl overflow-hidden bg-gradient-to-br from-slate-900 via-[#131722] to-slate-950 p-4 border border-slate-200/60 dark:border-white/10 shadow-inner flex items-center justify-center">
-                              <div className="relative w-full h-full flex items-center justify-center">
-                                <img
-                                  src={project.image}
-                                  alt={`${project.title} mobile showcase`}
-                                  className="w-full h-full object-contain filter contrast-105"
-                                />
-                              </div>
-                            </div>
-                          ) : (
-                            /* Clean Desktop Web Platform Showcase */
-                            <div className="relative w-full aspect-[16/11] rounded-2xl overflow-hidden bg-gradient-to-br from-slate-900 via-[#131722] to-slate-950 border border-slate-200/60 dark:border-white/10 shadow-inner flex items-center justify-center group/media">
-                              {project.liveLink ? (
-                                <a
-                                  href={project.liveLink}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="relative w-full h-full block cursor-pointer"
-                                  title={`Open ${project.title} live deployment`}
-                                >
-                                  <img
-                                    src={project.image}
-                                    alt={`${project.title} preview`}
-                                    className="w-full h-full object-cover object-top filter brightness-95 group-hover/media:scale-103 group-hover/media:brightness-100 transition-all duration-500"
-                                  />
-                                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/media:opacity-100 transition-opacity flex items-center justify-center">
-                                    <span className="px-4 py-2 rounded-full bg-cyan-500 text-black font-mono font-bold text-xs uppercase tracking-wider shadow-lg flex items-center gap-1.5">
-                                      <span>Launch Site</span>
-                                      <FiExternalLink className="w-3.5 h-3.5" />
-                                    </span>
-                                  </div>
-                                </a>
-                              ) : (
-                                <img
-                                  src={project.image}
-                                  alt={`${project.title} preview`}
-                                  className="w-full h-full object-cover object-top"
-                                />
-                              )}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* RIGHT COLUMN: Rich Description, Tech Stack & Primary Action */}
-                        <div className="lg:col-span-7 flex flex-col justify-between space-y-6">
-                          {/* Rich Narrative Description */}
-                          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
-                            {project.description}
-                          </p>
-
-                          {/* Tech Stack Pills */}
-                          <div className="flex flex-wrap items-center gap-2">
-                            {project.tags.map((tag) => (
-                              <span
-                                key={tag}
-                                className="px-3.5 py-1.5 rounded-full bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs font-sans font-medium"
-                              >
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-
-                          {/* Bottom Primary Action Button */}
-                          <div className="pt-2 flex flex-wrap items-center gap-3">
-                            {project.liveLink ? (
-                              <a
-                                href={project.liveLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#14b8a6] hover:bg-[#0d9488] !text-white text-xs font-bold font-sans tracking-wide transition-all shadow-md hover:shadow-teal-500/20 cursor-pointer"
-                              >
-                                <span className="!text-white">Visit Live Site</span>
-                                <FiExternalLink className="w-3.5 h-3.5 !text-white" />
-                              </a>
-                            ) : isBuilding ? (
-                              <span className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 text-xs font-mono font-bold tracking-wide shadow-xs">
-                                <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
-                                <span>In Active Development</span>
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-slate-900 dark:bg-cyan-500 dark:text-black !text-white text-xs font-bold font-sans tracking-wide shadow-sm">
-                                <span className="!text-white dark:!text-black">Mobile Application</span>
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                {/* Smooth fluid buoyancy floating motion */}
+                <motion.div
+                  animate={
+                    reduceMotion
+                      ? undefined
+                      : {
+                          y: [0, -10, -2, 7, 0],
+                          rotateZ: [0, 0.8, -0.3, -0.7, 0],
+                          rotateX: [0, 1.2, -0.4, -0.9, 0]
+                        }
+                  }
+                  transition={{
+                    duration: 6.8 + idx * 0.85,
+                    repeat: Infinity,
+                    ease: 'easeInOut'
+                  }}
+                >
+                  <ProjectGlassCard
+                    project={project}
+                    dims={dims}
+                    isCenter={isCenter}
+                    onActivate={() => activate(idx, isCenter, project)}
+                    onDetails={() => {
+                      playGlassSound()
+                      setSelectedProject(project)
+                    }}
+                  />
+                </motion.div>
+              </motion.div>
             )
           })}
         </div>
+
+        {/* Crystal Glass Navigation Controls on White: Arrow buttons + Pill indicators */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            marginTop: 26,
+            position: 'relative',
+            zIndex: 40
+          }}
+        >
+          {/* Prev Glass Arrow Button */}
+          <motion.button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous Project"
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1.5px solid rgba(255, 255, 255, 0.95)',
+              color: '#0c2a43',
+              boxShadow: '0 4px 16px rgba(12, 42, 67, 0.1)',
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            <FiChevronLeft style={{ width: 18, height: 18 }} />
+          </motion.button>
+
+          {/* Indicator Capsule */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 14,
+              padding: '8px 18px',
+              borderRadius: 999,
+              background: 'rgba(255, 255, 255, 0.85)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1.5px solid rgba(255, 255, 255, 0.95)',
+              boxShadow: '0 8px 24px -4px rgba(12, 42, 67, 0.1)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              {projects.map((p, idx) => {
+                const active = idx === activeIndex
+                return (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => {
+                      playGlassSound()
+                      setActiveIndex(idx)
+                    }}
+                    aria-label={`Go to ${p.title}`}
+                    style={{
+                      height: 7,
+                      width: active ? 26 : 7,
+                      borderRadius: 999,
+                      background: active ? '#0284c7' : 'rgba(12, 42, 67, 0.22)',
+                      boxShadow: active ? '0 0 10px rgba(2, 132, 199, 0.4)' : 'none',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      border: 'none',
+                      padding: 0,
+                      cursor: 'pointer'
+                    }}
+                  />
+                )
+              })}
+            </div>
+            <span
+              style={{
+                fontSize: 12,
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                fontWeight: 700,
+                color: '#0c2a43',
+                letterSpacing: '0.04em'
+              }}
+            >
+              0{activeIndex + 1} / 0{count} · {projects[activeIndex]?.title}
+            </span>
+          </div>
+
+          {/* Next Glass Arrow Button */}
+          <motion.button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next Project"
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
+            style={{
+              width: 38,
+              height: 38,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(255, 255, 255, 0.9)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1.5px solid rgba(255, 255, 255, 0.95)',
+              color: '#0c2a43',
+              boxShadow: '0 4px 16px rgba(12, 42, 67, 0.1)',
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            <FiChevronRight style={{ width: 18, height: 18 }} />
+          </motion.button>
+        </div>
       </div>
+
+      {/* Details modal */}
+      <AnimatePresence>
+        {selectedProject && (
+          <div
+            onClick={() => setSelectedProject(null)}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 60,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 16,
+              background: 'rgba(12, 42, 67, 0.42)',
+              backdropFilter: 'blur(10px)',
+              WebkitBackdropFilter: 'blur(10px)'
+            }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.94, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 16 }}
+              transition={{ type: 'spring', stiffness: 340, damping: 28 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'relative',
+                overflow: 'hidden',
+                width: '100%',
+                maxWidth: 640,
+                borderRadius: 28,
+                color: '#0c2a43',
+                background:
+                  'linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(240, 249, 255, 0.92) 100%)',
+                backdropFilter: 'blur(26px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(26px) saturate(180%)',
+                border: '1.5px solid rgba(255, 255, 255, 0.95)',
+                boxShadow:
+                  '0 30px 80px -20px rgba(12, 42, 67, 0.25), inset 0 1.5px 2px #fff'
+              }}
+            >
+              {/* Glass Specular Light Sheen */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background:
+                    'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 40%, transparent 70%)',
+                  pointerEvents: 'none',
+                  borderRadius: 'inherit'
+                }}
+              />
+
+              <div style={{ position: 'relative', zIndex: 1, padding: 28 }}>
+                <button
+                  type="button"
+                  onClick={() => setSelectedProject(null)}
+                  aria-label="Close"
+                  style={{
+                    position: 'absolute',
+                    top: 16,
+                    right: 16,
+                    padding: 8,
+                    borderRadius: 10,
+                    color: '#0c2a43',
+                    background: 'rgba(12, 42, 67, 0.06)',
+                    border: '1px solid rgba(12, 42, 67, 0.08)',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <FiX style={{ width: 20, height: 20 }} />
+                </button>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+                  <div
+                    style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: 16,
+                      background: selectedProject.iconBg,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 8px 24px -4px rgba(12, 42, 67, 0.2)'
+                    }}
+                  >
+                    <ProjectGlyph project={selectedProject} size={56} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em', color: '#0c2a43', margin: 0 }}>
+                      {selectedProject.title}
+                    </h3>
+                  </div>
+                  <div style={{ marginLeft: 'auto', marginRight: 42 }}>
+                    <StatusPill status={selectedProject.status} />
+                  </div>
+                </div>
+
+                {/* Preview Banner: Smartphone for Mobile Apps, Browser for Web Apps */}
+                {selectedProject.image && (
+                  selectedProject.isMobileApp || selectedProject.id.includes('buildtrack') ? (
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: 240,
+                        margin: '14px 0 18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        background: 'rgba(12, 42, 67, 0.04)',
+                        borderRadius: 20,
+                        border: '1px solid rgba(12, 42, 67, 0.1)'
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: '92%',
+                          aspectRatio: '780 / 1688',
+                          borderRadius: 22,
+                          background: '#090d16',
+                          border: '2.5px solid rgba(12, 42, 67, 0.25)',
+                          boxShadow: '0 12px 28px -6px rgba(12, 42, 67, 0.25)',
+                          overflow: 'hidden',
+                          position: 'relative'
+                        }}
+                      >
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: 4,
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            width: 32,
+                            height: 7,
+                            borderRadius: 999,
+                            background: '#000',
+                            zIndex: 10
+                          }}
+                        />
+                        <img
+                          src="/images/projects/buildtrack_phone.png"
+                          alt={`${selectedProject.title} mobile interface`}
+                          style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center' }}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        position: 'relative',
+                        width: '100%',
+                        height: 220,
+                        borderRadius: 16,
+                        overflow: 'hidden',
+                        margin: '14px 0 18px',
+                        background: '#ffffff',
+                        border: '1.5px solid rgba(12, 42, 67, 0.1)',
+                        boxShadow: '0 12px 28px -8px rgba(12, 42, 67, 0.12)',
+                        display: 'flex',
+                        flexDirection: 'column'
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: 26,
+                          padding: '0 12px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                          background: 'rgba(248, 250, 252, 0.95)',
+                          borderBottom: '1px solid rgba(12, 42, 67, 0.08)'
+                        }}
+                      >
+                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ff5f56' }} />
+                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ffbd2e' }} />
+                        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#27c93f' }} />
+                        <span
+                          style={{
+                            marginLeft: 8,
+                            fontSize: 10,
+                            fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                            color: 'rgba(12, 42, 67, 0.55)'
+                          }}
+                        >
+                          {selectedProject.liveLink ? selectedProject.liveLink : `${selectedProject.title.toLowerCase()}.dev`}
+                        </span>
+                      </div>
+                      <div style={{ position: 'relative', flex: 1, overflow: 'hidden' }}>
+                        <img
+                          src={selectedProject.image}
+                          alt={`${selectedProject.title} front landing page`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }}
+                        />
+                      </div>
+                    </div>
+                  )
+                )}
+
+                <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'rgba(12, 42, 67, 0.72)', marginBottom: 20 }}>
+                  {selectedProject.fullDescription}
+                </p>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 22 }}>
+                  {selectedProject.tags.map((tag) => (
+                    <span key={tag} style={tagChip}>
+                      <TagIcon tag={tag} size={12} />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div
+                  style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 12,
+                    paddingTop: 18,
+                    borderTop: '1px solid rgba(12, 42, 67, 0.1)'
+                  }}
+                >
+                  {selectedProject.liveLink && (
+                    <a
+                      href={selectedProject.liveLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        padding: '10px 22px',
+                        borderRadius: 999,
+                        background: selectedProject.tint.accent || '#0284c7',
+                        color: '#ffffff',
+                        fontSize: 13.5,
+                        fontWeight: 700,
+                        boxShadow: `0 8px 20px -4px ${selectedProject.tint.accent}66`
+                      }}
+                    >
+                      <span style={{ color: '#ffffff' }}>Open Live Demo</span>
+                      <FiExternalLink style={{ width: 16, height: 16 }} />
+                    </a>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }

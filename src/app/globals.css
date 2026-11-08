@@ -244,9 +244,65 @@ html.light .text-white\/10 {
   color: #475569 !important;
 }
 
+/* Outlined editorial title styling (Matches Rey Jane Andrada reference) */
+.title-outline-text {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: 2px #0f172a !important;
+  user-select: none;
+}
+
+html.dark .title-outline-text {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: 2px #ffffff !important;
+}
+
+.title-solid-text {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  -webkit-text-stroke: 0 !important;
+  font-weight: 900 !important;
+  user-select: none;
+}
+
+html.dark .title-solid-text {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Transparent Fiber Glass Water Card */
+.fiberglass-water-card {
+  backdrop-filter: blur(20px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+}
+
+html.light .fiberglass-water-card {
+  background-color: transparent !important;
+}
+
+/* ========================================================= */
+/* STRICT ANTI-SCREENSHOT & PRINT SECURITY                   */
+/* ========================================================= */
+@media print {
+  body, main, #certificates, .cert-preview-canvas {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  body::after {
+    content: "DOCUMENT EXPORT BLOCKED · OFFICIAL CREDENTIAL RECORD OF JOHN LLOYD GALITO";
+    display: block !important;
+    font-size: 20px !important;
+    font-family: monospace !important;
+    color: red !important;
+    text-align: center !important;
+    padding-top: 100px !important;
+  }
+}
+
 /* Headings with muted spans — darker in light mode so they never fade on white */
-html.light h2 span,
-html.light h1 span {
+html.light h2 span:not(.title-outline-text):not(.title-solid-text),
+html.light h1 span:not(.title-outline-text):not(.title-solid-text) {
   color: #475569 !important;
 }
 
@@ -739,6 +795,83 @@ html.light .starburst-ray {
     visibility: hidden !important;
   }
 }
+
+/* Continuous Nonstop Marquee Sliding for Certificates */
+@keyframes cert-marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-cert-marquee {
+  display: flex;
+  width: max-content;
+  animation: cert-marquee 18s linear infinite;
+  will-change: transform;
+}
+
+.animate-cert-marquee-paused {
+  animation-play-state: paused !important;
+}
+
+.animate-cert-marquee-fast {
+  animation-duration: 6s !important;
+}
+
+.animate-cert-marquee-reverse {
+  animation-direction: reverse !important;
+  animation-duration: 8s !important;
+}
+
+@keyframes tech-marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-tech-marquee {
+  display: flex;
+  width: max-content;
+  animation: tech-marquee 36s linear infinite;
+  will-change: transform;
+}
+
+.animate-tech-marquee:hover {
+  animation-play-state: paused !important;
+}
+
+.tech-stroke-watermark {
+  color: transparent !important;
+  -webkit-text-fill-color: transparent !important;
+  -webkit-text-stroke: 1.5px rgba(15, 23, 42, 0.15);
+  user-select: none;
+  pointer-events: none;
+}
+
+html.dark .tech-stroke-watermark {
+  -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.25);
+}
+
+.vertical-tab-text {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
 
 
 

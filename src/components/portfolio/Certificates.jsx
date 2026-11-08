@@ -1,774 +1,502 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence, useMotionValue } from 'framer-motion'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
-  FiAward,
-  FiChevronLeft,
-  FiChevronRight,
   FiX,
-  FiEye,
+  FiLock,
   FiShield,
-  FiLock
+  FiAward,
+  FiMaximize2
 } from 'react-icons/fi'
 
-const CERTIFICATES = [
+const ACHIEVEMENTS = [
   {
     id: 'mos-access-2019-expert',
     title: 'Microsoft Office Specialist: Access 2019 Expert',
+    role: 'DATABASE EXPERT',
+    year: '2026',
     issuer: 'Microsoft / Certiport',
-    issued: 'October 29, 2026',
+    issuedDate: 'October 29, 2026',
+    description:
+      'Advanced database design, relational schema architecture, complex SQL queries, and enterprise forms & reporting.',
+    competencies: ['Database Architecture', 'Relational Schemas', 'Query Optimization', 'Data Integrity'],
     image: '/images/Microsoft_Office_Specialist_Access_2019_Expert.jpg',
     pdfUrl: '/certificates/mos-access-2019-expert.pdf'
   },
   {
-    id: 'cisco-networking-basics',
+    id: 'cisco-networking',
     title: 'Networking Basics',
+    role: 'NETWORK ARCHITECT',
+    year: '2025',
     issuer: 'Cisco Networking Academy',
-    issued: 'May 8, 2025',
+    issuedDate: 'May 8, 2025',
+    description:
+      'Foundational certification in network architecture, packet analysis, subnetting, and network security protocols.',
+    competencies: ['TCP/IP Suite', 'Subnetting', 'Packet Analysis', 'Network Topology'],
     image: '/images/Networking_Basics_Cisco.jpg',
     pdfUrl: '/certificates/cisco-networking-basics.pdf'
   },
   {
-    id: 'google-cybersecurity',
-    title: 'Google Cybersecurity Professional Certificate',
-    issuer: 'Google / Coursera',
-    issued: 'July 10, 2026',
-    image: '/images/certificate.jpg',
-    pdfUrl: '/certificates/google-cybersecurity.pdf'
-  },
-  {
     id: 'html-fundamentals',
     title: 'HTML Fundamentals',
+    role: 'WEB ARCHITECTURE',
+    year: '2026',
     issuer: 'CodeCred Dev',
-    issued: 'September 26, 2026',
+    issuedDate: 'September 26, 2026',
+    description:
+      'Semantic structure, accessible markup (WCAG), and responsive DOM layout foundations.',
+    competencies: ['Semantic HTML5', 'Accessibility (WCAG)', 'SEO Schema', 'DOM Layout'],
     image: '/images/Html%20fundamentals.png',
     pdfUrl: '/certificates/html-fundamentals.pdf'
   },
   {
-    id: 'ui-ux-principles',
+    id: 'uiux-principles',
     title: 'UI/UX Principles',
+    role: 'UI/UX DESIGN',
+    year: '2026',
     issuer: 'CodeCred Dev',
-    issued: 'October 4, 2026',
+    issuedDate: 'October 4, 2026',
+    description:
+      'Human-centered interaction design, visual hierarchy, wireframing, and user usability testing.',
+    competencies: ['User Research', 'Wireframing', 'Visual Hierarchy', 'Usability Testing'],
     image: '/images/UIUX%20principles.png',
     pdfUrl: '/certificates/ui-ux-principles.pdf'
   },
   {
     id: 'web-performance',
     title: 'Web Performance & Optimization',
+    role: 'PERFORMANCE SPECIALIST',
+    year: '2026',
     issuer: 'CodeCred Dev',
-    issued: 'October 4, 2026',
+    issuedDate: 'October 4, 2026',
+    description:
+      'Core Web Vitals tuning, asset caching strategies, lazy loading, and Lighthouse audit excellence.',
+    competencies: ['Core Web Vitals', 'Asset Caching', 'Render Optimization', 'Lighthouse Audits'],
     image: '/images/Web%20Performance.png',
     pdfUrl: '/certificates/web-performance.pdf'
   },
   {
     id: 'cybersecurity-fundamentals',
     title: 'Cybersecurity Fundamentals',
+    role: 'SECURITY SPECIALIST',
+    year: '2026',
     issuer: 'CodeCred Dev',
-    issued: 'October 4, 2026',
+    issuedDate: 'October 4, 2026',
+    description:
+      'Verified credential in network protocol defense, encryption, and safe application architecture.',
+    competencies: ['Cryptography', 'Network Defense', 'Identity Management', 'Risk Assessment'],
     image: '/images/CyberSecurity%20Fundamentals.png',
     pdfUrl: '/certificates/cybersecurity-fundamentals.pdf'
   }
 ]
 
-// Duplicate list so the track loops infinitely without any hard snap-back
-const LOOP_CERTIFICATES = [...CERTIFICATES, ...CERTIFICATES]
+// Quadruple items to ensure a seamless infinite scrolling runway
+const DISPLAY_ACHIEVEMENTS = [
+  ...ACHIEVEMENTS,
+  ...ACHIEVEMENTS,
+  ...ACHIEVEMENTS,
+  ...ACHIEVEMENTS
+]
+
+const BASE_SPEED = 2.0 // Permanent fast forward sliding speed
 
 export default function Certificates() {
-  const [activeIndex, setActiveIndex] = useState(0)
-  const [cardsPerView, setCardsPerView] = useState(3)
-  const [hoverZone, setHoverZone] = useState(null) // 'prev' | 'next' | 'center' | null
   const [selectedCert, setSelectedCert] = useState(null)
   const [isScreenShieldActive, setIsScreenShieldActive] = useState(false)
 
-  const containerRef = useRef(null)
-  const x = useMotionValue(0)
+  const scrollContainerRef = useRef(null)
+  const speedRef = useRef(BASE_SPEED) // Current interpolated speed
+  const targetSpeedRef = useRef(BASE_SPEED) // Desired speed based on hover
+  const dragRef = useRef({ isDown: false, startX: 0, scrollLeft: 0, hasDragged: false })
 
-  // Smooth physics state refs for requestAnimationFrame loop
-  const offsetRef = useRef(0)
-  const velocityRef = useRef(-0.65)
-  const targetVelocityRef = useRef(-0.65)
-  const snapTargetRef = useRef(null)
-  const cardWidthRef = useRef(380)
-  const isDraggingRef = useRef(false)
-  const isTouchPausedRef = useRef(false)
-  const touchResumeTimerRef = useRef(null)
-  const dragStartXRef = useRef(0)
-  const dragLastXRef = useRef(0)
-  const didDragMoveRef = useRef(false)
-  const activeIdxRef = useRef(0)
+  const totalCount = ACHIEVEMENTS.length
 
+  // Ultra-smooth 60fps/120fps animation loop
   useEffect(() => {
-    const handleResize = () => {
-      let perView = 3
-      if (window.innerWidth < 768) {
-        perView = 1
-      } else if (window.innerWidth < 1100) {
-        perView = 2
-      }
-      setCardsPerView(perView)
+    const el = scrollContainerRef.current
+    if (!el) return
 
-      if (containerRef.current) {
-        const containerWidth = containerRef.current.clientWidth
-        cardWidthRef.current = containerWidth / perView
-      }
-    }
+    let animationFrameId
+    let lastTime = performance.now()
 
-    const initId = requestAnimationFrame(handleResize)
-    window.addEventListener('resize', handleResize)
-    return () => {
-      cancelAnimationFrame(initId)
-      window.removeEventListener('resize', handleResize)
-    }
-  }, [])
+    const step = (currentTime) => {
+      const delta = Math.min((currentTime - lastTime) / 16.67, 2.5)
+      lastTime = currentTime
 
-  // Wrap offset seamlessly within [-singleSetWidth, 0)
-  const normalizeOffset = useCallback((val) => {
-    const singleSetWidth = CERTIFICATES.length * cardWidthRef.current
-    if (singleSetWidth <= 0) return val
-    let wrapped = val % singleSetWidth
-    if (wrapped > 0) wrapped -= singleSetWidth
-    return wrapped
-  }, [])
+      if (!selectedCert && !dragRef.current.isDown) {
+        // Fast, responsive interpolation (0.2 factor = instant natural response to mouse position)
+        speedRef.current += (targetSpeedRef.current - speedRef.current) * 0.2
 
-  // Silky 60fps+ animation loop with inertia & smooth easing
-  useEffect(() => {
-    let rafId
-    const tick = () => {
-      const singleSetWidth = CERTIFICATES.length * cardWidthRef.current
+        el.scrollLeft += speedRef.current * delta
 
-      if (!isDraggingRef.current && !isTouchPausedRef.current && !selectedCert && singleSetWidth > 0) {
-        if (snapTargetRef.current !== null) {
-          const diff = snapTargetRef.current - offsetRef.current
-          if (Math.abs(diff) < 0.8) {
-            offsetRef.current = snapTargetRef.current
-            snapTargetRef.current = null
-          } else {
-            offsetRef.current += diff * 0.075
-          }
-        } else {
-          velocityRef.current +=
-            (targetVelocityRef.current - velocityRef.current) * 0.055
-          offsetRef.current += velocityRef.current
-        }
-
-        offsetRef.current = normalizeOffset(offsetRef.current)
-        x.set(offsetRef.current)
-
-        if (cardWidthRef.current > 0) {
-          const rawIdx =
-            Math.round(Math.abs(offsetRef.current) / cardWidthRef.current) %
-            CERTIFICATES.length
-          if (rawIdx !== activeIdxRef.current) {
-            activeIdxRef.current = rawIdx
-            setActiveIndex(rawIdx)
-          }
+        // Infinite loop wrap-around
+        const halfScroll = el.scrollWidth / 2
+        if (el.scrollLeft >= halfScroll) {
+          el.scrollLeft -= halfScroll
+        } else if (el.scrollLeft <= 0) {
+          el.scrollLeft += halfScroll
         }
       }
 
-      rafId = requestAnimationFrame(tick)
+      animationFrameId = requestAnimationFrame(step)
     }
 
-    rafId = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(rafId)
-  }, [normalizeOffset, selectedCert, x])
+    animationFrameId = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(animationFrameId)
+  }, [selectedCert])
 
-  // Smooth hover-edge detection on desktop
-  const handleMouseMove = (e) => {
-    if (isDraggingRef.current || isTouchPausedRef.current || !containerRef.current) return
-    const rect = containerRef.current.getBoundingClientRect()
-    const relX = (e.clientX - rect.left) / Math.max(1, rect.width)
+  // Real-time hover steering: hovering right accelerates forward to next slides; hovering left reverses
+  const handleMouseMove = useCallback((e) => {
+    const el = scrollContainerRef.current
+    if (!el) return
 
-    if (relX > 0.72) {
-      const intensity = Math.min(1, (relX - 0.72) / 0.25)
-      snapTargetRef.current = null
-      targetVelocityRef.current = -(1.2 + intensity * 3.4)
-      if (hoverZone !== 'next') setHoverZone('next')
-    } else if (relX < 0.28) {
-      const intensity = Math.min(1, (0.28 - relX) / 0.25)
-      snapTargetRef.current = null
-      targetVelocityRef.current = 1.2 + intensity * 3.4
-      if (hoverZone !== 'prev') setHoverZone('prev')
+    // 1. If actively dragging with mouse down:
+    if (dragRef.current.isDown) {
+      e.preventDefault()
+      const walk = (e.pageX - dragRef.current.startX) * 1.5
+      if (Math.abs(walk) > 5) {
+        dragRef.current.hasDragged = true
+      }
+      el.scrollLeft = dragRef.current.scrollLeft - walk
+      return
+    }
+
+    // 2. Direct hover position steering across the entire reel
+    const rect = el.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const ratio = Math.max(0, Math.min(1, x / rect.width)) // 0.0 (far left) to 1.0 (far right)
+
+    if (ratio > 0.52) {
+      // Hovering on right side: smoothly accelerate forward to slide through to next cards!
+      const factor = (ratio - 0.52) / 0.48 // 0 to 1
+      targetSpeedRef.current = BASE_SPEED + factor * 9.5 // up to 11.5px/frame!
+    } else if (ratio < 0.48) {
+      // Hovering on left side: smoothly reverse backwards!
+      const factor = (0.48 - ratio) / 0.48 // 0 to 1
+      targetSpeedRef.current = -(BASE_SPEED + factor * 8.5) // up to -10.5px/frame!
     } else {
-      targetVelocityRef.current = 0
-      if (hoverZone !== 'center') setHoverZone('center')
+      // Centered: normal continuous fast sliding
+      targetSpeedRef.current = BASE_SPEED
     }
-  }
+  }, [])
 
-  // Anti-Screenshot & DRM Security Guard when viewing a certificate
+  const handleMouseLeave = useCallback(() => {
+    dragRef.current.isDown = false
+    targetSpeedRef.current = BASE_SPEED
+  }, [])
+
+  const handleMouseDown = useCallback((e) => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    dragRef.current = {
+      isDown: true,
+      startX: e.pageX,
+      scrollLeft: el.scrollLeft,
+      hasDragged: false
+    }
+  }, [])
+
+  const handleMouseUp = useCallback(() => {
+    dragRef.current.isDown = false
+  }, [])
+
+  // Touchpad and mouse wheel support
+  const handleWheel = useCallback((e) => {
+    const el = scrollContainerRef.current
+    if (!el) return
+    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+    el.scrollLeft += delta
+  }, [])
+
+  // Keyboard navigation & Escape key to close modal
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (selectedCert && e.key === 'Escape') {
+        setSelectedCert(null)
+        setIsScreenShieldActive(false)
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [selectedCert])
+
+  // Anti-Screenshot & Screen Capture Protection (Active during modal)
   useEffect(() => {
     if (!selectedCert) return
 
-    // When screen capture tools (Snipping Tool, Win+Shift+S, Lightshot) open or user switches windows
-    const handleWindowBlur = () => {
-      setIsScreenShieldActive(true)
-    }
+    const triggerShield = () => setIsScreenShieldActive(true)
 
-    const handleWindowFocus = () => {
-      // Keep shield active until user explicitly clicks resume
-    }
-
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        setIsScreenShieldActive(true)
-      }
-    }
-
-    // When cursor leaves the browser window (e.g. clicking snipping tool in taskbar)
-    const handleMouseLeaveDoc = (e) => {
-      if (!e.relatedTarget && !e.toElement) {
-        setIsScreenShieldActive(true)
-      }
-    }
-
-    // DevTools inspection detection
-    const checkDevTools = () => {
-      const widthThreshold = window.outerWidth - window.innerWidth > 160
-      const heightThreshold = window.outerHeight - window.innerHeight > 160
-      if (widthThreshold || heightThreshold) {
-        setIsScreenShieldActive(true)
-      }
-    }
-
-    // Intercept copy attempts
-    const handleCopy = (e) => {
-      e.preventDefault()
-      setIsScreenShieldActive(true)
-      try {
-        if (navigator.clipboard?.writeText) {
-          navigator.clipboard.writeText('')
-        }
-      } catch {
-        // ignore
-      }
-    }
-
-    // Intercept screenshot and print shortcut keys
-    const handleKeyDown = (e) => {
-      // PrintScreen key
-      if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
-        e.preventDefault()
-        setIsScreenShieldActive(true)
-        try {
-          if (navigator.clipboard?.writeText) {
-            navigator.clipboard.writeText('')
-          }
-        } catch {
-          // ignore
-        }
-      }
-
-      // Windows Snipping Tool (Win+Shift+S) or Mac Screenshot (Cmd+Shift+3/4/5)
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey) {
-        setIsScreenShieldActive(true)
-      }
-
-      // Ctrl+P / Cmd+P (Print)
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
-        e.preventDefault()
-        setIsScreenShieldActive(true)
-      }
-
-      // Ctrl+S / Cmd+S (Save webpage / image)
-      if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
-        e.preventDefault()
-        setIsScreenShieldActive(true)
-      }
-
-      // DevTools (F12 / Ctrl+Shift+I / Ctrl+Shift+J / Ctrl+Shift+C / Ctrl+U)
+    const handleKeySecurity = (e) => {
+      if (e.key === 'PrintScreen' || e.keyCode === 44) triggerShield()
       if (
-        e.key === 'F12' ||
-        ((e.ctrlKey || e.metaKey) && (e.key === 'u' || e.key === 'U')) ||
-        ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'i' || e.key === 'I' || e.key === 'c' || e.key === 'C' || e.key === 'j' || e.key === 'J'))
+        (e.shiftKey && (e.key === 'S' || e.key === 's' || e.key === '4' || e.key === '3' || e.key === '5')) ||
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'C' || e.key === 'c' || e.key === 'J' || e.key === 'j')) ||
+        (e.metaKey && e.shiftKey && (e.key === '4' || e.key === '3' || e.key === '5' || e.key === 's'))
       ) {
-        setIsScreenShieldActive(true)
+        triggerShield()
+      }
+      if (e.key === 'Escape') {
+        setSelectedCert(null)
+        setIsScreenShieldActive(false)
       }
     }
 
-    const handleKeyUp = (e) => {
-      if (e.key === 'PrintScreen' || e.code === 'PrintScreen') {
-        setIsScreenShieldActive(true)
-        try {
-          if (navigator.clipboard?.writeText) {
-            navigator.clipboard.writeText('')
-          }
-        } catch {
-          // ignore
-        }
-      }
+    const handleBlur = () => triggerShield()
+    const handleVisibility = () => {
+      if (document.hidden) triggerShield()
     }
 
-    window.addEventListener('blur', handleWindowBlur)
-    window.addEventListener('focus', handleWindowFocus)
-    window.addEventListener('resize', checkDevTools)
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    document.documentElement.addEventListener('mouseleave', handleMouseLeaveDoc)
-    document.addEventListener('copy', handleCopy)
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('keyup', handleKeyUp)
+    window.addEventListener('keyup', handleKeySecurity)
+    window.addEventListener('keydown', handleKeySecurity)
+    window.addEventListener('blur', handleBlur)
+    document.addEventListener('visibilitychange', handleVisibility)
 
     return () => {
-      window.removeEventListener('blur', handleWindowBlur)
-      window.removeEventListener('focus', handleWindowFocus)
-      window.removeEventListener('resize', checkDevTools)
-      document.removeEventListener('visibilitychange', handleVisibilityChange)
-      document.documentElement.removeEventListener('mouseleave', handleMouseLeaveDoc)
-      document.removeEventListener('copy', handleCopy)
-      window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('keyup', handleKeyUp)
+      window.removeEventListener('keyup', handleKeySecurity)
+      window.removeEventListener('keydown', handleKeySecurity)
+      window.removeEventListener('blur', handleBlur)
+      document.removeEventListener('visibilitychange', handleVisibility)
     }
   }, [selectedCert])
-
-  const handleMouseLeave = () => {
-    setHoverZone(null)
-    targetVelocityRef.current = -0.65
-  }
-
-  const glideByCards = (deltaCards) => {
-    const stepPx = cardWidthRef.current
-    const currentCard = Math.round(offsetRef.current / stepPx)
-    snapTargetRef.current = (currentCard - deltaCards) * stepPx
-  }
-
-  const glideToIndex = (targetIdx) => {
-    const singleSetWidth = CERTIFICATES.length * cardWidthRef.current
-    const current = normalizeOffset(offsetRef.current)
-    const desired = -targetIdx * cardWidthRef.current
-
-    let diff = desired - current
-    if (diff > singleSetWidth / 2) diff -= singleSetWidth
-    if (diff < -singleSetWidth / 2) diff += singleSetWidth
-
-    snapTargetRef.current = current + diff
-  }
-
-  // Pause immediately on touch so mobile taps on "View Certificate" never miss!
-  const handleTouchStart = () => {
-    if (touchResumeTimerRef.current) clearTimeout(touchResumeTimerRef.current)
-    isTouchPausedRef.current = true
-    velocityRef.current = 0
-  }
-
-  const handleTouchEnd = () => {
-    if (touchResumeTimerRef.current) clearTimeout(touchResumeTimerRef.current)
-    touchResumeTimerRef.current = setTimeout(() => {
-      isTouchPausedRef.current = false
-    }, 1800)
-  }
-
-  const handlePointerDown = (e) => {
-    if (e.target.closest('button, a')) {
-      // Freeze motion when pressing a button/link so mobile Safari/Chrome registers the tap 100% of the time
-      isTouchPausedRef.current = true
-      velocityRef.current = 0
-      return
-    }
-    isDraggingRef.current = true
-    didDragMoveRef.current = false
-    snapTargetRef.current = null
-    dragStartXRef.current = e.clientX
-    dragLastXRef.current = e.clientX
-    e.currentTarget.setPointerCapture?.(e.pointerId)
-  }
-
-  const handlePointerMove = (e) => {
-    if (!isDraggingRef.current) return
-    const dx = e.clientX - dragLastXRef.current
-    if (Math.abs(e.clientX - dragStartXRef.current) > 10) {
-      didDragMoveRef.current = true
-    }
-    dragLastXRef.current = e.clientX
-    offsetRef.current = normalizeOffset(offsetRef.current + dx)
-    velocityRef.current = dx * 0.85
-    x.set(offsetRef.current)
-  }
-
-  const handlePointerUp = () => {
-    if (!isDraggingRef.current) return
-    isDraggingRef.current = false
-    targetVelocityRef.current = hoverZone === 'center' ? 0 : -0.65
-  }
-
-  const openCertificateViewer = (cert) => {
-    if (didDragMoveRef.current) {
-      didDragMoveRef.current = false
-      return
-    }
-    setIsScreenShieldActive(false)
-    setSelectedCert(cert)
-  }
-
-  const closeCertificateViewer = () => {
-    setSelectedCert(null)
-    setIsScreenShieldActive(false)
-  }
 
   return (
     <section
       id="certificates"
-      className="relative py-20 sm:py-28 px-4 sm:px-6 lg:px-12 bg-transparent overflow-hidden text-slate-900 dark:text-white border-t border-slate-200/80 dark:border-white/10 select-none"
+      className="relative w-full py-20 sm:py-24 bg-white text-slate-900 overflow-hidden border-t border-slate-200/90 select-none"
     >
-      {/* Subtle Ambient Background Accent */}
-      <div className="absolute top-1/3 left-0 w-[450px] h-[450px] bg-cyan-500/[0.03] rounded-full blur-[140px] pointer-events-none" />
+      {/* Subtle Ambient Radial Highlight */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[480px] bg-gradient-to-r from-sky-100/50 via-slate-100/40 to-cyan-100/40 rounded-full blur-[120px] pointer-events-none"
+        aria-hidden="true"
+      />
 
-      <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <div className="flex flex-col mb-10 sm:mb-12">
-          <div className="flex items-center gap-3 mb-3">
-            <span className="flex items-center gap-2 text-xs uppercase tracking-[0.35em] text-cyan-600 dark:text-cyan-400 font-mono font-bold">
-              <FiAward className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
-              VERIFIED ACHIEVEMENTS
-            </span>
-            <div className="h-px w-12 bg-slate-300 dark:bg-white/15" />
-          </div>
+      <div className="w-full max-w-7xl mx-auto relative z-10 flex flex-col items-center px-4 sm:px-6">
+        {/* Section Header with /AWARDS Ghost Stroke Watermark */}
+        <div className="relative mb-10 sm:mb-12 flex flex-col items-center justify-center text-center">
+          <span
+            aria-hidden="true"
+            className="absolute -top-7 sm:-top-9 md:-top-11 text-5xl sm:text-7xl md:text-8xl font-black font-sans uppercase tracking-tight text-transparent select-none pointer-events-none"
+            style={{
+              WebkitTextStroke: '1.5px rgba(15, 23, 42, 0.08)'
+            }}
+          >
+            /AWARDS
+          </span>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight font-sans text-slate-900 dark:text-white">
-            CERTIFICATES.
+          <h2 className="relative text-3xl sm:text-5xl md:text-6xl font-black font-sans tracking-tight text-slate-900 uppercase">
+            <span className="text-slate-400">/</span>ACHIEVEMENTS
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-slate-600 dark:text-slate-300 max-w-xl font-normal leading-relaxed">
-            Hover near the edges or swipe to smoothly glide through all verified credentials. Tap any certificate to view it in full resolution or open the official PDF.
-          </p>
         </div>
+      </div>
 
-        {/* Interactive Smooth-Gliding Carousel Viewport */}
+      {/* Full-Bleed Hover-Controlled Infinite Reel (No Buttons) */}
+      <div
+        className="relative w-full overflow-hidden py-4 cursor-grab active:cursor-grabbing"
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onWheel={handleWheel}
+      >
+        {/* Subtle Edge Fade Gradients for continuous infinite look */}
         <div
-          ref={containerRef}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-          style={{ touchAction: 'pan-y' }}
-          className="relative overflow-hidden py-6 -my-6 cursor-grab active:cursor-grabbing"
+          className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-20"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-20"
+          aria-hidden="true"
+        />
+
+        {/* Scroll Container with Direct Hover & Drag Steering */}
+        <div
+          ref={scrollContainerRef}
+          className="flex items-center gap-6 sm:gap-7 overflow-x-auto no-scrollbar select-none py-2 px-6"
         >
-          {/* Soft Left Hover-Glide Indicator Pill */}
-          <button
-            type="button"
-            onClick={() => glideByCards(-1)}
-            className={`flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-slate-900/85 dark:bg-[#131722]/90 border border-white/15 text-white shadow-xl backdrop-blur-md absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-20 transition-all duration-500 ease-out cursor-pointer ${
-              hoverZone === 'prev'
-                ? 'opacity-100 translate-x-0 scale-105'
-                : 'md:opacity-0 md:-translate-x-3 md:scale-95 md:pointer-events-none opacity-85'
-            }`}
-            title="Smooth glide previous"
-            aria-label="Previous certificate"
-          >
-            <FiChevronLeft className="w-5 h-5 !text-white" />
-          </button>
+          {DISPLAY_ACHIEVEMENTS.map((item, index) => {
+            const cardNum = (index % totalCount) + 1
 
-          {/* Soft Right Hover-Glide Indicator Pill */}
-          <button
-            type="button"
-            onClick={() => glideByCards(1)}
-            className={`flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-slate-900/85 dark:bg-[#131722]/90 border border-white/15 text-white shadow-xl backdrop-blur-md absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-20 transition-all duration-500 ease-out cursor-pointer ${
-              hoverZone === 'next'
-                ? 'opacity-100 translate-x-0 scale-105'
-                : 'md:opacity-0 md:translate-x-3 md:scale-95 md:pointer-events-none opacity-85'
-            }`}
-            title="Smooth glide next"
-            aria-label="Next certificate"
-          >
-            <FiChevronRight className="w-5 h-5 !text-white" />
-          </button>
-
-          <motion.div
-            style={{ x }}
-            className="flex will-change-transform"
-          >
-            {LOOP_CERTIFICATES.map((cert, idx) => {
-              const realIdx = idx % CERTIFICATES.length
-              return (
-                <div
-                  key={`${cert.id}-${idx}`}
-                  style={{ width: `${100 / cardsPerView}%` }}
-                  className="shrink-0 px-2.5 sm:px-4"
-                >
-                  <motion.article
-                    whileHover={{ y: -6 }}
-                    transition={{
-                      type: 'spring',
-                      stiffness: 140,
-                      damping: 22,
-                      mass: 0.8
-                    }}
-                    className="group h-full rounded-[1.75rem] bg-white dark:bg-[#131722] border border-slate-200/90 dark:border-white/10 hover:border-cyan-500/60 dark:hover:border-cyan-400/60 shadow-[0_12px_35px_-10px_rgba(15,23,42,0.08)] dark:shadow-[0_12px_35px_-10px_rgba(0,0,0,0.5)] transition-colors duration-500 overflow-hidden flex flex-col justify-between"
-                  >
-                    {/* Certificate Framed Preview */}
-                    <div>
-                      <button
-                        type="button"
-                        onClick={() => openCertificateViewer(cert)}
-                        className="relative block w-full aspect-[16/11] bg-slate-100 dark:bg-[#0c0f17] p-3 sm:p-4 overflow-hidden cursor-pointer border-b border-slate-100 dark:border-white/5 text-left"
-                        title={`View ${cert.title}`}
-                      >
-                        <div className="relative w-full h-full rounded-xl overflow-hidden bg-white dark:bg-[#080b11] shadow-sm border border-slate-200/80 dark:border-white/10 flex items-center justify-center">
-                          <img
-                            src={cert.image}
-                            alt={cert.title}
-                            draggable={false}
-                            loading="lazy"
-                            className="w-full h-full object-contain p-1 filter contrast-105 group-hover:scale-[1.03] transition-transform duration-500 ease-out select-none"
-                          />
-                        </div>
-
-                        {/* Top-Right Index Pill */}
-                        <span className="absolute top-5 right-5 px-2.5 py-1 rounded-full bg-slate-900/85 dark:bg-black/80 backdrop-blur-md !text-white text-xs font-mono font-bold tracking-wider border border-white/10">
-                          #{String(realIdx + 1).padStart(2, '0')}
-                        </span>
-                      </button>
-
-                      {/* Certificate Metadata */}
-                      <div className="p-5 sm:p-6 pb-4">
-                        <div className="flex items-center justify-between gap-2 text-xs font-mono font-semibold text-cyan-700 dark:text-cyan-400 mb-2">
-                          <span className="truncate">{cert.issuer}</span>
-                          <span className="text-slate-500 dark:text-slate-400 shrink-0">
-                            {cert.issued}
-                          </span>
-                        </div>
-
-                        <h3 className="text-base sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors duration-300 line-clamp-2 min-h-[3rem] sm:min-h-[3.25rem]">
-                          {cert.title}
-                        </h3>
-                      </div>
-                    </div>
-
-                    {/* Action Footer — Opens Mobile-Friendly Fullscreen Viewer + PDF Option */}
-                    <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => openCertificateViewer(cert)}
-                        style={{
-                          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                          color: '#ffffff'
-                        }}
-                        className="w-full py-3.5 px-4 rounded-xl hover:opacity-95 !text-white text-xs uppercase tracking-wider font-mono font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md cursor-pointer active:scale-[0.98]"
-                      >
-                        <FiEye className="w-4 h-4" style={{ color: '#ffffff' }} />
-                        <span style={{ color: '#ffffff' }}>View Certificate</span>
-                      </button>
-                    </div>
-                  </motion.article>
-                </div>
-              )
-            })}
-          </motion.div>
-        </div>
-
-        {/* Centered Carousel Indicator Dots */}
-        <div className="mt-10 sm:mt-12 flex items-center justify-center gap-2.5">
-          {CERTIFICATES.map((cert, idx) => {
-            const isActive = idx === activeIndex
             return (
-              <button
-                key={cert.id}
-                type="button"
-                onClick={() => glideToIndex(idx)}
-                aria-label={`Glide to ${cert.title}`}
-                className={`h-2.5 rounded-full transition-all duration-500 ease-out cursor-pointer ${
-                  isActive
-                    ? 'w-9 bg-cyan-600 dark:bg-cyan-400 shadow-sm'
-                    : 'w-2.5 bg-slate-300 dark:bg-white/20 hover:bg-slate-400 dark:hover:bg-white/40'
-                }`}
-              />
+              <div
+                key={`${item.id}-item-${index}`}
+                onClick={() => {
+                  if (!dragRef.current.hasDragged) {
+                    setSelectedCert(item)
+                  }
+                }}
+                className="w-[290px] sm:w-[330px] h-[430px] sm:h-[460px] shrink-0 rounded-3xl p-5 sm:p-6 bg-white text-slate-900 border border-slate-200/90 shadow-[0_12px_32px_-8px_rgba(15,23,42,0.1)] hover:shadow-[0_22px_55px_-10px_rgba(15,23,42,0.18)] hover:border-slate-400 transition-all duration-300 flex flex-col justify-between cursor-pointer group/card select-none"
+              >
+                {/* Top Card Row */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    {/* Medal Circle Badge */}
+                    <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-md shrink-0 group-hover/card:scale-105 transition-transform">
+                      <FiAward className="w-4 h-4 text-white" />
+                    </div>
+
+                    {/* Award Tag */}
+                    <div className="flex flex-col text-left">
+                      <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-slate-400 font-bold leading-none">
+                        AWARD
+                      </span>
+                      <span className="text-[11px] font-mono font-extrabold text-slate-800 mt-0.5">
+                        {String(cardNum).padStart(2, '0')} / {String(totalCount).padStart(2, '0')}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Top-Right Year Pill */}
+                  <div className="px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200/80 text-xs font-mono font-bold text-slate-700">
+                    {item.year}
+                  </div>
+                </div>
+
+                {/* Center: Certificate Image Front Display */}
+                <div className="relative rounded-2xl bg-slate-50 border border-slate-200/80 p-2 flex items-center justify-center overflow-hidden my-3 h-[180px] sm:h-[200px] shadow-inner group/cert">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    draggable={false}
+                    loading="lazy"
+                    className="w-full h-full object-contain rounded-xl select-none transition-transform duration-300 group-hover/card:scale-[1.03]"
+                  />
+
+                  {/* Hover Inspect Pill */}
+                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 flex items-center justify-center rounded-2xl pointer-events-none backdrop-blur-[2px]">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-slate-900 font-mono text-xs font-bold shadow-lg">
+                      <FiMaximize2 className="w-3.5 h-3.5 text-slate-900" />
+                      Inspect Credential
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bottom Title & Details */}
+                <div className="flex flex-col text-left">
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug line-clamp-1 group-hover/card:text-cyan-600 transition-colors">
+                    {item.title}
+                  </h3>
+
+                  <div className="flex items-center gap-1.5 mt-1 text-xs font-semibold text-cyan-700 line-clamp-1">
+                    <span>{item.issuer}</span>
+                    <span className="text-slate-300">·</span>
+                    <span className="text-slate-500 font-normal">{item.issuedDate}</span>
+                  </div>
+
+                  <p className="text-xs text-slate-500 font-normal leading-relaxed mt-1 line-clamp-2">
+                    {item.description}
+                  </p>
+                </div>
+              </div>
             )
           })}
         </div>
       </div>
 
-      {/* ===== MOBILE & DESKTOP CERTIFICATE LIGHTBOX VIEWER (TRANSPARENT GLASSMORPHIC DRM) ===== */}
+      {/* Official Verified Credential Modal (with White Stage & Screen Capture Lock Shield) */}
       <AnimatePresence>
         {selectedCert && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/25 backdrop-blur-sm overflow-hidden"
-            onClick={closeCertificateViewer}
+            className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-hidden select-none"
+            onClick={() => {
+              setSelectedCert(null)
+              setIsScreenShieldActive(false)
+            }}
           >
-            {/* Ambient Translucent Glow Orbs Behind the Glass Card */}
-            <div className="absolute -top-32 -left-32 w-96 h-96 bg-cyan-500/15 rounded-full blur-[140px] pointer-events-none" />
-            <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-600/15 rounded-full blur-[140px] pointer-events-none" />
-
             <motion.div
-              initial={{ opacity: 0, scale: 0.94, y: 16 }}
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.94, y: 16 }}
-              transition={{ type: 'spring', stiffness: 320, damping: 28 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.25 }}
+              className="relative w-full max-w-4xl max-h-[92vh] bg-white rounded-3xl border border-slate-200 shadow-[0_30px_70px_-15px_rgba(15,23,42,0.22)] flex flex-col overflow-hidden text-slate-900"
               onClick={(e) => e.stopPropagation()}
-              className="certificate-lightbox-modal relative w-full max-w-4xl max-h-[92vh] bg-slate-950/45 dark:bg-black/50 backdrop-blur-2xl border border-white/20 dark:border-cyan-500/30 rounded-3xl shadow-[0_25px_80px_rgba(0,0,0,0.6),0_0_45px_rgba(6,182,212,0.15)] overflow-hidden flex flex-col select-none"
             >
-              {/* Modal Top Glass Header */}
-              <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-b border-white/10 dark:border-white/10 bg-white/[0.04] dark:bg-white/[0.02] backdrop-blur-xl flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/20"
-                    style={{
-                      background: 'linear-gradient(135deg, #06b6d4 0%, #2563eb 100%)',
-                      color: '#ffffff'
-                    }}
-                  >
-                    <FiAward className="w-5 h-5 text-white" />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h4 className="text-sm sm:text-base font-bold text-white truncate drop-shadow-sm">
-                        {selectedCert.title}
-                      </h4>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-400/30 shadow-[0_0_12px_rgba(6,182,212,0.25)]">
-                        <FiShield className="w-3 h-3 text-cyan-400" />
-                        Encrypted Record
-                      </span>
-                    </div>
-                    <p className="text-xs font-mono text-cyan-300/80 truncate mt-0.5">
-                      {selectedCert.issuer} · {selectedCert.issued}
-                    </p>
-                  </div>
+              {/* Modal Top Header */}
+              <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-4 bg-white">
+                <div>
+                  <h4 className="text-sm sm:text-base font-bold text-slate-900 font-sans line-clamp-1">
+                    {selectedCert.title}
+                  </h4>
+                  <p className="text-xs font-mono text-slate-500">
+                    {selectedCert.issuer} · {selectedCert.year}
+                  </p>
                 </div>
 
                 <button
                   type="button"
-                  onClick={closeCertificateViewer}
-                  className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer shrink-0 border border-white/10 hover:border-cyan-400/40"
-                  aria-label="Close certificate viewer"
+                  onClick={() => {
+                    setSelectedCert(null)
+                    setIsScreenShieldActive(false)
+                  }}
+                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
+                  aria-label="Close modal"
                 >
-                  <FiX className="w-5 h-5" />
+                  <FiX className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Transparent Display Stage */}
-              <div
-                onContextMenu={(e) => e.preventDefault()}
-                className="relative p-3 sm:p-6 overflow-hidden bg-transparent flex flex-col items-center justify-center flex-1 select-none min-h-[380px] sm:min-h-[460px]"
-              >
-                {/* Certificate Glass Mount */}
-                <div
-                  onContextMenu={(e) => e.preventDefault()}
-                  className="relative max-h-[64vh] w-auto max-w-full rounded-2xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.65)] border border-white/25 dark:border-cyan-400/35 select-none flex items-center justify-center bg-black/40 backdrop-blur-md"
-                >
-                  {/* High-Security Anti-Theft Watermark Stamped Across Certificate */}
-                  <div
-                    className="absolute inset-0 z-20 pointer-events-none select-none flex flex-wrap items-center justify-around overflow-hidden text-[11px] sm:text-xs font-mono font-black uppercase tracking-wider text-slate-900/25 dark:text-cyan-100/30 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]"
-                    style={{ transform: 'rotate(-24deg) scale(1.35)' }}
-                  >
-                    {Array.from({ length: 36 }).map((_, i) => (
-                      <span key={i} className="p-3 sm:p-4 whitespace-nowrap">
-                        VERIFIED OFFICIAL RECORD · JOHN LLOYD GALITO · DO NOT COPY
-                      </span>
-                    ))}
-                  </div>
+              {/* Certificate Canvas Stage on Clean White / Slate-50 Backdrop */}
+              <div className="relative flex-1 p-4 sm:p-8 flex items-center justify-center overflow-auto bg-slate-50/70 border-y border-slate-100 min-h-[420px]">
+                {/* Anti-Screen Capture DRM Shield Overlay */}
+                <AnimatePresence>
+                  {isScreenShieldActive && (
+                    <motion.div
+                      initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+                      animate={{ opacity: 1, backdropFilter: 'blur(16px)' }}
+                      exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute inset-0 z-40 bg-white/95 flex flex-col items-center justify-center p-6 text-center select-none"
+                    >
+                      <div className="w-16 h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center mb-4 shadow-xl ring-4 ring-cyan-500/20">
+                        <FiLock className="w-7 h-7 text-cyan-400" />
+                      </div>
 
-                  {/* Official Verification Security Badge */}
-                  <div className="absolute top-3 left-3 z-30 pointer-events-none flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 backdrop-blur-xl border border-cyan-400/40 text-[11px] font-mono font-bold text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.35)]">
-                    <FiShield className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-                    <span>VERIFIED DIGITAL CREDENTIAL</span>
-                  </div>
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-[10px] font-mono tracking-widest uppercase font-bold mb-3">
+                        <FiShield className="w-3.5 h-3.5 text-cyan-600" />
+                        DRM Protection Active
+                      </div>
 
-                  {/* Transparent DRM Shield (Prevents Right-Click, Drag, Copy & Save) */}
-                  <div
-                    className="absolute inset-0 z-40 pointer-events-auto"
-                    onContextMenu={(e) => e.preventDefault()}
-                    onDragStart={(e) => e.preventDefault()}
-                  />
+                      <h4 className="text-xl font-black text-slate-900 mb-2">
+                        Screen Capture Protected
+                      </h4>
 
-                  {/* Crisp High-Resolution Certificate Image */}
+                      <p className="text-xs text-slate-600 max-w-sm leading-relaxed mb-6">
+                        In accordance with institutional accreditation policies, direct screenshotting and unauthorized recording of this official certificate are restricted.
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => setIsScreenShieldActive(false)}
+                        className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-mono text-xs font-bold transition-all shadow-md active:scale-95"
+                      >
+                        Dismiss & Resume Inspection
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {/* Clear High-Resolution Certificate Stage */}
+                <div className="relative max-w-full max-h-[68vh] flex items-center justify-center p-2 rounded-2xl bg-white shadow-lg border border-slate-200/90">
                   <img
                     src={selectedCert.image}
                     alt={selectedCert.title}
                     draggable={false}
-                    onContextMenu={(e) => e.preventDefault()}
-                    onDragStart={(e) => e.preventDefault()}
-                    className="max-h-[64vh] w-auto max-w-full object-contain select-none pointer-events-none filter contrast-[1.04]"
+                    className="max-w-full max-h-[60vh] object-contain rounded-xl select-none"
                   />
                 </div>
               </div>
 
-              {/* Modal Bottom Glass Action Bar */}
-              <div className="px-4 py-3.5 sm:px-6 sm:py-4 border-t border-white/10 bg-white/[0.04] dark:bg-white/[0.02] backdrop-blur-xl flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-xs font-mono text-slate-300">
-                  <FiLock className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                  <span className="truncate">
-                    Encrypted DRM Active · Anti-Screenshot & Watermark Shield
+              {/* Modal Bottom Action Footer */}
+              <div className="px-6 py-4 bg-white flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="font-mono text-slate-600 text-[11px] font-semibold">
+                    Cryptographically Authenticated
                   </span>
-                </div>
-
-                <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
-                  <button
-                    type="button"
-                    onClick={closeCertificateViewer}
-                    className="px-6 py-2.5 rounded-xl font-mono font-bold text-xs uppercase tracking-wider bg-white/10 hover:bg-white/20 border border-white/15 hover:border-cyan-400/40 text-white transition-all shadow-md cursor-pointer"
-                  >
-                    Close
-                  </button>
                 </div>
               </div>
             </motion.div>
           </div>
-        )}
-      </AnimatePresence>
-
-      {/* ===== DEDICATED SCREENSHOT BLOCKING MODAL (TRANSPARENT FROSTED GLASS) ===== */}
-      <AnimatePresence>
-        {selectedCert && isScreenShieldActive && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[99999] bg-slate-950/20 backdrop-blur-sm flex items-center justify-center p-4 select-none"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92, y: 12 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, y: 12 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 26 }}
-              className="relative w-full max-w-md bg-slate-950/40 dark:bg-black/45 backdrop-blur-2xl border border-white/20 dark:border-rose-500/40 rounded-3xl p-6 sm:p-8 shadow-[0_8px_32px_0_rgba(0,0,0,0.5),0_0_60px_rgba(244,63,94,0.25)] text-center flex flex-col items-center overflow-hidden"
-            >
-              {/* Subtle Ambient Red Glow inside the card */}
-              <div className="absolute -top-16 -right-16 w-44 h-44 bg-rose-500/20 rounded-full blur-[60px] pointer-events-none" />
-              <div className="absolute -bottom-16 -left-16 w-44 h-44 bg-rose-600/15 rounded-full blur-[60px] pointer-events-none" />
-
-              {/* Glowing Shield Icon with Alert Animation */}
-              <div className="relative w-16 h-16 rounded-2xl bg-rose-500/15 border-2 border-rose-500/40 flex items-center justify-center text-rose-400 mb-4 shadow-[0_0_30px_rgba(244,63,94,0.35)] animate-pulse">
-                <FiLock className="w-8 h-8" />
-              </div>
-
-              {/* Status Pill */}
-              <span className="relative inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/40 mb-3 shadow-[0_0_15px_rgba(244,63,94,0.2)]">
-                <FiShield className="w-3.5 h-3.5 text-rose-400" />
-                Screenshot Blocked
-              </span>
-
-              {/* Heading */}
-              <h3
-                style={{ color: '#ffffff' }}
-                className="relative text-xl sm:text-2xl font-black font-sans tracking-tight uppercase !text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
-              >
-                Screen Capture Blocked
-              </h3>
-
-              {/* Description */}
-              <p
-                style={{ color: '#e2e8f0' }}
-                className="relative mt-3 text-xs sm:text-sm !text-slate-200 leading-relaxed font-normal drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
-              >
-                Screenshots, snipping tools, and screen recordings are strictly prohibited for verified certificates to protect credential authenticity and prevent duplication.
-              </p>
-
-              {/* Action Button to Resume Viewing */}
-              <button
-                type="button"
-                onClick={() => setIsScreenShieldActive(false)}
-                style={{
-                  background: 'linear-gradient(135deg, rgba(244,63,94,0.9) 0%, rgba(225,29,72,0.95) 100%)',
-                  color: '#ffffff'
-                }}
-                className="relative mt-6 w-full py-3.5 px-6 rounded-xl !text-white font-mono font-bold text-xs uppercase tracking-wider shadow-[0_0_25px_rgba(244,63,94,0.35)] hover:shadow-[0_0_35px_rgba(244,63,94,0.55)] border border-rose-400/40 hover:opacity-95 transition-all cursor-pointer active:scale-[0.98]"
-              >
-                Resume Viewing
-              </button>
-            </motion.div>
-          </motion.div>
         )}
       </AnimatePresence>
     </section>

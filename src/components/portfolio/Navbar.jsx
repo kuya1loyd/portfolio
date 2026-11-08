@@ -1,45 +1,114 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useState, useEffect, useRef } from 'react'
 import {
-  FiUser,
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  AnimatePresence
+} from 'framer-motion'
+import { IoRocketSharp, IoCompassSharp } from 'react-icons/io5'
+import { VscCode } from 'react-icons/vsc'
+import {
   FiBriefcase,
-  FiFolder,
+  FiAward,
   FiMail,
-  FiMenu,
-  FiX,
-  FiFileText,
-  FiMessageSquare
+  FiSun,
+  FiMoon
 } from 'react-icons/fi'
-import { HiSparkles } from 'react-icons/hi2'
-import { FaTrophy, FaGithub, FaLinkedinIn, FaInstagram, FaFacebookF } from 'react-icons/fa'
-import ThemeControls from './ThemeControls'
+import {
+  FaLinkedinIn,
+  FaFacebookF,
+  FaInstagram,
+  FaGithub
+} from 'react-icons/fa'
 
-const PRIMARY_NAV = [
-  { name: 'About Me', href: '#hero', icon: FiUser },
-  { name: 'Experience', href: '#about', icon: FiBriefcase },
-  { name: 'Projects', href: '#projects', icon: FiFolder },
-  { name: 'Skills', href: '#services', icon: HiSparkles },
-  { name: 'Certificates', href: '#certificates', icon: FaTrophy },
-  { name: 'Reviews', href: '#testimonials', icon: FiMessageSquare },
-  { name: 'Contact', href: '#contact', icon: FiMail },
-]
+function DockItem({ mouseX, item, isActive, onClick }) {
+  const ref = useRef(null)
+  const [isHovered, setIsHovered] = useState(false)
 
-if (typeof globalThis !== 'undefined') {
-  globalThis.SECONDARY_NAV = []
+  // Distance from current mouse X to center of this icon
+  const distance = useTransform(mouseX, (val) => {
+    const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 }
+    return val - bounds.x - bounds.width / 2
+  })
+
+  // Compact macOS fisheye magnification physics (Base: 30px on mobile, 32px on desktop; Peak: 48px)
+  const widthSync = useTransform(distance, [-80, 0, 80], [32, 48, 32])
+  const width = useSpring(widthSync, { mass: 0.1, stiffness: 280, damping: 16 })
+
+  const handleClick = (e) => {
+    if (item.href?.startsWith('http')) return
+    e.preventDefault()
+    if (onClick) onClick()
+  }
+
+  const Tag = item.href?.startsWith('http') ? 'a' : 'button'
+  const tagProps = item.href?.startsWith('http')
+    ? { href: item.href, target: '_blank', rel: 'noreferrer' }
+    : { type: 'button' }
+
+  return (
+    <div className="relative flex flex-col items-center">
+      {/* macOS Hover Tooltip Pill */}
+      <AnimatePresence>
+        {isHovered && (
+          <motion.div
+            initial={{ opacity: 0, y: 6, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.9 }}
+            transition={{ duration: 0.12 }}
+            className="absolute -top-8 z-30 px-2 py-0.5 rounded-md bg-slate-900/95 dark:bg-black/95 backdrop-blur-md text-white text-[10px] font-sans font-medium whitespace-nowrap shadow-xl border border-white/10 pointer-events-none"
+          >
+            {item.name}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Compact Magnifying Squircle Icon */}
+      <motion.div
+        ref={ref}
+        style={{ width, height: width }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        whileTap={{ scale: 0.88 }}
+        className="flex items-center justify-center select-none"
+      >
+        <Tag
+          {...tagProps}
+          onClick={handleClick}
+          aria-label={item.name}
+          className={`w-full h-full rounded-xl sm:rounded-2xl flex items-center justify-center cursor-pointer select-none transition-shadow ${item.bgClass} shadow-[0_3px_10px_rgba(0,0,0,0.18)] border border-white/20 hover:brightness-105 active:brightness-95`}
+        >
+          {item.icon}
+        </Tag>
+      </motion.div>
+
+      {/* macOS Running App Dot Indicator */}
+      <div className="h-1 flex items-center justify-center mt-0.5">
+        {isActive && (
+          <motion.span
+            layoutId="dock-active-dot"
+            className="w-1 h-1 rounded-full bg-slate-900 dark:bg-white shadow-[0_0_4px_rgba(255,255,255,0.7)]"
+          />
+        )}
+      </div>
+    </div>
+  )
 }
 
 export default function Navbar({ onOpenResume }) {
   const [activeSection, setActiveSection] = useState('hero')
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [hoveredKey, setHoveredKey] = useState(null)
+  const [isLight, setIsLight] = useState(true)
+  const mouseX = useMotionValue(Infinity)
 
-  // Scrollspy to detect active section in view
+  // Scrollspy to detect active section
   useEffect(() => {
-    const sectionIds = ['hero', 'about', 'projects', 'services', 'certificates', 'testimonials', 'contact']
+    const sectionIds = ['hero', 'services', 'about', 'projects', 'certificates', 'contact']
+
     const handleScroll = () => {
-      const scrollPos = window.scrollY + 200
+      const scrollPos = window.scrollY + 250
       for (const id of sectionIds) {
         const el = document.getElementById(id)
         if (el) {
@@ -58,271 +127,192 @@ export default function Navbar({ onOpenResume }) {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const renderNavContent = () => (
-    <div className="flex flex-col h-full justify-between p-5 sm:p-6 text-slate-800 dark:text-slate-200">
-      {/* Top Header / Profile Brand */}
-      <div>
-        <div className="flex items-center justify-between pb-5 mb-5 border-b border-slate-200/80 dark:border-white/10">
-          <a
-            href="#hero"
-            onClick={() => setMobileOpen(false)}
-            className="flex items-center gap-3 group cursor-pointer"
-          >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 text-white flex items-center justify-center font-black font-sans text-base shadow-sm group-hover:scale-105 transition-transform">
-              JL
-            </div>
-            <div>
-              <h2 className="text-sm font-extrabold font-sans text-slate-900 dark:text-white leading-tight">
-                John Lloyd Galito
-              </h2>
-              <span className="flex items-center gap-1.5 text-[10px] font-mono text-cyan-600 dark:text-cyan-400 font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Available for hire
-              </span>
-            </div>
-          </a>
+  // Sync theme
+  useEffect(() => {
+    const checkTheme = () => {
+      const isDark = document.documentElement.classList.contains('dark')
+      setIsLight(!isDark)
+    }
+    checkTheme()
 
-          {/* Close button for mobile */}
-          <button
-            type="button"
-            onClick={() => setMobileOpen(false)}
-            className="md:hidden p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-white/60 dark:hover:text-white transition-colors"
-            aria-label="Close menu"
-          >
-            <FiX className="w-5 h-5" />
-          </button>
-        </div>
+    const syncListener = (e) => {
+      if (e.detail && typeof e.detail.isLight === 'boolean') {
+        setIsLight(e.detail.isLight)
+      }
+    }
+    window.addEventListener('portfolio-theme-sync', syncListener)
+    return () => window.removeEventListener('portfolio-theme-sync', syncListener)
+  }, [])
 
-        {/* Primary Navigation (About Me, Experience, Projects, Skills, Certificates, Contact) */}
-        <nav aria-label="Main Navigation" className="space-y-1">
-          {PRIMARY_NAV.map((item) => {
-            const Icon = item.icon
-            const targetId = item.href.replace('#', '')
-            const isActive = activeSection === targetId
-
-            return (
-              <motion.a
-                key={item.name}
-                href={item.href}
-                onClick={() => setMobileOpen(false)}
-                whileHover={{ x: 4 }}
-                transition={{ duration: 0.15 }}
-                className={`relative group flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer ${
-                  isActive
-                    ? 'bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 font-bold border border-cyan-200 dark:border-cyan-800 shadow-xs'
-                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 border border-transparent'
-                }`}
-              >
-                <Icon
-                  className={`w-4 h-4 transition-colors ${
-                    isActive
-                      ? 'text-cyan-600 dark:text-cyan-400'
-                      : 'text-slate-500 dark:text-slate-400 group-hover:text-cyan-600 dark:group-hover:text-cyan-400'
-                  }`}
-                />
-                <span className="tracking-wide">{item.name}</span>
-
-                {isActive && (
-                  <motion.span
-                    layoutId="active-pill"
-                    className="absolute right-2.5 w-1.5 h-1.5 rounded-full bg-cyan-500"
-                  />
-                )}
-              </motion.a>
-            )
-          })}
-        </nav>
-      </div>
-
-      {/* Bottom Footer: Resume, Socials & Theme Controls */}
-      <div className="pt-5 border-t border-slate-200/80 dark:border-white/10 space-y-3.5">
-        {/* Resume CV Button */}
-        {onOpenResume && (
-          <button
-            type="button"
-            onClick={() => {
-              onOpenResume()
-              setMobileOpen(false)
-            }}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 border border-slate-300 dark:border-white/15 text-slate-800 dark:text-white text-xs font-bold transition-all shadow-xs cursor-pointer"
-          >
-            <FiFileText className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
-            <span>Curriculum Vitae</span>
-          </button>
-        )}
-
-        {/* Compact Social Links */}
-        <div className="flex items-center justify-between px-1">
-          {[
-            { icon: FaGithub, href: 'https://github.com/kuya1loyd', title: 'GitHub' },
-            { icon: FaLinkedinIn, href: 'https://www.linkedin.com/in/john-lloyd-galito-299a80422/', title: 'LinkedIn' },
-            { icon: FaInstagram, href: 'https://www.instagram.com/john_lloyd_galito/', title: 'Instagram' },
-            { icon: FaFacebookF, href: 'https://www.facebook.com/johnlloyd.galito.33', title: 'Facebook' },
-          ].map((item, idx) => {
-            const SIcon = item.icon
-            return (
-              <a
-                key={idx}
-                href={item.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={item.title}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:text-cyan-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-white/10 transition-colors"
-              >
-                <SIcon className="w-3.5 h-3.5" />
-              </a>
-            )
-          })}
-        </div>
-
-        {/* Theme Toggle Button */}
-        <div className="flex justify-center pt-1">
-          <ThemeControls className="w-full justify-center" />
-        </div>
-      </div>
-    </div>
-  )
-
-  /* Compact capsule item: icon-only with a slide-out label tooltip */
-  const renderCapsuleItem = (item) => {
-    const Icon = item.icon
-    const targetId = item.href.replace('#', '')
-    const isActive = activeSection === targetId
-    const isHovered = hoveredKey === item.name
-
-    const baseClass = `relative w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-200 cursor-pointer ${
-      isActive
-        ? 'text-cyan-600 dark:text-cyan-300'
-        : 'text-slate-700 dark:text-white/80 hover:text-cyan-600 dark:hover:text-cyan-300'
-    }`
-
-    return (
-      <div
-        key={item.name}
-        className="relative"
-        onMouseEnter={() => setHoveredKey(item.name)}
-        onMouseLeave={() => setHoveredKey(null)}
-      >
-        <motion.a
-          href={item.href}
-          aria-label={item.name}
-          whileHover={{ scale: 1.15, x: 2 }}
-          whileTap={{ scale: 0.92 }}
-          className={baseClass}
-        >
-          <Icon className="w-4 h-4" />
-        </motion.a>
-
-        <AnimatePresence>
-          {isHovered && (
-            <motion.div
-              initial={{ opacity: 0, x: -10, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: -8, scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-              className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 rounded-lg bg-slate-900/95 dark:bg-[#131722]/95 border border-slate-700/80 dark:border-cyan-500/30 shadow-xl backdrop-blur-xl flex items-center gap-2 pointer-events-none whitespace-nowrap z-50"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
-              <span className="text-xs font-bold tracking-tight" style={{ color: '#ffffff' }}>
-                {item.name}
-              </span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+  const toggleTheme = () => {
+    const nextLight = !isLight
+    setIsLight(nextLight)
+    localStorage.setItem('portfolio-theme-mode', nextLight ? 'light' : 'dark')
+    const root = document.documentElement
+    if (nextLight) {
+      root.classList.add('light')
+      root.classList.remove('dark')
+    } else {
+      root.classList.add('dark')
+      root.classList.remove('light')
+    }
+    window.dispatchEvent(
+      new CustomEvent('portfolio-theme-sync', {
+        detail: { isLight: nextLight }
+      })
     )
   }
 
+  const scrollTo = (id) => {
+    const el = document.getElementById(id)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
+  // Left Side of Dock: Main Portfolio Sections
+  const NAV_APPS = [
+    {
+      id: 'hero',
+      name: 'Home',
+      bgClass: 'bg-gradient-to-b from-slate-200 via-slate-300 to-slate-400 dark:from-slate-700 dark:to-slate-800',
+      icon: <IoRocketSharp className="w-[50%] h-[50%] text-slate-800 dark:text-slate-100" />,
+      onClick: () => scrollTo('hero')
+    },
+    {
+      id: 'services',
+      name: 'Tech Stack',
+      bgClass: 'bg-gradient-to-b from-cyan-400 via-sky-500 to-blue-600',
+      icon: <IoCompassSharp className="w-[52%] h-[52%] text-white" />,
+      onClick: () => scrollTo('services')
+    },
+    {
+      id: 'about',
+      name: 'Experience',
+      bgClass: 'bg-gradient-to-b from-rose-500 to-red-600',
+      icon: <FiBriefcase className="w-[48%] h-[48%] text-white" />,
+      onClick: () => scrollTo('about')
+    },
+    {
+      id: 'resume',
+      name: 'Resume (CV)',
+      bgClass: 'bg-gradient-to-b from-white to-slate-100 border border-slate-300/80',
+      icon: (
+        <div className="relative flex flex-col items-center justify-center">
+          <span className="font-serif font-black text-slate-900 text-xs sm:text-sm leading-none">
+            T
+          </span>
+          <div className="w-2.5 h-0.5 bg-slate-400/80 rounded-full mt-0.5" />
+        </div>
+      ),
+      onClick: () => onOpenResume?.()
+    },
+    {
+      id: 'projects',
+      name: 'Projects',
+      bgClass: 'bg-gradient-to-b from-sky-500 via-blue-600 to-blue-700',
+      icon: <VscCode className="w-[54%] h-[54%] text-white" />,
+      onClick: () => scrollTo('projects')
+    },
+    {
+      id: 'certificates',
+      name: 'Certificates',
+      bgClass: 'bg-gradient-to-b from-amber-400 via-orange-500 to-amber-600',
+      icon: <FiAward className="w-[50%] h-[50%] text-white" />,
+      onClick: () => scrollTo('certificates')
+    },
+    {
+      id: 'contact',
+      name: 'Contact',
+      bgClass: 'bg-gradient-to-b from-emerald-400 to-green-600',
+      icon: <FiMail className="w-[50%] h-[50%] text-white" />,
+      onClick: () => scrollTo('contact')
+    }
+  ]
+
+  // Right Side of Dock: Utilities, Socials & Theme Toggle
+  const UTILITY_APPS = [
+    {
+      id: 'linkedin',
+      name: 'LinkedIn',
+      href: 'https://www.linkedin.com/in/john-lloyd-galito-299a80422/',
+      bgClass: 'bg-gradient-to-b from-[#0077b5] to-[#005582]',
+      icon: <FaLinkedinIn className="w-[48%] h-[48%] text-white" />
+    },
+    {
+      id: 'facebook',
+      name: 'Facebook',
+      href: 'https://www.facebook.com/johnlloyd.galito.33',
+      bgClass: 'bg-gradient-to-b from-[#1877f2] to-[#0d5ac4]',
+      icon: <FaFacebookF className="w-[48%] h-[48%] text-white" />
+    },
+    {
+      id: 'instagram',
+      name: 'Instagram',
+      href: 'https://www.instagram.com/john_lloyd_galito/',
+      bgClass: 'bg-gradient-to-tr from-[#f58529] via-[#dd2a7b] to-[#8134af]',
+      icon: <FaInstagram className="w-[48%] h-[48%] text-white" />
+    },
+    {
+      id: 'github',
+      name: 'GitHub',
+      href: 'https://github.com/kuya1loyd',
+      bgClass: 'bg-gradient-to-b from-purple-600 via-indigo-600 to-purple-800',
+      icon: <FaGithub className="w-[50%] h-[50%] text-white" />
+    },
+    {
+      id: 'theme',
+      name: isLight ? 'Dark Mode' : 'Light Mode',
+      bgClass: 'bg-gradient-to-b from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 border border-white/25',
+      icon: isLight ? (
+        <FiMoon className="w-[48%] h-[48%] text-slate-800" />
+      ) : (
+        <FiSun className="w-[48%] h-[48%] text-amber-400" />
+      ),
+      onClick: toggleTheme
+    }
+  ]
+
   return (
-    <>
-      {/* Mobile Floating Menu Button (Top Left) */}
-      <div className="md:hidden fixed top-4 left-4 z-40">
-        <button
-          type="button"
-          onClick={() => setMobileOpen(true)}
-          className="p-3 rounded-2xl bg-white/90 dark:bg-[#121620]/90 border border-slate-300 dark:border-white/15 shadow-xl backdrop-blur-xl text-slate-900 dark:text-white flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 transition-transform"
-          aria-label="Open sidebar menu"
-        >
-          <FiMenu className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
-          <span className="text-xs font-bold tracking-wider font-mono">MENU</span>
-        </button>
-      </div>
+    <nav
+      aria-label="macOS Bottom Dock Navigation"
+      suppressHydrationWarning
+      className="fixed bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 z-50 pointer-events-none select-none max-w-[98vw]"
+    >
+      {/* Floating macOS Frosted Glass Dock */}
+      <motion.div
+        onMouseMove={(e) => mouseX.set(e.pageX)}
+        onMouseLeave={() => mouseX.set(Infinity)}
+        initial={{ y: 40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 24 }}
+        className="pointer-events-auto flex items-end gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-[18px] sm:rounded-[22px] bg-white/65 dark:bg-slate-900/65 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-[0_15px_35px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.06)]"
+      >
+        {/* Navigation Section Apps */}
+        {NAV_APPS.map((item) => (
+          <DockItem
+            key={item.id}
+            mouseX={mouseX}
+            item={item}
+            isActive={activeSection === item.id}
+            onClick={item.onClick}
+          />
+        ))}
 
-      {/* Desktop: compact floating glass capsule (same style as the social dock) */}
-      <div className="hidden md:block fixed left-3 sm:left-5 top-1/2 -translate-y-1/2 z-40">
-        <motion.aside
-          aria-label="Sidebar Navigation"
-          initial={{ x: -80, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 220, damping: 22, delay: 0.2 }}
-          className="social-sidebar flex flex-col items-center py-3 px-2 rounded-2xl border transition-all duration-300"
-        >
-          <a
-            href="#hero"
-            aria-label="John Lloyd Galito - Home"
-            className="mb-2 w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 flex items-center justify-center font-black font-sans text-[11px] shadow-sm hover:scale-110 transition-transform"
-            style={{ color: '#ffffff' }}
-          >
-            JL
-          </a>
+        {/* macOS Dock Separator Divider */}
+        <div className="w-px h-5 sm:h-6 bg-slate-400/40 dark:bg-white/20 mx-0.5 sm:mx-1 self-center shrink-0 mb-1.5" />
 
-          <div className="flex flex-col items-center gap-0.5">
-            {PRIMARY_NAV.map(renderCapsuleItem)}
-          </div>
-
-          <div className="social-divider w-5 h-px my-2" />
-
-          <div
-            className="relative"
-            onMouseEnter={() => setHoveredKey('theme')}
-            onMouseLeave={() => setHoveredKey(null)}
-          >
-            <ThemeControls iconOnly />
-            <AnimatePresence>
-              {hoveredKey === 'theme' && (
-                <motion.div
-                  initial={{ opacity: 0, x: -10, scale: 0.9 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  exit={{ opacity: 0, x: -8, scale: 0.9 }}
-                  transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                  className="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-3 py-1.5 rounded-lg bg-slate-900/95 dark:bg-[#131722]/95 border border-slate-700/80 dark:border-cyan-500/30 shadow-xl backdrop-blur-xl pointer-events-none whitespace-nowrap z-50"
-                >
-                  <span className="text-xs font-bold tracking-tight" style={{ color: '#ffffff' }}>
-                    Light / Dark mode
-                  </span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        </motion.aside>
-      </div>
-
-      {/* Mobile Drawer Backdrop & Slide-out Sidebar */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <div className="md:hidden fixed inset-0 z-50 flex">
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 bg-slate-950/70 backdrop-blur-md"
-            />
-
-            {/* Slide-out Panel */}
-            <motion.aside
-              initial={{ x: '-100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className="relative w-72 max-w-[85vw] h-full bg-white dark:bg-[#0e1117] border-r border-slate-200 dark:border-white/15 shadow-2xl flex flex-col overflow-y-auto z-10"
-            >
-              {renderNavContent()}
-            </motion.aside>
-          </div>
-        )}
-      </AnimatePresence>
-    </>
+        {/* Social, Utility & Theme Apps */}
+        {UTILITY_APPS.map((item) => (
+          <DockItem
+            key={item.id}
+            mouseX={mouseX}
+            item={item}
+            isActive={false}
+            onClick={item.onClick}
+          />
+        ))}
+      </motion.div>
+    </nav>
   )
 }

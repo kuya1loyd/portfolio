@@ -33,11 +33,11 @@ export default function HomePage() {
       {/* Interactive Sound System (Tactile Click SFX & Ambient Cyber Music) */}
       <SoundSystem />
 
-      {/* Compact Floating Sidebar Capsule Navigation */}
+      {/* Organic Curved Island Navigation (Opens on Hover or Scroll) */}
       <Navbar onOpenResume={handleOpenResume} />
 
-      {/* Main Experience Stream (small left offset so the capsule never covers content) */}
-      <div className="relative md:pl-20 flex flex-col min-h-screen transition-all duration-300">
+      {/* Main Experience Stream */}
+      <div className="relative w-full flex flex-col min-h-screen pb-20 sm:pb-24 transition-all duration-300">
         <main className="relative z-10 flex-1">
           {/* Hero Section */}
           <Hero onOpenResume={handleOpenResume} />

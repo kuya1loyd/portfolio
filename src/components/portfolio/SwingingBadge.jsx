@@ -370,13 +370,13 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
         leftPts.push({ x: lx, y: ly })
 
         // Optical cap-height centering for top-to-bottom uppercase text on Left Strap
-        const leftMainShift = -2.4 * tensionScale
+        const leftMainShift = 0.5 * tensionScale
         leftMainTextPts.push({
           x: lx + nx * leftMainShift,
           y: ly + ny * leftMainShift
         })
 
-        // Two parallel stacked lines inside the left strap ("FATHER SATURNINO" / "URIOS UNIVERSITY")
+        // Two parallel stacked lines (preserved for compatibility)
         const upperShift = 2.1 * tensionScale
         const lowerShift = -5.4 * tensionScale
         leftUpperSubPts.push({
@@ -394,7 +394,7 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
         rightPts.push({ x: rx, y: ry })
 
         // Optical cap-height centering for bottom-to-top uppercase text on Right Strap
-        const rightTextShift = 2.2 * tensionScale
+        const rightTextShift = 0.5 * tensionScale
         rightTextPts.push({
           x: rx + nx * rightTextShift,
           y: ry + ny * rightTextShift
@@ -619,23 +619,24 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
   const svgHeight = lanyardHeight + 125
 
   // Per-instance unique SVG element IDs so mobile & desktop instances never collide
-  const leftStrapGradId = `fsuuLeftStrapGrad-${uid}`
-  const rightStrapGradId = `fsuuRightStrapGrad-${uid}`
+  const leftStrapGradId = `greyLeftStrapGrad-${uid}`
+  const rightStrapGradId = `greyRightStrapGrad-${uid}`
   const blackBuckleGradId = `blackBuckleGrad-${uid}`
-  const silverRivetGradId = `silverRivetGrad-${uid}`
-  const leftMainCurveId = `fsuuLeftMainCurve-${uid}`
-  const leftUpperSubCurveId = `fsuuLeftUpperSubCurve-${uid}`
-  const leftLowerSubCurveId = `fsuuLeftLowerSubCurve-${uid}`
-  const rightTextCurveId = `fsuuRightTextCurve-${uid}`
+  const brassRivetGradId = `brassRivetGrad-${uid}`
+  const silverClawGradId = `silverClawGrad-${uid}`
+  const leftMainCurveId = `lanyardLeftCurve-${uid}`
+  const leftUpperSubCurveId = `lanyardLeftUpperCurve-${uid}`
+  const leftLowerSubCurveId = `lanyardLeftLowerCurve-${uid}`
+  const rightTextCurveId = `lanyardRightCurve-${uid}`
 
   return (
     <div
       ref={stageRef}
-      aria-label="Interactive swinging FSUU ID badge of John Lloyd Galito"
+      aria-label="Interactive swinging ID badge of John Lloyd Galito"
       className={`relative select-none pointer-events-none flex flex-col items-center max-w-full ${className}`}
       style={{ width: 340, minHeight: lanyardHeight + 390 }}
     >
-      {/* ===== Authentic Two-Strap FSUU 1901 School Lanyard SVG ===== */}
+      {/* ===== "DRINK COFFEE / WRITE CODE" Heather Grey Webbing Lanyard SVG ===== */}
       <svg
         width="360"
         height={svgHeight}
@@ -644,22 +645,22 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
         shapeRendering="geometricPrecision"
       >
         <defs>
-          {/* Left Royal Blue Woven Strap Gradient */}
+          {/* Left Heather Grey Woven Webbing Gradient */}
           <linearGradient id={leftStrapGradId} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#0b46b5" />
-            <stop offset="25%" stopColor="#125ce0" />
-            <stop offset="55%" stopColor="#1b6ef3" />
-            <stop offset="85%" stopColor="#125ce0" />
-            <stop offset="100%" stopColor="#093b9c" />
+            <stop offset="0%" stopColor="#7a828e" />
+            <stop offset="15%" stopColor="#9aa2af" />
+            <stop offset="50%" stopColor="#c8ced6" />
+            <stop offset="85%" stopColor="#9aa2af" />
+            <stop offset="100%" stopColor="#717985" />
           </linearGradient>
 
-          {/* Right Royal Blue Woven Strap Gradient */}
+          {/* Right Heather Grey Woven Webbing Gradient */}
           <linearGradient id={rightStrapGradId} x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#0a3ea3" />
-            <stop offset="20%" stopColor="#1563ea" />
-            <stop offset="50%" stopColor="#2176ff" />
-            <stop offset="80%" stopColor="#1563ea" />
-            <stop offset="100%" stopColor="#0b46b5" />
+            <stop offset="0%" stopColor="#717985" />
+            <stop offset="15%" stopColor="#9aa2af" />
+            <stop offset="50%" stopColor="#c8ced6" />
+            <stop offset="85%" stopColor="#9aa2af" />
+            <stop offset="100%" stopColor="#7a828e" />
           </linearGradient>
 
           {/* Matte-Black Contoured Plastic Buckle Gradient */}
@@ -671,13 +672,23 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
             <stop offset="100%" stopColor="#090b0e" />
           </linearGradient>
 
-          {/* Shiny Silver Rivet Gradient */}
-          <radialGradient id={silverRivetGradId} cx="35%" cy="30%" r="65%">
-            <stop offset="0%" stopColor="#ffffff" />
-            <stop offset="45%" stopColor="#cbd5e1" />
-            <stop offset="80%" stopColor="#64748b" />
-            <stop offset="100%" stopColor="#334155" />
+          {/* Warm Golden-Brass Rivet Gradient */}
+          <radialGradient id={brassRivetGradId} cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stopColor="#fffbeb" />
+            <stop offset="25%" stopColor="#fef08a" />
+            <stop offset="55%" stopColor="#eab308" />
+            <stop offset="85%" stopColor="#ca8a04" />
+            <stop offset="100%" stopColor="#78350f" />
           </radialGradient>
+
+          {/* Chrome / Silver Metal Swivel Lobster Hook Gradient */}
+          <linearGradient id={silverClawGradId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ffffff" />
+            <stop offset="30%" stopColor="#e2e8f0" />
+            <stop offset="60%" stopColor="#94a3b8" />
+            <stop offset="85%" stopColor="#cbd5e1" />
+            <stop offset="100%" stopColor="#475569" />
+          </linearGradient>
 
           {/* Dynamic Text Curves for Left & Right Straps */}
           <path
@@ -713,22 +724,22 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
         </g>
 
         {/* ============================================================ */}
-        {/* 1. LEFT STRAP ("FSUU 1901 | FATHER SATURNINO / URIOS UNIV.") */}
+        {/* 1. LEFT STRAP: HEATHER GREY WEBBING ("☕ DRINK COFFEE")        */}
         {/* ============================================================ */}
         <path
           ref={leftShadowRef}
           d={`M 165 0 L 180 ${lanyardHeight}`}
           fill="none"
-          stroke="rgba(2, 6, 23, 0.42)"
+          stroke="rgba(15, 23, 42, 0.28)"
           strokeWidth="25"
           strokeLinecap="round"
-          style={{ filter: 'blur(4px)' }}
+          style={{ filter: 'blur(3.5px)' }}
         />
         <path
           ref={leftEdgeRef}
           d={`M 165 0 L 180 ${lanyardHeight}`}
           fill="none"
-          stroke="#083080"
+          stroke="#5a626f"
           strokeWidth="23.6"
           strokeLinecap="butt"
         />
@@ -745,86 +756,45 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
           onPointerMove={handlePointerMoveDrag}
           onPointerUp={handlePointerUp}
         />
-        {/* Subtle woven nylon ribbing texture on left strap */}
+        {/* Woven nylon ribbing texture on left strap */}
         <path
           ref={leftRibRef}
           d={`M 165 0 L 180 ${lanyardHeight}`}
           fill="none"
-          stroke="rgba(255,255,255,0.07)"
+          stroke="rgba(255, 255, 255, 0.24)"
           strokeWidth="19.5"
           strokeDasharray="1.2 1.8"
           strokeLinecap="butt"
         />
 
-        {/* Left Strap Main Header: "FSUU" (white) + "1901" (yellow) */}
+        {/* Left Strap Screen-Printed Text: "☕ DRINK COFFEE" in Bold Black */}
         <text
-          fill="#ffffff"
-          fontSize="14"
+          fill="#16181d"
+          fontSize="12.5"
           fontWeight="900"
-          fontFamily="'Arial Narrow', 'Roboto Condensed', 'Inter', sans-serif"
+          fontFamily="'Arial Black', 'Impact', 'Roboto Condensed', 'Inter', sans-serif"
           dominantBaseline="central"
-          style={{ textShadow: '0 1px 2px rgba(5, 20, 65, 0.65)' }}
+          letterSpacing="0.04em"
+          style={{ textShadow: '0 0.5px 1px rgba(255, 255, 255, 0.45)' }}
         >
           <textPath
             href={`#${leftMainCurveId}`}
-            startOffset="0"
-            textLength="64"
+            startOffset="8"
+            textLength="162"
             lengthAdjust="spacingAndGlyphs"
           >
-            FSUU{' '}
-            <tspan fill="#facc15" fontSize="13.5" fontWeight="900">
-              1901
-            </tspan>
-            <tspan fill="#facc15" fontSize="12.5" fontWeight="900">
-              |
-            </tspan>
-          </textPath>
-        </text>
-
-        {/* Left Strap Stacked Line 1: "FATHER SATURNINO" */}
-        <text
-          fill="#ffffff"
-          fontSize="6.4"
-          fontWeight="800"
-          fontFamily="'Arial Narrow', 'Inter', sans-serif"
-          dominantBaseline="central"
-        >
-          <textPath
-            href={`#${leftUpperSubCurveId}`}
-            startOffset="69"
-            textLength="78"
-            lengthAdjust="spacingAndGlyphs"
-          >
-            FATHER SATURNINO
-          </textPath>
-        </text>
-
-        {/* Left Strap Stacked Line 2: "URIOS UNIVERSITY" */}
-        <text
-          fill="#ffffff"
-          fontSize="6.4"
-          fontWeight="800"
-          fontFamily="'Arial Narrow', 'Inter', sans-serif"
-          dominantBaseline="central"
-        >
-          <textPath
-            href={`#${leftLowerSubCurveId}`}
-            startOffset="69"
-            textLength="78"
-            lengthAdjust="spacingAndGlyphs"
-          >
-            URIOS UNIVERSITY
+            ☕ DRINK COFFEE
           </textPath>
         </text>
 
         {/* ============================================================ */}
-        {/* 2. RIGHT STRAP ("LUCEAT LUX VESTRA" reading bottom-to-top)   */}
+        {/* 2. RIGHT STRAP: HEATHER GREY WEBBING ("WRITE CODE ☕")       */}
         {/* ============================================================ */}
         <path
           ref={rightShadowRef}
           d={`M 195 0 L 180 ${lanyardHeight}`}
           fill="none"
-          stroke="rgba(2, 6, 23, 0.45)"
+          stroke="rgba(15, 23, 42, 0.3)"
           strokeWidth="25"
           strokeLinecap="round"
           style={{ filter: 'blur(3.5px)' }}
@@ -833,7 +803,7 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
           ref={rightEdgeRef}
           d={`M 195 0 L 180 ${lanyardHeight}`}
           fill="none"
-          stroke="#083080"
+          stroke="#5a626f"
           strokeWidth="23.6"
           strokeLinecap="butt"
         />
@@ -850,38 +820,39 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
           onPointerMove={handlePointerMoveDrag}
           onPointerUp={handlePointerUp}
         />
-        {/* Subtle woven nylon ribbing texture on right strap */}
+        {/* Woven nylon ribbing texture on right strap */}
         <path
           ref={rightRibRef}
           d={`M 195 0 L 180 ${lanyardHeight}`}
           fill="none"
-          stroke="rgba(255,255,255,0.07)"
+          stroke="rgba(255, 255, 255, 0.24)"
           strokeWidth="19.5"
           strokeDasharray="1.2 1.8"
           strokeLinecap="butt"
         />
 
-        {/* Right Strap Motto: "LUCEAT LUX VESTRA" reading upward */}
+        {/* Right Strap Screen-Printed Text: "WRITE CODE ☕" reading upward */}
         <text
-          fill="#ffffff"
+          fill="#16181d"
           fontSize="12.5"
           fontWeight="900"
-          fontFamily="'Arial Narrow', 'Roboto Condensed', 'Inter', sans-serif"
+          fontFamily="'Arial Black', 'Impact', 'Roboto Condensed', 'Inter', sans-serif"
           dominantBaseline="central"
-          style={{ textShadow: '0 1px 2px rgba(5, 20, 65, 0.65)' }}
+          letterSpacing="0.04em"
+          style={{ textShadow: '0 0.5px 1px rgba(255, 255, 255, 0.45)' }}
         >
           <textPath
             href={`#${rightTextCurveId}`}
-            startOffset="48"
-            textLength="147"
+            startOffset="8"
+            textLength="162"
             lengthAdjust="spacingAndGlyphs"
           >
-            LUCEAT LUX VESTRA
+            WRITE CODE ☕
           </textPath>
         </text>
 
         {/* ============================================================ */}
-        {/* 3. BOTTOM HARDWARE: SILVER RIVETS, BLACK BUCKLE & BLUE TAB   */}
+        {/* 3. BOTTOM HARDWARE: BRASS RIVETS, BUCKLE & SWIVEL CLASP      */}
         {/* ============================================================ */}
         <g
           ref={clipGroupRef}
@@ -891,15 +862,16 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
           onPointerMove={handlePointerMoveDrag}
           onPointerUp={handlePointerUp}
         >
-          {/* Upper Silver Rivet pinning the overlapping blue straps above the buckle */}
+          {/* Upper Golden-Brass Rivet with Dimple (exact to photo) */}
           <circle
             cx="0"
             cy="-16"
-            r="3.8"
-            fill={`url(#${silverRivetGradId})`}
-            stroke="#1e293b"
-            strokeWidth="0.6"
+            r="4.2"
+            fill={`url(#${brassRivetGradId})`}
+            stroke="#78350f"
+            strokeWidth="0.7"
           />
+          <circle cx="0" cy="-16" r="1.3" fill="#78350f" opacity="0.75" />
 
           {/* Matte-Black Contoured Side-Release Buckle (exact match to photo) */}
           {/* Buckle Top Slot & Ribbed Grip Bar */}
@@ -940,7 +912,7 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
             strokeWidth="0.9"
           />
 
-          {/* Lower Royal-Blue Woven Strap Loop below the black buckle */}
+          {/* Lower Heather-Grey Woven Strap Loop below the black buckle */}
           <rect
             x="-10.5"
             y="27"
@@ -948,45 +920,78 @@ export default function SwingingBadge({ className = '', lanyardHeight = 250 }) {
             height="19"
             rx="2.5"
             fill={`url(#${rightStrapGradId})`}
-            stroke="#083080"
+            stroke="#5a626f"
             strokeWidth="1"
           />
-          {/* Horizontal stitch line across lower blue loop */}
+          {/* Horizontal stitch line across lower grey loop */}
           <line
             x1="-9"
             y1="30"
             x2="9"
             y2="30"
-            stroke="rgba(255,255,255,0.28)"
+            stroke="rgba(0, 0, 0, 0.4)"
             strokeWidth="0.9"
             strokeDasharray="1.5 1.5"
           />
 
-          {/* Second Silver Rivet on the lower blue strap tab */}
+          {/* Second Golden-Brass Rivet on the lower grey strap tab */}
           <circle
             cx="0"
             cy="37"
-            r="3.6"
-            fill={`url(#${silverRivetGradId})`}
-            stroke="#1e293b"
-            strokeWidth="0.6"
+            r="4.0"
+            fill={`url(#${brassRivetGradId})`}
+            stroke="#78350f"
+            strokeWidth="0.7"
           />
+          <circle cx="0" cy="37" r="1.3" fill="#78350f" opacity="0.75" />
 
-          {/* Dark metallic D-ring & clasp hooking into the ID card slot */}
+          {/* Silver Metal Swivel Lobster Claw Clasp & D-Ring (Matching PrintsKO photo) */}
+          {/* Metal D-Ring through lower strap loop */}
           <path
-            d="M -11 43 C -13 46, -11 50, -6 50 L 6 50 C 11 50, 13 46, 11 43"
+            d="M -9 44 C -11 46, -11 50, -6 50 L 6 50 C 11 50, 11 46, 9 44"
             fill="none"
-            stroke="#1e293b"
+            stroke={`url(#${silverClawGradId})`}
             strokeWidth="2.6"
             strokeLinecap="round"
           />
-          <circle
-            cx="0"
-            cy="51"
-            r="5.5"
+
+          {/* Swivel Barrel Collar */}
+          <rect
+            x="-4"
+            y="49"
+            width="8"
+            height="5"
+            rx="1.2"
+            fill={`url(#${silverClawGradId})`}
+            stroke="#334155"
+            strokeWidth="0.6"
+          />
+
+          {/* Lobster Claw Hook Body */}
+          <path
+            d="M -3 54 C -6 57, -6 64, -2.5 68 C 0 71.5, 4.5 71.5, 6.5 67 C 8 63, 7 57, 2.5 54 Z"
             fill="none"
-            stroke="#64748b"
-            strokeWidth="2.4"
+            stroke={`url(#${silverClawGradId})`}
+            strokeWidth="2.6"
+            strokeLinecap="round"
+          />
+
+          {/* Spring-Lever Thumb Trigger */}
+          <path
+            d="M -4.5 59 L -7.5 61"
+            stroke={`url(#${silverClawGradId})`}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+
+          {/* Hook Eyelet connecting to ID card slot */}
+          <circle
+            cx="2"
+            cy="68"
+            r="3.6"
+            fill="none"
+            stroke={`url(#${silverClawGradId})`}
+            strokeWidth="2"
           />
         </g>
       </svg>
