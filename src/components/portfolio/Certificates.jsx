@@ -263,7 +263,7 @@ export default function Certificates() {
   return (
     <section
       id="certificates"
-      className="relative w-full py-20 sm:py-24 bg-white dark:bg-[#0b0d12] text-slate-900 dark:text-white overflow-hidden border-t border-slate-200/90 dark:border-slate-800/80 transition-colors duration-300 select-none"
+      className="relative w-full py-16 pb-28 sm:py-24 bg-white dark:bg-[#0b0d12] text-slate-900 dark:text-white overflow-hidden border-t border-slate-200/90 dark:border-slate-800/80 transition-colors duration-300 select-none"
     >
       {/* Subtle Ambient Radial Highlight */}
       <div
@@ -322,7 +322,7 @@ export default function Certificates() {
                     setSelectedCert(item)
                   }
                 }}
-                className="w-[290px] sm:w-[330px] h-[430px] sm:h-[460px] shrink-0 rounded-3xl p-5 sm:p-6 bg-white dark:bg-[#121620] text-slate-900 dark:text-white border border-slate-200/90 dark:border-slate-800/80 shadow-[0_12px_32px_-8px_rgba(15,23,42,0.1)] dark:shadow-[0_16px_36px_-8px_rgba(0,0,0,0.55)] hover:shadow-[0_22px_55px_-10px_rgba(15,23,42,0.18)] dark:hover:shadow-[0_22px_55px_-10px_rgba(0,0,0,0.7)] hover:border-slate-400 dark:hover:border-cyan-500/50 transition-all duration-300 flex flex-col justify-between cursor-pointer group/card select-none"
+                className="w-[280px] sm:w-[330px] h-[395px] sm:h-[460px] shrink-0 rounded-3xl p-4 sm:p-6 bg-white dark:bg-[#121620] text-slate-900 dark:text-white border border-slate-200/90 dark:border-slate-800/80 shadow-[0_12px_32px_-8px_rgba(15,23,42,0.1)] dark:shadow-[0_16px_36px_-8px_rgba(0,0,0,0.55)] hover:shadow-[0_22px_55px_-10px_rgba(15,23,42,0.18)] dark:hover:shadow-[0_22px_55px_-10px_rgba(0,0,0,0.7)] hover:border-slate-400 dark:hover:border-cyan-500/50 transition-all duration-300 flex flex-col justify-between cursor-pointer group/card select-none"
               >
                 {/* Top Card Row */}
                 <div className="flex items-center justify-between">
@@ -350,7 +350,7 @@ export default function Certificates() {
                 </div>
 
                 {/* Center: Certificate Image Front Display */}
-                <div className="relative rounded-2xl bg-slate-50 dark:bg-[#0c0f16] border border-slate-200/80 dark:border-slate-800 p-2 flex items-center justify-center overflow-hidden my-3 h-[180px] sm:h-[200px] shadow-inner group/cert">
+                <div className="relative rounded-2xl bg-slate-50 dark:bg-[#0c0f16] border border-slate-200/80 dark:border-slate-800 p-2 flex items-center justify-center overflow-hidden my-2.5 sm:my-3 h-[160px] sm:h-[200px] shadow-inner group/cert">
                   <img
                     src={item.image}
                     alt={item.title}

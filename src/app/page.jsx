@@ -37,7 +37,7 @@ export default function HomePage() {
       <Navbar onOpenResume={handleOpenResume} />
 
       {/* Main Experience Stream */}
-      <div className="relative w-full flex flex-col min-h-screen pb-20 sm:pb-24 transition-all duration-300">
+      <div className="relative w-full flex flex-col min-h-screen pb-28 sm:pb-24 transition-all duration-300">
         <main className="relative z-10 flex-1">
           {/* Hero Section */}
           <Hero onOpenResume={handleOpenResume} />

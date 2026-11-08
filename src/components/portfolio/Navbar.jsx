@@ -27,6 +27,14 @@ import {
 function DockItem({ mouseX, item, isActive, onClick }) {
   const ref = useRef(null)
   const [isHovered, setIsHovered] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const updateSize = () => setIsMobile(window.innerWidth < 640)
+    updateSize()
+    window.addEventListener('resize', updateSize)
+    return () => window.removeEventListener('resize', updateSize)
+  }, [])
 
   // Distance from current mouse X to center of this icon
   const distance = useTransform(mouseX, (val) => {
@@ -34,8 +42,14 @@ function DockItem({ mouseX, item, isActive, onClick }) {
     return val - bounds.x - bounds.width / 2
   })
 
-  // Compact macOS fisheye magnification physics (Base: 30px on mobile, 32px on desktop; Peak: 48px)
-  const widthSync = useTransform(distance, [-80, 0, 80], [32, 48, 32])
+  // Dynamic magnification physics:
+  // On mobile (<640px): 24px base, 30px peak (fits all 12 icons comfortably across phone screens)
+  // On desktop: 32px base, 48px peak
+  const widthSync = useTransform(
+    distance,
+    [-80, 0, 80],
+    isMobile ? [24, 30, 24] : [32, 48, 32]
+  )
   const width = useSpring(widthSync, { mass: 0.1, stiffness: 280, damping: 16 })
 
   const handleClick = (e) => {
@@ -50,7 +64,7 @@ function DockItem({ mouseX, item, isActive, onClick }) {
     : { type: 'button' }
 
   return (
-    <div className="relative flex flex-col items-center">
+    <div className="relative flex flex-col items-center shrink-0">
       {/* macOS Hover Tooltip Pill */}
       <AnimatePresence>
         {isHovered && (
@@ -230,8 +244,8 @@ export default function Navbar({ onOpenResume }) {
     }
   ]
 
-  // Right Side of Dock: Utilities, Socials & Theme Toggle
-  const UTILITY_APPS = [
+  // Social Apps (shown on desktop/tablet where width permits)
+  const SOCIAL_APPS = [
     {
       id: 'linkedin',
       name: 'LinkedIn',
@@ -259,25 +273,27 @@ export default function Navbar({ onOpenResume }) {
       href: 'https://github.com/kuya1loyd',
       bgClass: 'bg-gradient-to-b from-purple-600 via-indigo-600 to-purple-800',
       icon: <FaGithub className="w-[50%] h-[50%] text-white" />
-    },
-    {
-      id: 'theme',
-      name: isLight ? 'Dark Mode' : 'Light Mode',
-      bgClass: 'bg-gradient-to-b from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 border border-white/25',
-      icon: isLight ? (
-        <FiMoon className="w-[48%] h-[48%] text-slate-800" />
-      ) : (
-        <FiSun className="w-[48%] h-[48%] text-amber-400" />
-      ),
-      onClick: toggleTheme
     }
   ]
+
+  // Theme Toggle (shown on all screen sizes)
+  const THEME_APP = {
+    id: 'theme',
+    name: isLight ? 'Dark Mode' : 'Light Mode',
+    bgClass: 'bg-gradient-to-b from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 border border-white/25',
+    icon: isLight ? (
+      <FiMoon className="w-[48%] h-[48%] text-slate-800" />
+    ) : (
+      <FiSun className="w-[48%] h-[48%] text-amber-400" />
+    ),
+    onClick: toggleTheme
+  }
 
   return (
     <nav
       aria-label="macOS Bottom Dock Navigation"
       suppressHydrationWarning
-      className="fixed bottom-2 sm:bottom-3 left-1/2 -translate-x-1/2 z-50 pointer-events-none select-none max-w-[98vw]"
+      className="fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] sm:bottom-3 left-1/2 -translate-x-1/2 z-50 pointer-events-none select-none max-w-[96vw]"
     >
       {/* Floating macOS Frosted Glass Dock */}
       <motion.div
@@ -286,7 +302,7 @@ export default function Navbar({ onOpenResume }) {
         initial={{ y: 40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: 'spring', stiffness: 280, damping: 24 }}
-        className="pointer-events-auto flex items-end gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-[18px] sm:rounded-[22px] bg-white/65 dark:bg-slate-900/65 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-[0_15px_35px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.06)]"
+        className="pointer-events-auto flex items-end gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-[18px] sm:rounded-[22px] bg-white/75 dark:bg-slate-900/75 backdrop-blur-2xl border border-white/50 dark:border-white/15 shadow-[0_15px_35px_rgba(0,0,0,0.22),0_2px_8px_rgba(0,0,0,0.06)] max-w-full overflow-x-auto no-scrollbar"
       >
         {/* Navigation Section Apps */}
         {NAV_APPS.map((item) => (
@@ -300,10 +316,10 @@ export default function Navbar({ onOpenResume }) {
         ))}
 
         {/* macOS Dock Separator Divider */}
-        <div className="w-px h-5 sm:h-6 bg-slate-400/40 dark:bg-white/20 mx-0.5 sm:mx-1 self-center shrink-0 mb-1.5" />
+        <div className="w-px h-4 sm:h-6 bg-slate-400/40 dark:bg-white/20 mx-0.5 sm:mx-1 self-center shrink-0 mb-1 sm:mb-1.5" />
 
-        {/* Social, Utility & Theme Apps */}
-        {UTILITY_APPS.map((item) => (
+        {/* Social Apps (LinkedIn, Facebook, Instagram, GitHub) */}
+        {SOCIAL_APPS.map((item) => (
           <DockItem
             key={item.id}
             mouseX={mouseX}
@@ -312,6 +328,18 @@ export default function Navbar({ onOpenResume }) {
             onClick={item.onClick}
           />
         ))}
+
+        {/* Separator before theme toggle */}
+        <div className="w-px h-4 sm:h-6 bg-slate-400/40 dark:bg-white/20 mx-0.5 sm:mx-1 self-center shrink-0 mb-1 sm:mb-1.5" />
+
+        {/* Theme Toggle - always available */}
+        <DockItem
+          key={THEME_APP.id}
+          mouseX={mouseX}
+          item={THEME_APP}
+          isActive={false}
+          onClick={THEME_APP.onClick}
+        />
       </motion.div>
     </nav>
   )

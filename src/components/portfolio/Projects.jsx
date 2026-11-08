@@ -288,6 +288,8 @@ function ProjectsTitle() {
 
 /* Crystal Clear Fiberglass Project Card on White Background (Matching Reference Design Layout) */
 function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
+  const isMobileApp = project.isMobileApp || project.id.includes('buildtrack')
+
   return (
     <motion.div
       suppressHydrationWarning
@@ -307,7 +309,7 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
       onKeyDown={(e) => {
         if (e.key === 'Enter') onActivate()
       }}
-      className="project-glass-card"
+      className="project-glass-card group/card"
       style={{
         position: 'relative',
         height: dims.h,
@@ -319,8 +321,8 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
         overflow: 'hidden',
         /* Crystal Clear Fiberglass Glassmorphism on White */
         background: isCenter
-          ? 'linear-gradient(155deg, rgba(255, 255, 255, 0.94) 0%, rgba(240, 249, 255, 0.85) 100%)'
-          : 'linear-gradient(155deg, rgba(255, 255, 255, 0.82) 0%, rgba(245, 250, 255, 0.68) 100%)',
+          ? 'linear-gradient(155deg, rgba(255, 255, 255, 0.96) 0%, rgba(240, 249, 255, 0.88) 100%)'
+          : 'linear-gradient(155deg, rgba(255, 255, 255, 0.85) 0%, rgba(245, 250, 255, 0.72) 100%)',
         backdropFilter: 'blur(24px) saturate(190%)',
         WebkitBackdropFilter: 'blur(24px) saturate(190%)',
         border: isCenter
@@ -378,49 +380,203 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
       >
         {/* ROW 1: Number on left, Status Pill on right */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span
-            style={{
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              fontSize: 14,
-              fontWeight: 800,
-              color: project.tint.accent,
-              letterSpacing: '0.04em'
-            }}
-          >
-            {project.num}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <span
+              style={{
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                fontSize: 13,
+                fontWeight: 800,
+                color: project.tint.accent,
+                letterSpacing: '0.04em'
+              }}
+            >
+              {project.num}
+            </span>
+            <span style={{ color: 'rgba(12, 42, 67, 0.3)', fontSize: 10 }}>·</span>
+            <span
+              style={{
+                fontSize: 9.5,
+                fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                letterSpacing: '0.1em',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                color: 'rgba(12, 42, 67, 0.55)'
+              }}
+            >
+              {project.role}
+            </span>
+          </div>
           <StatusPill status={project.status} />
         </div>
 
-        {/* ROW 2: Large App Icon on left, "View details →" pill button on right */}
+        {/* ROW 2: Landing Page / Front Page Preview Showcase */}
         <div
           style={{
-            marginTop: 18,
+            position: 'relative',
+            width: '100%',
+            height: dims.previewH || 155,
+            marginTop: 10,
+            marginBottom: 12,
+            borderRadius: 14,
+            overflow: 'hidden',
+            background: isMobileApp ? 'rgba(12, 42, 67, 0.04)' : '#ffffff',
+            border: '1.5px solid rgba(12, 42, 67, 0.1)',
+            boxShadow: '0 8px 20px -6px rgba(12, 42, 67, 0.09)',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
+            flexDirection: 'column',
+            flexShrink: 0
           }}
         >
-          {/* Large App Icon with glowing outline */}
-          <div
-            style={{
-              width: dims.icon || 58,
-              height: dims.icon || 58,
-              borderRadius: 16,
-              background: project.iconBg,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: isCenter
-                ? `1.5px solid ${project.tint.accent}`
-                : '1.5px solid rgba(255, 255, 255, 0.95)',
-              boxShadow: isCenter
-                ? `0 8px 24px -4px ${project.tint.accent}44, 0 4px 12px rgba(12, 42, 67, 0.12)`
-                : '0 8px 20px -4px rgba(12, 42, 67, 0.1)',
-              flexShrink: 0
-            }}
-          >
-            <ProjectGlyph project={project} size={dims.icon || 58} />
+          {isMobileApp ? (
+            /* Mobile App Mockup for BuildTrack */
+            <div
+              style={{
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px',
+                background: 'linear-gradient(135deg, rgba(248,250,252,0.95) 0%, rgba(241,245,249,0.95) 100%)'
+              }}
+            >
+              <div
+                style={{
+                  height: '92%',
+                  aspectRatio: '780 / 1688',
+                  borderRadius: 16,
+                  background: '#090d16',
+                  border: '2px solid rgba(12, 42, 67, 0.2)',
+                  boxShadow: '0 6px 16px -4px rgba(12, 42, 67, 0.2)',
+                  overflow: 'hidden',
+                  position: 'relative'
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 2,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: 24,
+                    height: 5,
+                    borderRadius: 999,
+                    background: '#000',
+                    zIndex: 10
+                  }}
+                />
+                <img
+                  src={project.image}
+                  alt={`${project.title} front page`}
+                  draggable={false}
+                  loading="lazy"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center top'
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            /* Desktop Landing Page Browser Mockup Frame */
+            <>
+              {/* Mini Browser Bar with 3 macOS dots & URL indicator */}
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4.5,
+                  padding: '5px 9px',
+                  background: 'rgba(12, 42, 67, 0.04)',
+                  borderBottom: '1px solid rgba(12, 42, 67, 0.08)',
+                  flexShrink: 0
+                }}
+              >
+                <span style={{ width: 5.5, height: 5.5, borderRadius: '50%', background: '#ef4444', opacity: 0.85 }} />
+                <span style={{ width: 5.5, height: 5.5, borderRadius: '50%', background: '#f59e0b', opacity: 0.85 }} />
+                <span style={{ width: 5.5, height: 5.5, borderRadius: '50%', background: '#10b981', opacity: 0.85 }} />
+                <div
+                  style={{
+                    marginLeft: 6,
+                    fontSize: 9,
+                    fontFamily: 'monospace',
+                    fontWeight: 600,
+                    color: 'rgba(12, 42, 67, 0.55)',
+                    background: 'rgba(255, 255, 255, 0.85)',
+                    padding: '1px 7px',
+                    borderRadius: 5,
+                    lineHeight: 1.3,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    maxWidth: '75%'
+                  }}
+                >
+                  {project.liveLink ? project.liveLink.replace('https://', '').replace('/', '') : `${project.id}.vercel.app`}
+                </div>
+              </div>
+
+              {/* Landing Page Screenshot */}
+              <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
+                <img
+                  src={project.image}
+                  alt={`${project.title} landing page`}
+                  draggable={false}
+                  loading="lazy"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'top'
+                  }}
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* ROW 3: Project Glyph Icon, Title, and "View details →" */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
+            {/* Compact App Icon */}
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: 10,
+                background: project.iconBg,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: isCenter
+                  ? `1.5px solid ${project.tint.accent}`
+                  : '1.5px solid rgba(255, 255, 255, 0.95)',
+                boxShadow: `0 4px 12px -2px ${project.tint.accent}33`,
+                flexShrink: 0
+              }}
+            >
+              <ProjectGlyph project={project} size={34} />
+            </div>
+
+            {/* Crisp Bold Navy Title */}
+            <h3
+              style={{
+                fontSize: dims.title || 22,
+                fontWeight: 800,
+                letterSpacing: '-0.025em',
+                color: '#0c2a43',
+                margin: 0,
+                lineHeight: 1.15,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              {project.title}
+            </h3>
           </div>
 
           {/* View Details Button */}
@@ -431,63 +587,33 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
               onDetails()
             }}
             style={{
-              padding: '6px 14px',
+              padding: '5px 12px',
               borderRadius: 999,
-              background: 'rgba(255, 255, 255, 0.85)',
+              background: 'rgba(255, 255, 255, 0.9)',
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
-              border: '1px solid rgba(12, 42, 67, 0.12)',
+              border: '1px solid rgba(12, 42, 67, 0.14)',
               color: '#0c2a43',
               boxShadow: '0 2px 8px rgba(12, 42, 67, 0.05)',
-              fontSize: 11.5,
-              fontWeight: 600,
+              fontSize: 11,
+              fontWeight: 700,
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              flexShrink: 0
             }}
           >
             View details →
           </button>
         </div>
 
-        {/* ROW 3: Role / Category Kicker (Monospace muted uppercase) */}
-        <div style={{ marginTop: 20 }}>
-          <p
-            style={{
-              fontSize: 10.5,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              letterSpacing: '0.12em',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              color: 'rgba(12, 42, 67, 0.55)',
-              margin: '0 0 6px'
-            }}
-          >
-            {project.role}
-          </p>
-
-          {/* ROW 4: Bold Crisp Navy Title */}
-          <h3
-            style={{
-              fontSize: dims.title || 27,
-              fontWeight: 800,
-              letterSpacing: '-0.025em',
-              color: '#0c2a43',
-              margin: 0,
-              lineHeight: 1.15
-            }}
-          >
-            {project.title}
-          </h3>
-        </div>
-
-        {/* ROW 5: 2-line Description */}
+        {/* ROW 4: 2-line Description */}
         <p
           style={{
-            fontSize: 13,
-            lineHeight: 1.5,
+            fontSize: 12,
+            lineHeight: 1.45,
             color: 'rgba(12, 42, 67, 0.72)',
-            margin: '12px 0 0',
+            margin: '8px 0 0',
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
@@ -497,19 +623,19 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
           {project.description}
         </p>
 
-        {/* ROW 6: Tech Stack Tags at bottom */}
+        {/* ROW 5: Tech Stack Tags at bottom */}
         <div
           style={{
             marginTop: 'auto',
-            paddingTop: 18,
+            paddingTop: 10,
             display: 'flex',
             flexWrap: 'wrap',
-            gap: 6
+            gap: 5
           }}
         >
           {project.tags.slice(0, 4).map((tag) => (
             <span key={tag} style={tagChip}>
-              <TagIcon tag={tag} size={11} />
+              <TagIcon tag={tag} size={10.5} />
               {tag}
             </span>
           ))}
@@ -726,8 +852,8 @@ export default function Projects() {
   }
 
   const dims = isMobile
-    ? { w: 285, h: 430, gap: 295, title: 23, pad: '22px 20px 18px', icon: 52 }
-    : { w: 325, h: 445, gap: 385, title: 26, pad: '24px 22px 20px', icon: 58 }
+    ? { w: 295, h: 440, gap: 305, title: 20, pad: '16px 16px 14px', previewH: 145 }
+    : { w: 340, h: 475, gap: 390, title: 22, pad: '18px 18px 16px', previewH: 165 }
 
   return (
     <section
@@ -737,7 +863,7 @@ export default function Projects() {
       style={{
         position: 'relative',
         overflow: 'hidden',
-        padding: '84px 16px 90px',
+        padding: '76px 16px 115px',
         color: '#0c2a43',
         userSelect: 'none',
         background:
