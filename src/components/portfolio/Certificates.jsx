@@ -263,11 +263,11 @@ export default function Certificates() {
   return (
     <section
       id="certificates"
-      className="relative w-full py-20 sm:py-24 bg-white text-slate-900 overflow-hidden border-t border-slate-200/90 select-none"
+      className="relative w-full py-20 sm:py-24 bg-white dark:bg-[#0b0d12] text-slate-900 dark:text-white overflow-hidden border-t border-slate-200/90 dark:border-slate-800/80 transition-colors duration-300 select-none"
     >
       {/* Subtle Ambient Radial Highlight */}
       <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[480px] bg-gradient-to-r from-sky-100/50 via-slate-100/40 to-cyan-100/40 rounded-full blur-[120px] pointer-events-none"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[480px] bg-gradient-to-r from-sky-100/50 via-slate-100/40 to-cyan-100/40 dark:from-cyan-950/20 dark:via-slate-900/30 dark:to-sky-950/20 rounded-full blur-[120px] pointer-events-none"
         aria-hidden="true"
       />
 
@@ -276,16 +276,13 @@ export default function Certificates() {
         <div className="relative mb-10 sm:mb-12 flex flex-col items-center justify-center text-center">
           <span
             aria-hidden="true"
-            className="absolute -top-7 sm:-top-9 md:-top-11 text-5xl sm:text-7xl md:text-8xl font-black font-sans uppercase tracking-tight text-transparent select-none pointer-events-none"
-            style={{
-              WebkitTextStroke: '1.5px rgba(15, 23, 42, 0.08)'
-            }}
+            className="absolute -top-7 sm:-top-9 md:-top-11 text-5xl sm:text-7xl md:text-8xl font-black font-sans uppercase tracking-tight text-transparent select-none pointer-events-none [-webkit-text-stroke:1.5px_rgba(15,23,42,0.08)] dark:[-webkit-text-stroke:1.5px_rgba(255,255,255,0.07)]"
           >
             /AWARDS
           </span>
 
-          <h2 className="relative text-3xl sm:text-5xl md:text-6xl font-black font-sans tracking-tight text-slate-900 uppercase">
-            <span className="text-slate-400">/</span>ACHIEVEMENTS
+          <h2 className="relative text-3xl sm:text-5xl md:text-6xl font-black font-sans tracking-tight text-slate-900 dark:text-white uppercase">
+            <span className="text-slate-400 dark:text-cyan-400">/</span>ACHIEVEMENTS
           </h2>
         </div>
       </div>
@@ -301,11 +298,11 @@ export default function Certificates() {
       >
         {/* Subtle Edge Fade Gradients for continuous infinite look */}
         <div
-          className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent z-20"
+          className="pointer-events-none absolute inset-y-0 left-0 w-16 sm:w-28 bg-gradient-to-r from-white via-white/80 to-transparent dark:from-[#0b0d12] dark:via-[#0b0d12]/80 dark:to-transparent z-20"
           aria-hidden="true"
         />
         <div
-          className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent z-20"
+          className="pointer-events-none absolute inset-y-0 right-0 w-16 sm:w-28 bg-gradient-to-l from-white via-white/80 to-transparent dark:from-[#0b0d12] dark:via-[#0b0d12]/80 dark:to-transparent z-20"
           aria-hidden="true"
         />
 
@@ -325,35 +322,35 @@ export default function Certificates() {
                     setSelectedCert(item)
                   }
                 }}
-                className="w-[290px] sm:w-[330px] h-[430px] sm:h-[460px] shrink-0 rounded-3xl p-5 sm:p-6 bg-white text-slate-900 border border-slate-200/90 shadow-[0_12px_32px_-8px_rgba(15,23,42,0.1)] hover:shadow-[0_22px_55px_-10px_rgba(15,23,42,0.18)] hover:border-slate-400 transition-all duration-300 flex flex-col justify-between cursor-pointer group/card select-none"
+                className="w-[290px] sm:w-[330px] h-[430px] sm:h-[460px] shrink-0 rounded-3xl p-5 sm:p-6 bg-white dark:bg-[#121620] text-slate-900 dark:text-white border border-slate-200/90 dark:border-slate-800/80 shadow-[0_12px_32px_-8px_rgba(15,23,42,0.1)] dark:shadow-[0_16px_36px_-8px_rgba(0,0,0,0.55)] hover:shadow-[0_22px_55px_-10px_rgba(15,23,42,0.18)] dark:hover:shadow-[0_22px_55px_-10px_rgba(0,0,0,0.7)] hover:border-slate-400 dark:hover:border-cyan-500/50 transition-all duration-300 flex flex-col justify-between cursor-pointer group/card select-none"
               >
                 {/* Top Card Row */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
                     {/* Medal Circle Badge */}
-                    <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center shadow-md shrink-0 group-hover/card:scale-105 transition-transform">
-                      <FiAward className="w-4 h-4 text-white" />
+                    <div className="w-8 h-8 rounded-full bg-slate-900 dark:bg-cyan-500 text-white dark:text-slate-950 flex items-center justify-center shadow-md shrink-0 group-hover/card:scale-105 transition-transform">
+                      <FiAward className="w-4 h-4 text-white dark:text-slate-950" />
                     </div>
 
                     {/* Award Tag */}
                     <div className="flex flex-col text-left">
-                      <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-slate-400 font-bold leading-none">
+                      <span className="text-[9px] font-mono uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 font-bold leading-none">
                         AWARD
                       </span>
-                      <span className="text-[11px] font-mono font-extrabold text-slate-800 mt-0.5">
+                      <span className="text-[11px] font-mono font-extrabold text-slate-800 dark:text-slate-200 mt-0.5">
                         {String(cardNum).padStart(2, '0')} / {String(totalCount).padStart(2, '0')}
                       </span>
                     </div>
                   </div>
 
                   {/* Top-Right Year Pill */}
-                  <div className="px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200/80 text-xs font-mono font-bold text-slate-700">
+                  <div className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 text-xs font-mono font-bold text-slate-700 dark:text-slate-300">
                     {item.year}
                   </div>
                 </div>
 
                 {/* Center: Certificate Image Front Display */}
-                <div className="relative rounded-2xl bg-slate-50 border border-slate-200/80 p-2 flex items-center justify-center overflow-hidden my-3 h-[180px] sm:h-[200px] shadow-inner group/cert">
+                <div className="relative rounded-2xl bg-slate-50 dark:bg-[#0c0f16] border border-slate-200/80 dark:border-slate-800 p-2 flex items-center justify-center overflow-hidden my-3 h-[180px] sm:h-[200px] shadow-inner group/cert">
                   <img
                     src={item.image}
                     alt={item.title}
@@ -363,9 +360,9 @@ export default function Certificates() {
                   />
 
                   {/* Hover Inspect Pill */}
-                  <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 flex items-center justify-center rounded-2xl pointer-events-none backdrop-blur-[2px]">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-slate-900 font-mono text-xs font-bold shadow-lg">
-                      <FiMaximize2 className="w-3.5 h-3.5 text-slate-900" />
+                  <div className="absolute inset-0 bg-slate-900/40 dark:bg-black/50 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 flex items-center justify-center rounded-2xl pointer-events-none backdrop-blur-[2px]">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-mono text-xs font-bold shadow-lg border border-transparent dark:border-slate-700">
+                      <FiMaximize2 className="w-3.5 h-3.5 text-slate-900 dark:text-cyan-400" />
                       Inspect Credential
                     </span>
                   </div>
@@ -373,17 +370,17 @@ export default function Certificates() {
 
                 {/* Bottom Title & Details */}
                 <div className="flex flex-col text-left">
-                  <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight leading-snug line-clamp-1 group-hover/card:text-cyan-600 transition-colors">
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-tight leading-snug line-clamp-1 group-hover/card:text-cyan-600 dark:group-hover/card:text-cyan-400 transition-colors">
                     {item.title}
                   </h3>
 
-                  <div className="flex items-center gap-1.5 mt-1 text-xs font-semibold text-cyan-700 line-clamp-1">
+                  <div className="flex items-center gap-1.5 mt-1 text-xs font-semibold text-cyan-700 dark:text-cyan-400 line-clamp-1">
                     <span>{item.issuer}</span>
-                    <span className="text-slate-300">·</span>
-                    <span className="text-slate-500 font-normal">{item.issuedDate}</span>
+                    <span className="text-slate-300 dark:text-slate-600">·</span>
+                    <span className="text-slate-500 dark:text-slate-400 font-normal">{item.issuedDate}</span>
                   </div>
 
-                  <p className="text-xs text-slate-500 font-normal leading-relaxed mt-1 line-clamp-2">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-normal leading-relaxed mt-1 line-clamp-2">
                     {item.description}
                   </p>
                 </div>
@@ -393,11 +390,11 @@ export default function Certificates() {
         </div>
       </div>
 
-      {/* Official Verified Credential Modal (with White Stage & Screen Capture Lock Shield) */}
+      {/* Official Verified Credential Modal (with Adaptive Light/Dark Stage & DRM Shield) */}
       <AnimatePresence>
         {selectedCert && (
           <div
-            className="fixed inset-0 z-50 bg-slate-950/50 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-hidden select-none"
+            className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-hidden select-none"
             onClick={() => {
               setSelectedCert(null)
               setIsScreenShieldActive(false)
@@ -408,16 +405,16 @@ export default function Certificates() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
               transition={{ duration: 0.25 }}
-              className="relative w-full max-w-4xl max-h-[92vh] bg-white rounded-3xl border border-slate-200 shadow-[0_30px_70px_-15px_rgba(15,23,42,0.22)] flex flex-col overflow-hidden text-slate-900"
+              className="relative w-full max-w-4xl max-h-[92vh] bg-white dark:bg-[#121620] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-[0_30px_70px_-15px_rgba(15,23,42,0.22)] dark:shadow-[0_30px_70px_-15px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden text-slate-900 dark:text-white"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Top Header */}
-              <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-4 bg-white">
+              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4 bg-white dark:bg-[#121620]">
                 <div>
-                  <h4 className="text-sm sm:text-base font-bold text-slate-900 font-sans line-clamp-1">
+                  <h4 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white font-sans line-clamp-1">
                     {selectedCert.title}
                   </h4>
-                  <p className="text-xs font-mono text-slate-500">
+                  <p className="text-xs font-mono text-slate-500 dark:text-slate-400">
                     {selectedCert.issuer} · {selectedCert.year}
                   </p>
                 </div>
@@ -428,15 +425,15 @@ export default function Certificates() {
                     setSelectedCert(null)
                     setIsScreenShieldActive(false)
                   }}
-                  className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center transition-colors cursor-pointer"
                   aria-label="Close modal"
                 >
                   <FiX className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Certificate Canvas Stage on Clean White / Slate-50 Backdrop */}
-              <div className="relative flex-1 p-4 sm:p-8 flex items-center justify-center overflow-auto bg-slate-50/70 border-y border-slate-100 min-h-[420px]">
+              {/* Certificate Canvas Stage on Clean Slate Backdrop */}
+              <div className="relative flex-1 p-4 sm:p-8 flex items-center justify-center overflow-auto bg-slate-50/70 dark:bg-[#0b0e14] border-y border-slate-100 dark:border-slate-800/80 min-h-[420px]">
                 {/* Anti-Screen Capture DRM Shield Overlay */}
                 <AnimatePresence>
                   {isScreenShieldActive && (
@@ -445,29 +442,29 @@ export default function Certificates() {
                       animate={{ opacity: 1, backdropFilter: 'blur(16px)' }}
                       exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
                       transition={{ duration: 0.2 }}
-                      className="absolute inset-0 z-40 bg-white/95 flex flex-col items-center justify-center p-6 text-center select-none"
+                      className="absolute inset-0 z-40 bg-white/95 dark:bg-[#0c0f16]/95 flex flex-col items-center justify-center p-6 text-center select-none"
                     >
-                      <div className="w-16 h-16 rounded-2xl bg-slate-900 text-white flex items-center justify-center mb-4 shadow-xl ring-4 ring-cyan-500/20">
-                        <FiLock className="w-7 h-7 text-cyan-400" />
+                      <div className="w-16 h-16 rounded-2xl bg-slate-900 dark:bg-cyan-500 text-white dark:text-slate-950 flex items-center justify-center mb-4 shadow-xl ring-4 ring-cyan-500/20">
+                        <FiLock className="w-7 h-7 text-cyan-400 dark:text-slate-950" />
                       </div>
 
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-[10px] font-mono tracking-widest uppercase font-bold mb-3">
-                        <FiShield className="w-3.5 h-3.5 text-cyan-600" />
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-50 dark:bg-cyan-950/60 border border-cyan-200 dark:border-cyan-800 text-cyan-700 dark:text-cyan-300 text-[10px] font-mono tracking-widest uppercase font-bold mb-3">
+                        <FiShield className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
                         DRM Protection Active
                       </div>
 
-                      <h4 className="text-xl font-black text-slate-900 mb-2">
+                      <h4 className="text-xl font-black text-slate-900 dark:text-white mb-2">
                         Screen Capture Protected
                       </h4>
 
-                      <p className="text-xs text-slate-600 max-w-sm leading-relaxed mb-6">
+                      <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm leading-relaxed mb-6">
                         In accordance with institutional accreditation policies, direct screenshotting and unauthorized recording of this official certificate are restricted.
                       </p>
 
                       <button
                         type="button"
                         onClick={() => setIsScreenShieldActive(false)}
-                        className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-mono text-xs font-bold transition-all shadow-md active:scale-95"
+                        className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-cyan-500 dark:hover:bg-cyan-400 text-white dark:text-slate-950 font-mono text-xs font-bold transition-all shadow-md active:scale-95"
                       >
                         Dismiss & Resume Inspection
                       </button>
@@ -476,7 +473,7 @@ export default function Certificates() {
                 </AnimatePresence>
 
                 {/* Clear High-Resolution Certificate Stage */}
-                <div className="relative max-w-full max-h-[68vh] flex items-center justify-center p-2 rounded-2xl bg-white shadow-lg border border-slate-200/90">
+                <div className="relative max-w-full max-h-[68vh] flex items-center justify-center p-2 rounded-2xl bg-white dark:bg-[#151922] shadow-lg border border-slate-200/90 dark:border-slate-800">
                   <img
                     src={selectedCert.image}
                     alt={selectedCert.title}
@@ -487,10 +484,10 @@ export default function Certificates() {
               </div>
 
               {/* Modal Bottom Action Footer */}
-              <div className="px-6 py-4 bg-white flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="px-6 py-4 bg-white dark:bg-[#121620] flex flex-wrap items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="font-mono text-slate-600 text-[11px] font-semibold">
+                  <span className="font-mono text-slate-600 dark:text-slate-400 text-[11px] font-semibold">
                     Cryptographically Authenticated
                   </span>
                 </div>
