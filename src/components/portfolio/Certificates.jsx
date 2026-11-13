@@ -12,6 +12,19 @@ import {
 
 const ACHIEVEMENTS = [
   {
+    id: 'cisco-intro-cybersecurity',
+    title: 'Introduction to Cybersecurity (I2CS)',
+    role: 'CYBER DEFENSE',
+    year: '2026',
+    issuer: 'Cisco Networking Academy',
+    issuedDate: 'November 13, 2026',
+    description:
+      'Verified credential in foundational cyber safety, common cyber threats, attack vectors, defense mechanisms, and organizational protection.',
+    competencies: ['Cyber Threat Defense', 'Vulnerability Assessment', 'Network Defense', 'Online Protection'],
+    image: '/images/I2CSUpdate2026.png',
+    pdfUrl: '/certificates/I2CSUpdate2026.pdf'
+  },
+  {
     id: 'mos-access-2019-expert',
     title: 'Microsoft Office Specialist: Access 2019 Expert',
     role: 'DATABASE EXPERT',
