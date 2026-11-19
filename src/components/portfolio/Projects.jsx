@@ -132,20 +132,30 @@ const TAG_ICONS = {
   Productivity: FiCheckSquare
 }
 
-const tagChip = {
+const subscribeTheme = (callback) => {
+  if (typeof document === 'undefined') return () => {}
+  const observer = new MutationObserver(callback)
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+  return () => observer.disconnect()
+}
+const getIsDark = () =>
+  typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
+const getServerIsDark = () => false
+
+const getTagChip = (isDark) => ({
   display: 'inline-flex',
   alignItems: 'center',
   gap: 5,
   fontSize: 11,
   padding: '4px 10px',
   borderRadius: 8,
-  color: '#0c2a43',
-  background: 'rgba(255, 255, 255, 0.82)',
+  color: isDark ? '#e2e8f0' : '#0c2a43',
+  background: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.82)',
   backdropFilter: 'blur(10px)',
   WebkitBackdropFilter: 'blur(10px)',
-  border: '1px solid rgba(12, 42, 67, 0.1)',
-  boxShadow: '0 2px 6px rgba(12, 42, 67, 0.05)'
-}
+  border: isDark ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid rgba(12, 42, 67, 0.1)',
+  boxShadow: isDark ? '0 2px 6px rgba(0, 0, 0, 0.25)' : '0 2px 6px rgba(12, 42, 67, 0.05)'
+})
 
 function TagIcon({ tag, size = 12 }) {
   const Icon = TAG_ICONS[tag] || FiCode
@@ -172,7 +182,7 @@ function ProjectGlyph({ project, size }) {
   return <Icon style={{ width: size * 0.5, height: size * 0.5, color: '#fff' }} />
 }
 
-function StatusPill({ status }) {
+function StatusPill({ status, isDark }) {
   const live = status === 'live'
   return (
     <span
@@ -184,11 +194,13 @@ function StatusPill({ status }) {
         display: 'inline-flex',
         alignItems: 'center',
         gap: 5,
-        color: live ? '#047857' : '#b45309',
-        background: live ? 'rgba(16, 185, 129, 0.12)' : 'rgba(245, 158, 11, 0.14)',
+        color: live ? (isDark ? '#34d399' : '#047857') : (isDark ? '#fbbf24' : '#b45309'),
+        background: live
+          ? isDark ? 'rgba(16, 185, 129, 0.16)' : 'rgba(16, 185, 129, 0.12)'
+          : isDark ? 'rgba(245, 158, 11, 0.16)' : 'rgba(245, 158, 11, 0.14)',
         backdropFilter: 'blur(8px)',
         WebkitBackdropFilter: 'blur(8px)',
-        border: live ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(245, 158, 11, 0.3)'
+        border: live ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid rgba(245, 158, 11, 0.35)'
       }}
     >
       <span
@@ -205,8 +217,8 @@ function StatusPill({ status }) {
   )
 }
 
-/* Modern Outline + Solid "PROJECTS" Title in light theme */
-function ProjectsTitle() {
+/* Modern Outline + Solid "PROJECTS" Title */
+function ProjectsTitle({ isDark }) {
   return (
     <div style={{ textAlign: 'center', userSelect: 'none', marginBottom: 20, position: 'relative' }}>
       {/* Category Kicker */}
@@ -220,7 +232,7 @@ function ProjectsTitle() {
           fontWeight: 700,
           letterSpacing: '0.24em',
           textTransform: 'uppercase',
-          color: '#0284c7',
+          color: isDark ? '#38bdf8' : '#0284c7',
           marginBottom: 10
         }}
       >
@@ -237,7 +249,7 @@ function ProjectsTitle() {
         <span>/ SELECTED WORKS</span>
       </div>
 
-      {/* Main Headline: PRO (Hollow Cyan Outline) + JECTS (Deep Navy Bold) */}
+      {/* Main Headline: PRO (Hollow Outline) + JECTS (Bold Solid) */}
       <h2
         className="font-black tracking-tight uppercase leading-none text-center select-none flex items-center justify-center"
         style={{
@@ -249,7 +261,7 @@ function ProjectsTitle() {
         <span
           className="title-outline-text"
           style={{
-            WebkitTextStroke: '2px #0284c7',
+            WebkitTextStroke: isDark ? '2px #38bdf8' : '2px #0284c7',
             color: 'transparent',
             WebkitTextFillColor: 'transparent',
             letterSpacing: '0.03em',
@@ -261,8 +273,8 @@ function ProjectsTitle() {
         <span
           className="title-solid-text"
           style={{
-            color: '#0c2a43',
-            WebkitTextFillColor: '#0c2a43',
+            color: isDark ? '#ffffff' : '#0c2a43',
+            WebkitTextFillColor: isDark ? '#ffffff' : '#0c2a43',
             fontWeight: 900,
             letterSpacing: '0.03em',
             fontFamily: "'Arial Black', 'Helvetica Neue', system-ui, sans-serif"
@@ -276,7 +288,7 @@ function ProjectsTitle() {
         style={{
           marginTop: 14,
           fontSize: 14,
-          color: 'rgba(12, 42, 67, 0.65)',
+          color: isDark ? 'rgba(203, 213, 225, 0.78)' : 'rgba(12, 42, 67, 0.65)',
           textAlign: 'center'
         }}
       >
@@ -286,9 +298,10 @@ function ProjectsTitle() {
   )
 }
 
-/* Crystal Clear Fiberglass Project Card on White Background (Matching Reference Design Layout) */
-function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
+/* Crystal Clear Fiberglass Project Card */
+function ProjectGlassCard({ project, dims, isCenter, isDark, onActivate, onDetails }) {
   const isMobileApp = project.isMobileApp || project.id.includes('buildtrack')
+  const tagChip = getTagChip(isDark)
 
   return (
     <motion.div
@@ -319,18 +332,27 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
         cursor: 'pointer',
         boxSizing: 'border-box',
         overflow: 'hidden',
-        /* Crystal Clear Fiberglass Glassmorphism on White */
-        background: isCenter
-          ? 'linear-gradient(155deg, rgba(255, 255, 255, 0.96) 0%, rgba(240, 249, 255, 0.88) 100%)'
-          : 'linear-gradient(155deg, rgba(255, 255, 255, 0.85) 0%, rgba(245, 250, 255, 0.72) 100%)',
+        background: isDark
+          ? isCenter
+            ? 'linear-gradient(155deg, rgba(20, 26, 40, 0.96) 0%, rgba(13, 17, 27, 0.92) 100%)'
+            : 'linear-gradient(155deg, rgba(18, 23, 35, 0.88) 0%, rgba(12, 16, 25, 0.82) 100%)'
+          : isCenter
+            ? 'linear-gradient(155deg, rgba(255, 255, 255, 0.96) 0%, rgba(240, 249, 255, 0.88) 100%)'
+            : 'linear-gradient(155deg, rgba(255, 255, 255, 0.85) 0%, rgba(245, 250, 255, 0.72) 100%)',
         backdropFilter: 'blur(24px) saturate(190%)',
         WebkitBackdropFilter: 'blur(24px) saturate(190%)',
         border: isCenter
           ? `2px solid ${project.tint.accent}`
-          : '1.5px solid rgba(255, 255, 255, 0.95)',
-        boxShadow: isCenter
-          ? `0 24px 60px -15px rgba(12, 42, 67, 0.16), 0 0 32px -8px ${project.tint.accent}40, inset 0 1.5px 2px #fff`
-          : '0 16px 36px -12px rgba(12, 42, 67, 0.08), inset 0 1px 2px #fff'
+          : isDark
+            ? '1.5px solid rgba(255, 255, 255, 0.12)'
+            : '1.5px solid rgba(255, 255, 255, 0.95)',
+        boxShadow: isDark
+          ? isCenter
+            ? `0 24px 60px -15px rgba(0, 0, 0, 0.65), 0 0 32px -8px ${project.tint.accent}55, inset 0 1px 1px rgba(255,255,255,0.12)`
+            : '0 16px 36px -12px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255,255,255,0.08)'
+          : isCenter
+            ? `0 24px 60px -15px rgba(12, 42, 67, 0.16), 0 0 32px -8px ${project.tint.accent}40, inset 0 1.5px 2px #fff`
+            : '0 16px 36px -12px rgba(12, 42, 67, 0.08), inset 0 1px 2px #fff'
       }}
     >
       {/* Radiant Color Halo Glow Behind Center Card */}
@@ -392,7 +414,7 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
             >
               {project.num}
             </span>
-            <span style={{ color: 'rgba(12, 42, 67, 0.3)', fontSize: 10 }}>·</span>
+            <span style={{ color: isDark ? 'rgba(255, 255, 255, 0.35)' : 'rgba(12, 42, 67, 0.3)', fontSize: 10 }}>·</span>
             <span
               style={{
                 fontSize: 9.5,
@@ -400,13 +422,13 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
                 letterSpacing: '0.1em',
                 fontWeight: 700,
                 textTransform: 'uppercase',
-                color: 'rgba(12, 42, 67, 0.55)'
+                color: isDark ? 'rgba(203, 213, 225, 0.72)' : 'rgba(12, 42, 67, 0.55)'
               }}
             >
               {project.role}
             </span>
           </div>
-          <StatusPill status={project.status} />
+          <StatusPill status={project.status} isDark={isDark} />
         </div>
 
         {/* ROW 2: Landing Page / Front Page Preview Showcase */}
@@ -419,9 +441,15 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
             marginBottom: 12,
             borderRadius: 14,
             overflow: 'hidden',
-            background: isMobileApp ? 'rgba(12, 42, 67, 0.04)' : '#ffffff',
-            border: '1.5px solid rgba(12, 42, 67, 0.1)',
-            boxShadow: '0 8px 20px -6px rgba(12, 42, 67, 0.09)',
+            background: isDark
+              ? '#0b0f19'
+              : isMobileApp ? 'rgba(12, 42, 67, 0.04)' : '#ffffff',
+            border: isDark
+              ? '1.5px solid rgba(255, 255, 255, 0.12)'
+              : '1.5px solid rgba(12, 42, 67, 0.1)',
+            boxShadow: isDark
+              ? '0 8px 20px -6px rgba(0, 0, 0, 0.5)'
+              : '0 8px 20px -6px rgba(12, 42, 67, 0.09)',
             display: 'flex',
             flexDirection: 'column',
             flexShrink: 0
@@ -438,7 +466,9 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
                 alignItems: 'center',
                 justifyContent: 'center',
                 padding: '4px',
-                background: 'linear-gradient(135deg, rgba(248,250,252,0.95) 0%, rgba(241,245,249,0.95) 100%)'
+                background: isDark
+                  ? 'linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(11,15,25,0.95) 100%)'
+                  : 'linear-gradient(135deg, rgba(248,250,252,0.95) 0%, rgba(241,245,249,0.95) 100%)'
               }}
             >
               <div
@@ -490,8 +520,8 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
                   alignItems: 'center',
                   gap: 4.5,
                   padding: '5px 9px',
-                  background: 'rgba(12, 42, 67, 0.04)',
-                  borderBottom: '1px solid rgba(12, 42, 67, 0.08)',
+                  background: isDark ? 'rgba(15, 23, 42, 0.9)' : 'rgba(12, 42, 67, 0.04)',
+                  borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(12, 42, 67, 0.08)',
                   flexShrink: 0
                 }}
               >
@@ -504,8 +534,8 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
                     fontSize: 9,
                     fontFamily: 'monospace',
                     fontWeight: 600,
-                    color: 'rgba(12, 42, 67, 0.55)',
-                    background: 'rgba(255, 255, 255, 0.85)',
+                    color: isDark ? 'rgba(203, 213, 225, 0.78)' : 'rgba(12, 42, 67, 0.55)',
+                    background: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(255, 255, 255, 0.85)',
                     padding: '1px 7px',
                     borderRadius: 5,
                     lineHeight: 1.3,
@@ -561,13 +591,13 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
               <ProjectGlyph project={project} size={34} />
             </div>
 
-            {/* Crisp Bold Navy Title */}
+            {/* Crisp Bold Title */}
             <h3
               style={{
                 fontSize: dims.title || 22,
                 fontWeight: 800,
                 letterSpacing: '-0.025em',
-                color: '#0c2a43',
+                color: isDark ? '#f8fafc' : '#0c2a43',
                 margin: 0,
                 lineHeight: 1.15,
                 overflow: 'hidden',
@@ -589,12 +619,12 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
             style={{
               padding: '5px 12px',
               borderRadius: 999,
-              background: 'rgba(255, 255, 255, 0.9)',
+              background: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.9)',
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)',
-              border: '1px solid rgba(12, 42, 67, 0.14)',
-              color: '#0c2a43',
-              boxShadow: '0 2px 8px rgba(12, 42, 67, 0.05)',
+              border: isDark ? '1px solid rgba(255, 255, 255, 0.18)' : '1px solid rgba(12, 42, 67, 0.14)',
+              color: isDark ? '#f8fafc' : '#0c2a43',
+              boxShadow: isDark ? '0 2px 8px rgba(0, 0, 0, 0.25)' : '0 2px 8px rgba(12, 42, 67, 0.05)',
               fontSize: 11,
               fontWeight: 700,
               cursor: 'pointer',
@@ -612,7 +642,7 @@ function ProjectGlassCard({ project, dims, isCenter, onActivate, onDetails }) {
           style={{
             fontSize: 12,
             lineHeight: 1.45,
-            color: 'rgba(12, 42, 67, 0.72)',
+            color: isDark ? 'rgba(203, 213, 225, 0.8)' : 'rgba(12, 42, 67, 0.72)',
             margin: '8px 0 0',
             display: '-webkit-box',
             WebkitLineClamp: 2,
@@ -718,7 +748,9 @@ export default function Projects() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [selectedProject, setSelectedProject] = useState(null)
   const isMobile = useSyncExternalStore(subscribeResize, getIsMobile, getServerIsMobile)
+  const isDark = useSyncExternalStore(subscribeTheme, getIsDark, getServerIsDark)
   const reduceMotion = useReducedMotion()
+  const tagChip = getTagChip(isDark)
 
   const dragRef = useRef({ active: false, startX: 0, moved: false })
   const wheelLockRef = useRef(false)
@@ -864,14 +896,16 @@ export default function Projects() {
         position: 'relative',
         overflow: 'hidden',
         padding: '76px 16px 115px',
-        color: '#0c2a43',
+        color: isDark ? '#f8fafc' : '#0c2a43',
         userSelect: 'none',
-        background:
-          'radial-gradient(75% 45% at 50% 60%, rgba(186, 230, 253, 0.28) 0%, rgba(255, 255, 255, 0) 70%), #ffffff'
+        background: isDark
+          ? 'radial-gradient(75% 45% at 50% 60%, rgba(14, 165, 233, 0.14) 0%, rgba(11, 13, 18, 0) 70%), #0b0d12'
+          : 'radial-gradient(75% 45% at 50% 60%, rgba(186, 230, 253, 0.28) 0%, rgba(255, 255, 255, 0) 70%), #ffffff',
+        transition: 'background 0.3s ease, color 0.3s ease'
       }}
     >
       <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <ProjectsTitle />
+        <ProjectsTitle isDark={isDark} />
 
         {/* Carousel stage */}
         <div
@@ -945,6 +979,7 @@ export default function Projects() {
                     project={project}
                     dims={dims}
                     isCenter={isCenter}
+                    isDark={isDark}
                     onActivate={() => activate(idx, isCenter, project)}
                     onDetails={() => {
                       playGlassSound()
@@ -982,12 +1017,12 @@ export default function Projects() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'rgba(255, 255, 255, 0.9)',
+              background: isDark ? 'rgba(20, 26, 40, 0.9)' : 'rgba(255, 255, 255, 0.9)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              border: '1.5px solid rgba(255, 255, 255, 0.95)',
-              color: '#0c2a43',
-              boxShadow: '0 4px 16px rgba(12, 42, 67, 0.1)',
+              border: isDark ? '1.5px solid rgba(255, 255, 255, 0.16)' : '1.5px solid rgba(255, 255, 255, 0.95)',
+              color: isDark ? '#f8fafc' : '#0c2a43',
+              boxShadow: isDark ? '0 4px 16px rgba(0, 0, 0, 0.4)' : '0 4px 16px rgba(12, 42, 67, 0.1)',
               cursor: 'pointer',
               outline: 'none'
             }}
@@ -1003,11 +1038,11 @@ export default function Projects() {
               gap: 14,
               padding: '8px 18px',
               borderRadius: 999,
-              background: 'rgba(255, 255, 255, 0.85)',
+              background: isDark ? 'rgba(20, 26, 40, 0.88)' : 'rgba(255, 255, 255, 0.85)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              border: '1.5px solid rgba(255, 255, 255, 0.95)',
-              boxShadow: '0 8px 24px -4px rgba(12, 42, 67, 0.1)'
+              border: isDark ? '1.5px solid rgba(255, 255, 255, 0.14)' : '1.5px solid rgba(255, 255, 255, 0.95)',
+              boxShadow: isDark ? '0 8px 24px -4px rgba(0, 0, 0, 0.45)' : '0 8px 24px -4px rgba(12, 42, 67, 0.1)'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -1026,8 +1061,10 @@ export default function Projects() {
                       height: 7,
                       width: active ? 26 : 7,
                       borderRadius: 999,
-                      background: active ? '#0284c7' : 'rgba(12, 42, 67, 0.22)',
-                      boxShadow: active ? '0 0 10px rgba(2, 132, 199, 0.4)' : 'none',
+                      background: active
+                        ? isDark ? '#38bdf8' : '#0284c7'
+                        : isDark ? 'rgba(255, 255, 255, 0.25)' : 'rgba(12, 42, 67, 0.22)',
+                      boxShadow: active ? '0 0 10px rgba(56, 189, 248, 0.45)' : 'none',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       border: 'none',
                       padding: 0,
@@ -1042,7 +1079,7 @@ export default function Projects() {
                 fontSize: 12,
                 fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
                 fontWeight: 700,
-                color: '#0c2a43',
+                color: isDark ? '#f8fafc' : '#0c2a43',
                 letterSpacing: '0.04em'
               }}
             >
@@ -1064,12 +1101,12 @@ export default function Projects() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: 'rgba(255, 255, 255, 0.9)',
+              background: isDark ? 'rgba(20, 26, 40, 0.9)' : 'rgba(255, 255, 255, 0.9)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              border: '1.5px solid rgba(255, 255, 255, 0.95)',
-              color: '#0c2a43',
-              boxShadow: '0 4px 16px rgba(12, 42, 67, 0.1)',
+              border: isDark ? '1.5px solid rgba(255, 255, 255, 0.16)' : '1.5px solid rgba(255, 255, 255, 0.95)',
+              color: isDark ? '#f8fafc' : '#0c2a43',
+              boxShadow: isDark ? '0 4px 16px rgba(0, 0, 0, 0.4)' : '0 4px 16px rgba(12, 42, 67, 0.1)',
               cursor: 'pointer',
               outline: 'none'
             }}
@@ -1109,14 +1146,18 @@ export default function Projects() {
                 width: '100%',
                 maxWidth: 640,
                 borderRadius: 28,
-                color: '#0c2a43',
-                background:
-                  'linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(240, 249, 255, 0.92) 100%)',
+                color: isDark ? '#f8fafc' : '#0c2a43',
+                background: isDark
+                  ? 'linear-gradient(165deg, rgba(19, 25, 39, 0.98) 0%, rgba(11, 15, 25, 0.96) 100%)'
+                  : 'linear-gradient(165deg, rgba(255, 255, 255, 0.96) 0%, rgba(240, 249, 255, 0.92) 100%)',
                 backdropFilter: 'blur(26px) saturate(180%)',
                 WebkitBackdropFilter: 'blur(26px) saturate(180%)',
-                border: '1.5px solid rgba(255, 255, 255, 0.95)',
-                boxShadow:
-                  '0 30px 80px -20px rgba(12, 42, 67, 0.25), inset 0 1.5px 2px #fff'
+                border: isDark
+                  ? '1.5px solid rgba(255, 255, 255, 0.14)'
+                  : '1.5px solid rgba(255, 255, 255, 0.95)',
+                boxShadow: isDark
+                  ? '0 30px 80px -20px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255,255,255,0.1)'
+                  : '0 30px 80px -20px rgba(12, 42, 67, 0.25), inset 0 1.5px 2px #fff'
               }}
             >
               {/* Glass Specular Light Sheen */}
@@ -1125,8 +1166,9 @@ export default function Projects() {
                 style={{
                   position: 'absolute',
                   inset: 0,
-                  background:
-                    'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 40%, transparent 70%)',
+                  background: isDark
+                    ? 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.01) 40%, transparent 70%)'
+                    : 'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.2) 40%, transparent 70%)',
                   pointerEvents: 'none',
                   borderRadius: 'inherit'
                 }}
@@ -1143,9 +1185,9 @@ export default function Projects() {
                     right: 16,
                     padding: 8,
                     borderRadius: 10,
-                    color: '#0c2a43',
-                    background: 'rgba(12, 42, 67, 0.06)',
-                    border: '1px solid rgba(12, 42, 67, 0.08)',
+                    color: isDark ? '#f8fafc' : '#0c2a43',
+                    background: isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(12, 42, 67, 0.06)',
+                    border: isDark ? '1px solid rgba(255, 255, 255, 0.14)' : '1px solid rgba(12, 42, 67, 0.08)',
                     cursor: 'pointer'
                   }}
                 >
@@ -1168,12 +1210,12 @@ export default function Projects() {
                     <ProjectGlyph project={selectedProject} size={56} />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em', color: '#0c2a43', margin: 0 }}>
+                    <h3 style={{ fontSize: 28, fontWeight: 800, letterSpacing: '-0.02em', color: isDark ? '#f8fafc' : '#0c2a43', margin: 0 }}>
                       {selectedProject.title}
                     </h3>
                   </div>
                   <div style={{ marginLeft: 'auto', marginRight: 42 }}>
-                    <StatusPill status={selectedProject.status} />
+                    <StatusPill status={selectedProject.status} isDark={isDark} />
                   </div>
                 </div>
 
@@ -1189,9 +1231,9 @@ export default function Projects() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        background: 'rgba(12, 42, 67, 0.04)',
+                        background: isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(12, 42, 67, 0.04)',
                         borderRadius: 20,
-                        border: '1px solid rgba(12, 42, 67, 0.1)'
+                        border: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(12, 42, 67, 0.1)'
                       }}
                     >
                       <div
@@ -1235,9 +1277,9 @@ export default function Projects() {
                         borderRadius: 16,
                         overflow: 'hidden',
                         margin: '14px 0 18px',
-                        background: '#ffffff',
-                        border: '1.5px solid rgba(12, 42, 67, 0.1)',
-                        boxShadow: '0 12px 28px -8px rgba(12, 42, 67, 0.12)',
+                        background: isDark ? '#0b0f19' : '#ffffff',
+                        border: isDark ? '1.5px solid rgba(255, 255, 255, 0.12)' : '1.5px solid rgba(12, 42, 67, 0.1)',
+                        boxShadow: isDark ? '0 12px 28px -8px rgba(0, 0, 0, 0.5)' : '0 12px 28px -8px rgba(12, 42, 67, 0.12)',
                         display: 'flex',
                         flexDirection: 'column'
                       }}
@@ -1249,8 +1291,8 @@ export default function Projects() {
                           display: 'flex',
                           alignItems: 'center',
                           gap: 6,
-                          background: 'rgba(248, 250, 252, 0.95)',
-                          borderBottom: '1px solid rgba(12, 42, 67, 0.08)'
+                          background: isDark ? 'rgba(15, 23, 42, 0.95)' : 'rgba(248, 250, 252, 0.95)',
+                          borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(12, 42, 67, 0.08)'
                         }}
                       >
                         <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#ff5f56' }} />
@@ -1261,7 +1303,7 @@ export default function Projects() {
                             marginLeft: 8,
                             fontSize: 10,
                             fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-                            color: 'rgba(12, 42, 67, 0.55)'
+                            color: isDark ? 'rgba(203, 213, 225, 0.75)' : 'rgba(12, 42, 67, 0.55)'
                           }}
                         >
                           {selectedProject.liveLink ? selectedProject.liveLink : `${selectedProject.title.toLowerCase()}.dev`}
@@ -1278,7 +1320,7 @@ export default function Projects() {
                   )
                 )}
 
-                <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'rgba(12, 42, 67, 0.72)', marginBottom: 20 }}>
+                <p style={{ fontSize: 14.5, lineHeight: 1.6, color: isDark ? 'rgba(203, 213, 225, 0.85)' : 'rgba(12, 42, 67, 0.72)', marginBottom: 20 }}>
                   {selectedProject.fullDescription}
                 </p>
 
@@ -1297,7 +1339,7 @@ export default function Projects() {
                     flexWrap: 'wrap',
                     gap: 12,
                     paddingTop: 18,
-                    borderTop: '1px solid rgba(12, 42, 67, 0.1)'
+                    borderTop: isDark ? '1px solid rgba(255, 255, 255, 0.12)' : '1px solid rgba(12, 42, 67, 0.1)'
                   }}
                 >
                   {selectedProject.liveLink && (
